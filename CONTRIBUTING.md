@@ -59,17 +59,37 @@ These are intimate devices, not 3D printers. If your mod changes how a device
 **electrical / charging**, set the relevant `safety` flag to `true` and describe
 it in `notes`. Flagged mods get an explicit **safety review** before merge.
 
-## 4. License (fixed — not your choice)
+## 3b. Two kinds of mods: hosted vs external/linked
 
-By submitting you agree your contribution is licensed under the unified RAD
-model, matching the product it modifies:
+- **Hosted mod (default):** the design files live here, in your `mods/...`
+  folder. License is **fixed** by this repo (see §4) — omit any `license` field.
+- **External / linked mod:** the mod already lives in **your own repository**
+  (e.g. a standalone OSSM accessory project). Instead of copying it in, you
+  **index** it: add `source_url:` (your repo) and `license:` (your repo's SPDX
+  id) to `mod.yml`, a `README.md` that links upstream, and at least one image
+  (a URL is fine — point at your repo's raw image). No `cad/` is required here
+  since the files live upstream. Its license **may differ** from the repo
+  default, and you must declare it — see
+  [`mods/ossm/ortlof/m5-remote/`](mods/ossm/ortlof/m5-remote/) for a worked
+  example (CC-BY-SA-4.0). `mod-lint` requires `license` exactly when `source_url`
+  is set, and forbids it otherwise.
 
-- Hardware / printable design files (`cad/`, `print/`) → **CERN-OHL-S v2**
+## 4. License (fixed for hosted mods — not your choice)
+
+For a **hosted** mod, by submitting you agree your contribution is licensed
+under the unified RAD model, matching the product it modifies:
+
+- Hardware / printable design files (`cad`, `print`) → **CERN-OHL-S v2**
 - Software / firmware (any code) → **MPL 2.0**
 - Docs and images → **CERN-OHL-S v2**
 
-Do **not** add a per-mod `LICENSE` file or a different license. See
-[LICENSE](LICENSE).
+Do **not** add a per-mod `LICENSE` file or pick a different license for a hosted
+mod. See [LICENSE](LICENSE).
+
+For an **external / linked** mod (§3b), the upstream license governs — declare
+it in `mod.yml` `license:`. It can differ from the default; we link to it rather
+than relicense it. Still no per-mod `LICENSE` file here — the declaration lives
+in `mod.yml`.
 
 ### DCO sign-off (required)
 

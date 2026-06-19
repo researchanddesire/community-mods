@@ -37,9 +37,14 @@ rotation handles the rest.
 
 ## License
 
-Contributions follow the unified RAD license model — **CERN-OHL-S v2** for
+**Hosted mods** follow the unified RAD license model — **CERN-OHL-S v2** for
 hardware/printable design files, **MPL 2.0** for any software. No contributor
 license choice. See [LICENSE](LICENSE).
+
+**External / linked mods** (hosted in the author's own repo and indexed here)
+keep their **upstream license**, declared in `mod.yml` — it may differ from the
+default. Example: [`mods/ossm/ortlof/m5-remote/`](mods/ossm/ortlof/m5-remote/)
+is CC-BY-SA-4.0. See [CONTRIBUTING.md](CONTRIBUTING.md) §3b.
 
 ## Related
 

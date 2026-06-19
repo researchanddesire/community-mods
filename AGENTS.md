@@ -13,11 +13,16 @@ Community-contributed mods for RAD products, one per folder at
 
 - Keep exactly the `mods/<product>/<author>/<mod_name>/` depth. No spaces in
   names. No nesting deeper than `<mod_name>/`.
-- Each mod must have: a `cad/` file (STEP), at least one `img/` image, a
-  `README.md`, and a `mod.yml`. Print files go in `print/` (LFS).
-- **License is fixed, not a choice:** hardware/printable → CERN-OHL-S v2;
-  software → MPL 2.0; docs/images → CERN-OHL-S v2. Never add a per-mod `LICENSE`
-  or a different license. The root `LICENSE` path-map governs.
+- **Hosted mod:** must have a `cad/` file (STEP), at least one `img/` image, a
+  `README.md`, and a `mod.yml`. Print files go in `print/` (LFS). License is
+  **fixed**: hardware/printable → CERN-OHL-S v2; software → MPL 2.0;
+  docs/images → CERN-OHL-S v2. The root `LICENSE` path-map governs; `mod.yml`
+  must NOT set a `license`.
+- **External / linked mod:** files live in the author's own repo. `mod.yml` sets
+  `source_url:` (upstream) and `license:` (upstream SPDX id — may differ from the
+  default). No `cad/` required; an image URL is fine. Still no per-mod `LICENSE`
+  file. `mod-lint` requires `license` iff `source_url` is set.
+- Never add a per-mod `LICENSE` file in either case.
 - Fill the `mod.yml` `safety` block — never leave it blank. Set the
   restraint-release / applied-force / electrical flags honestly.
 - `.github/workflows/scripts/mod.schema.json` is the **canonical** mod schema
@@ -28,9 +33,10 @@ Community-contributed mods for RAD products, one per folder at
 
 Required keys: `title`, `author`, `product` (enum), `description`,
 `mod_version` (int ≥ 1), `compatibility` (non-empty list), `images` (non-empty
-list of paths), `safety` (object with the three boolean flags + `notes`).
-There is **no `license` key**. Full schema:
-`.github/workflows/scripts/mod.schema.json`.
+list of paths or URLs), `safety` (object with the three boolean flags + `notes`).
+Optional: `tags`. External/linked mods add `source_url` (upstream repo) and
+`license` (upstream SPDX id) — `license` is required iff `source_url` is set, and
+forbidden otherwise. Full schema: `.github/workflows/scripts/mod.schema.json`.
 
 ## Validation
 

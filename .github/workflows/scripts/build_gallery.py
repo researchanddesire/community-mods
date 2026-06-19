@@ -61,7 +61,13 @@ def collect_mods() -> list[dict]:
                     continue
                 rel = os.path.relpath(mdir, REPO_ROOT).replace(os.sep, "/")
                 images = data.get("images") or []
-                thumb = f"{rel}/{images[0]}" if images else ""
+                first = images[0] if images else ""
+                if isinstance(first, str) and first.startswith(("http://", "https://")):
+                    thumb = first
+                elif first:
+                    thumb = f"{rel}/{first}"
+                else:
+                    thumb = ""
                 mods.append(
                     {
                         "title": str(data.get("title", mod)),
@@ -70,6 +76,8 @@ def collect_mods() -> list[dict]:
                         "description": str(data.get("description", "")),
                         "compatibility": data.get("compatibility") or [],
                         "thumb": thumb,
+                        "source_url": str(data.get("source_url") or ""),
+                        "license": str(data.get("license") or ""),
                         "folder": f"{REPO_URL}/tree/main/{rel}",
                         "readme": f"{REPO_URL}/blob/main/{rel}/README.md",
                     }
@@ -103,7 +111,9 @@ def render(mods: list[dict]) -> str:
   .card {{ background:var(--card); border:1px solid #2a2f3a; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }}
   .card img {{ width:100%; height:170px; object-fit:cover; background:#11141a; }}
   .card .body {{ padding:.9rem 1rem 1rem; display:flex; flex-direction:column; gap:.4rem; flex:1; }}
+  .chips {{ display:flex; gap:.4rem; align-items:center; flex-wrap:wrap; }}
   .badge {{ align-self:flex-start; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); border:1px solid var(--accent); border-radius:999px; padding:.1rem .5rem; }}
+  .lic {{ font-size:.7rem; color:#e0b25a; border:1px solid #e0b25a; border-radius:999px; padding:.1rem .5rem; }}
   .card h3 {{ margin:.1rem 0 0; font-size:1.05rem; }}
   .card .desc {{ color:var(--muted); font-size:.92rem; flex:1; }}
   .card .meta {{ color:var(--muted); font-size:.8rem; }}
@@ -132,12 +142,16 @@ const product = document.getElementById('product');
 function card(m) {{
   const img = m.thumb ? `<img src="${{m.thumb}}" alt="" loading="lazy">` : '';
   const compat = (m.compatibility || []).join(', ');
+  const lic = m.license ? `<span class="lic" title="License differs from repo default">${{m.license}}</span>` : '';
+  const primary = m.source_url
+    ? `<a href="${{m.source_url}}">Upstream source ↗</a>`
+    : `<a href="${{m.folder}}">View folder</a>`;
   return `<div class="card">${{img}}<div class="body">
-    <span class="badge">${{m.product}}</span>
+    <div class="chips"><span class="badge">${{m.product}}</span>${{lic}}</div>
     <h3>${{m.title}}</h3>
     <div class="desc">${{m.description}}</div>
     <div class="meta">by ${{m.author}}${{compat ? ' · ' + compat : ''}}</div>
-    <div class="links"><a href="${{m.readme}}">Open README</a><a href="${{m.folder}}">View folder</a></div>
+    <div class="links"><a href="${{m.readme}}">Open README</a>${{primary}}</div>
   </div></div>`;
 }}
 function render() {{
@@ -165,8 +179,8 @@ def main() -> int:
     # generated index.html resolves them.
     for m in mods:
         thumb = m.get("thumb")
-        if not thumb:
-            continue
+        if not thumb or thumb.startswith(("http://", "https://")):
+            continue  # nothing to copy (no thumb, or an external URL)
         src = os.path.join(REPO_ROOT, thumb)
         dst = os.path.join(OUT_DIR, thumb)
         if os.path.isfile(src):

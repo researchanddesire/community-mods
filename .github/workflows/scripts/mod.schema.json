@@ -15,6 +15,9 @@
     "images",
     "safety"
   ],
+  "if": { "required": ["source_url"] },
+  "then": { "required": ["license"] },
+  "else": { "not": { "required": ["license"] } },
   "properties": {
     "title": {
       "type": "string",
@@ -58,6 +61,17 @@
       "type": "array",
       "items": { "type": "string", "minLength": 1 },
       "description": "Optional free-form tags for discoverability."
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://",
+      "description": "Set ONLY for an external/linked mod whose files live in the author's own repo. Its presence makes this an index entry (files are not hosted here) and requires the 'license' field."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ONLY allowed (and required) for external/linked mods (when source_url is set): the upstream SPDX license id, e.g. CC-BY-SA-4.0. Hosted mods must omit this — their license is fixed by the root LICENSE path-map."
     },
     "safety": {
       "type": "object",

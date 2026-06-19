@@ -10,12 +10,15 @@ Checks (structure, not taste):
   - folder depth is exactly mods/<product>/<author>/<mod_name>/
   - no whitespace in any path component under mods/
   - mod.yml + README.md present
-  - at least one CAD file in cad/ (a .step is required)
-  - at least one image in img/
+  - hosted mods: at least one CAD file in cad/ (a .step is required)
+  - external/linked mods (mod.yml has source_url): CAD not required here (files
+    live upstream); license must be declared (enforced by schema)
+  - at least one image in img/ (local file or a URL for external mods)
   - mod.yml validates against mod.schema.json (JSON Schema draft-07)
   - mod.yml.product matches the product folder; author matches the author folder
-  - every path in mod.yml.images exists
-  - no rogue per-mod LICENSE file (license is fixed by the root path-map)
+  - every local (non-URL) path in mod.yml.images exists
+  - no rogue per-mod LICENSE file (hosted license is fixed by the root path-map;
+    external license is declared in mod.yml, not as a file)
 """
 
 from __future__ import annotations
@@ -99,14 +102,6 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
     ):
         errors.append(f"{rel}: remove per-mod LICENSE — license is fixed by the root path-map")
 
-    # CAD + image presence
-    if not has_file_with_ext(os.path.join(mod_dir, "cad"), CAD_EXTS):
-        errors.append(f"{rel}: cad/ must contain at least one CAD file (.step required)")
-    elif not has_file_with_ext(os.path.join(mod_dir, "cad"), {".step", ".stp"}):
-        errors.append(f"{rel}: cad/ must include a STEP (.step) file (open format)")
-    if not has_file_with_ext(os.path.join(mod_dir, "img"), IMG_EXTS):
-        errors.append(f"{rel}: img/ must contain at least one image")
-
     if not os.path.isfile(mod_yml):
         return errors
 
@@ -126,6 +121,23 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
         loc = "/".join(str(p) for p in err.path) or "(root)"
         errors.append(f"{rel}/mod.yml: {loc}: {err.message}")
 
+    is_external = bool(data.get("source_url"))
+
+    # CAD presence — only required for hosted mods (external files live upstream).
+    if not is_external:
+        if not has_file_with_ext(os.path.join(mod_dir, "cad"), CAD_EXTS):
+            errors.append(f"{rel}: cad/ must contain at least one CAD file (.step required)")
+        elif not has_file_with_ext(os.path.join(mod_dir, "cad"), {".step", ".stp"}):
+            errors.append(f"{rel}: cad/ must include a STEP (.step) file (open format)")
+
+    # Image presence — local img/ file, or (external mods) a URL in mod.yml.images.
+    imgs = data.get("images", []) or []
+    has_url_img = any(isinstance(i, str) and i.startswith(("http://", "https://")) for i in imgs)
+    if not has_file_with_ext(os.path.join(mod_dir, "img"), IMG_EXTS) and not (
+        is_external and has_url_img
+    ):
+        errors.append(f"{rel}: needs at least one image (img/ file, or a URL for external mods)")
+
     if data.get("product") not in (None,) and data.get("product") != product:
         errors.append(
             f"{rel}/mod.yml: product '{data.get('product')}' != folder '{product}'"
@@ -135,9 +147,10 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
             f"{rel}/mod.yml: author '{data.get('author')}' != folder '{author}'"
         )
 
-    for img in data.get("images", []) or []:
-        if isinstance(img, str) and not os.path.isfile(os.path.join(mod_dir, img)):
-            errors.append(f"{rel}/mod.yml: image not found: {img}")
+    for img in imgs:
+        if isinstance(img, str) and not img.startswith(("http://", "https://")):
+            if not os.path.isfile(os.path.join(mod_dir, img)):
+                errors.append(f"{rel}/mod.yml: image not found: {img}")
 
     return errors
 

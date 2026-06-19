@@ -37,16 +37,26 @@ mods/<product>/<author>/<mod_name>/
 | `compatibility` | list        | yes      | non-empty; only tested models/revs |
 | `images`        | list        | yes      | non-empty; relative paths that exist |
 | `safety`        | object      | yes      | `affects_restraint_release`, `affects_applied_force`, `affects_electrical` (booleans) + `notes` |
+| `source_url`    | uri         | external only | Upstream repo. Its presence marks the mod as external/linked (files live upstream) |
+| `license`       | string      | external only | Upstream SPDX id (e.g. `CC-BY-SA-4.0`). Required iff `source_url` is set; forbidden otherwise |
 
-There is **no `license` key** — license is fixed (below).
+Hosted mods have **no `license` key** — license is fixed (below). External/linked
+mods declare the upstream `license` (which may differ) alongside `source_url`.
 
-## License (fixed — not contributor choice)
+## License
+
+**Hosted mods (fixed — not contributor choice):**
 
 - Hardware / printable (`cad/`, `print/`) → **CERN-OHL-S v2**
 - Software / firmware (any code) → **MPL 2.0**
 - Docs / images → **CERN-OHL-S v2**
 
-Never add a per-mod `LICENSE` file. The root `LICENSE` path-map governs.
+**External / linked mods:** keep their upstream license, declared in `mod.yml`
+`license:` (may differ from the default — e.g. CC-BY-SA-4.0). We index/link, not
+relicense.
+
+Never add a per-mod `LICENSE` file in either case. The root `LICENSE` path-map
+governs hosted content.
 
 ## Safety
 
