@@ -153,22 +153,24 @@ def render(mods: list[dict]) -> str:
   :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; }}
   * {{ box-sizing:border-box; }}
   body {{ margin:0; font:16px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--fg); }}
-  header {{ padding:2rem 1.5rem 1rem; max-width:1100px; margin:0 auto; }}
+  .topbar {{ position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid #2a2f3a; padding-bottom:1rem; }}
+  header {{ padding:1.5rem 1.5rem .75rem; max-width:1100px; margin:0 auto; }}
   h1 {{ margin:0 0 .25rem; }}
   .sub {{ color:var(--muted); }}
-  .controls {{ display:flex; gap:.75rem; flex-wrap:wrap; max-width:1100px; margin:1rem auto 0; padding:0 1.5rem; }}
+  .controls {{ display:flex; gap:.75rem; flex-wrap:wrap; max-width:1100px; margin:0 auto; padding:0 1.5rem; }}
   input,select {{ background:var(--card); color:var(--fg); border:1px solid #2a2f3a; border-radius:8px; padding:.6rem .8rem; font:inherit; }}
   input {{ flex:1; min-width:200px; }}
   .layout {{ display:flex; gap:1.5rem; max-width:1100px; margin:1.5rem auto; padding:0 1.5rem 3rem; align-items:flex-start; }}
-  .sidebar {{ flex:0 0 220px; position:sticky; top:1rem; }}
-  .sidebar h2 {{ font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 .6rem; }}
+  .sidebar {{ flex:0 0 220px; position:sticky; top:calc(var(--topbar-h, 0px) + 1rem); }}
+  .sidebar-head {{ display:flex; align-items:baseline; justify-content:space-between; gap:.5rem; margin:0 0 .6rem; }}
+  .sidebar h2 {{ font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0; }}
   .sidebar .tags {{ display:flex; flex-direction:column; gap:.3rem; }}
   .tagbtn {{ display:flex; justify-content:space-between; gap:.5rem; align-items:center; background:var(--card); color:var(--fg); border:1px solid #2a2f3a; border-radius:8px; padding:.4rem .7rem; font:inherit; font-size:.9rem; cursor:pointer; text-align:left; }}
   .tagbtn:hover {{ border-color:var(--accent); }}
   .tagbtn.active {{ background:var(--accent); color:#08191a; border-color:var(--accent); font-weight:600; }}
   .tagbtn .count {{ font-size:.75rem; color:var(--muted); }}
   .tagbtn.active .count {{ color:#08191a; }}
-  .clear {{ background:none; border:none; color:var(--accent); font:inherit; font-size:.85rem; cursor:pointer; padding:.4rem 0 0; }}
+  .clear {{ background:none; border:none; color:var(--accent); font:inherit; font-size:.8rem; cursor:pointer; padding:0; white-space:nowrap; }}
   .main {{ flex:1; min-width:0; }}
   .grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem; }}
   @media (max-width:720px) {{
@@ -224,6 +226,7 @@ def render(mods: list[dict]) -> str:
 </style>
 </head>
 <body>
+<div class="topbar">
 <header>
   <h1>RAD Mod Hub</h1>
   <p class="sub">Community-built upgrades for Research and Desire products.
@@ -233,11 +236,14 @@ def render(mods: list[dict]) -> str:
   <input id="q" type="search" placeholder="Search mods…" autocomplete="off">
   <select id="product"><option value="">All products</option>{options}</select>
 </div>
+</div>
 <div class="layout">
   <aside class="sidebar">
-    <h2>Browse by tag</h2>
+    <div class="sidebar-head">
+      <h2>Browse by tag</h2>
+      <button class="clear" id="clear" hidden>Clear tags</button>
+    </div>
     <div class="tags" id="tags"></div>
-    <button class="clear" id="clear" hidden>Clear tags</button>
   </aside>
   <main class="main"><div class="grid" id="grid"></div></main>
 </div>
@@ -274,8 +280,7 @@ function card(m) {{
     : '';
   const links = external
     ? `<a href="${{m.source_url}}" target="_blank" rel="noopener" data-stop>Upstream source ↗</a>`
-    : `<a href="${{m.readme}}" target="_blank" rel="noopener" data-stop>View README on GitHub ↗</a>`
-      + `<a href="${{m.folder}}" target="_blank" rel="noopener" data-stop>Browse files ↗</a>`;
+    : `<a href="${{m.folder}}" target="_blank" rel="noopener" data-stop>View in mod repo ↗</a>`;
   return `<div class="card" data-id="${{m.id}}" role="button" tabindex="0">${{img}}<div class="body">
     <div class="chips"><span class="badge">${{m.product}}</span>${{extBadge}}${{lic}}</div>
     <h3>${{m.title}}</h3>
@@ -328,8 +333,7 @@ function openModal(m) {{
     : '';
   modalActions.innerHTML = external
     ? `<a href="${{m.source_url}}" target="_blank" rel="noopener">Upstream source ↗</a>`
-    : `<a href="${{m.readme}}" target="_blank" rel="noopener">View README on GitHub ↗</a>`
-      + `<a href="${{m.folder}}" target="_blank" rel="noopener">Browse files ↗</a>`;
+    : `<a href="${{m.folder}}" target="_blank" rel="noopener">View in mod repo ↗</a>`;
   const body = m.readme_html || `<p>${{m.description || ''}}</p>`;
   modalContent.innerHTML = `<div class="modal-hero">`
     + `<div class="chips"><span class="badge">${{m.product}}</span>${{extBadge}}${{lic}}</div>`
@@ -367,6 +371,13 @@ tagsEl.addEventListener('click', e => {{
 clearBtn.addEventListener('click', () => {{ selectedTags.clear(); render(); }});
 q.addEventListener('input', render);
 product.addEventListener('change', render);
+// Keep the sticky sidebar parked just below the sticky top bar, whatever its
+// height (it grows when the description wraps on narrow viewports).
+const topbar = document.querySelector('.topbar');
+function setTopbarH() {{ document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px'); }}
+if (window.ResizeObserver) new ResizeObserver(setTopbarH).observe(topbar);
+window.addEventListener('resize', setTopbarH);
+setTopbarH();
 render();
 </script>
 </body>
