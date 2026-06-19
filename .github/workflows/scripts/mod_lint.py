@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Validate every mods/<product>/<author>/<mod_name>/ against the RAD mod standard.
 
-Schema source of truth: researchanddesire/dev-docs schemas/mod.schema.json
-(vendored read-only to .github/workflows/scripts/mod.schema.json).
-See https://dev.researchanddesire.com/meta/mod-standard/ and CONTRIBUTING.md.
+Schema source of truth: .github/workflows/scripts/mod.schema.json (canonical
+in this repo — the mod standard has a single consumer, so it is not vendored
+from dev-docs the way the cross-product BOM schema is).
+See CONTRIBUTING.md and https://dev.researchanddesire.com/meta/community-mods/.
 
 Checks (structure, not taste):
   - folder depth is exactly mods/<product>/<author>/<mod_name>/

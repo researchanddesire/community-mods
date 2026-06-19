@@ -7,8 +7,9 @@ alwaysApply: false
 # Community mod standard (RAD)
 
 When creating or editing a mod under `mods/`, follow this contract. The schema is
-vendored read-only at `.github/workflows/scripts/mod.schema.json` (canonical
-source: `researchanddesire/dev-docs`) — do not hand-edit it.
+canonical here at `.github/workflows/scripts/mod.schema.json` (this repo is the
+only consumer, so it is not vendored from dev-docs). Edit it deliberately when
+the standard changes — `mod-lint` enforces it.
 
 ## Folder layout (exact)
 

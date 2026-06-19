@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://dev.researchanddesire.com/schemas/mod.schema.json",
+  "$id": "https://mods.researchanddesire.com/mod.schema.json",
   "title": "RAD Community Mod",
-  "description": "Contract for mods/<product>/<author>/<mod_name>/mod.yml across the community-mods repo. Canonical source lives in researchanddesire/dev-docs; vendored read-only here and enforced by mod-lint. There is no license field — license is fixed by the root LICENSE path-map (CERN-OHL-S hardware, MPL software).",
+  "description": "Contract for mods/<product>/<author>/<mod_name>/mod.yml. Canonical and edited here in the community-mods repo (single-consumer standard — not vendored from dev-docs like the cross-product BOM schema). Enforced by mod-lint. There is no license field — license is fixed by the root LICENSE path-map (CERN-OHL-S hardware, MPL software).",
   "type": "object",
   "additionalProperties": false,
   "required": [

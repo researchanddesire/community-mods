@@ -20,8 +20,9 @@ Community-contributed mods for RAD products, one per folder at
   or a different license. The root `LICENSE` path-map governs.
 - Fill the `mod.yml` `safety` block — never leave it blank. Set the
   restraint-release / applied-force / electrical flags honestly.
-- Do not hand-edit `.github/workflows/scripts/mod.schema.json` — it is vendored
-  read-only from `researchanddesire/dev-docs`.
+- `.github/workflows/scripts/mod.schema.json` is the **canonical** mod schema
+  (this repo is its only consumer — not vendored from dev-docs). Edit it
+  deliberately when the standard changes; `mod-lint` enforces it.
 
 ## mod.yml contract
 

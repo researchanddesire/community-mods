@@ -48,9 +48,8 @@ safety:                  # required block — do not leave blank
   notes: "–"             # describe any safety-relevant behavior, or '–'
 ```
 
-The schema is enforced by `mod-lint` (vendored read-only at
-`.github/workflows/scripts/mod.schema.json`; canonical source in
-[researchanddesire/dev-docs](https://github.com/researchanddesire/dev-docs)).
+The schema is enforced by `mod-lint` and is canonical here at
+`.github/workflows/scripts/mod.schema.json`.
 There is **no `license` field** — license is fixed (see §4).
 
 ## 3. Safety
