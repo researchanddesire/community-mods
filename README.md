@@ -28,12 +28,25 @@ mods/
     └── README.md   # description, BOM, vendor links
 ```
 
+*(That's the **hosted** layout. An **external/linked** mod is just `mod.yml` +
+`README.md` — its files stay in the author's own repo. See below.)*
+
 ## Submit a mod
 
-Read **[CONTRIBUTING.md](CONTRIBUTING.md)**, then open a pull request that adds a
-single `mods/<product>/<your-github-username>/<mod_name>/` folder. CI
-(`mod-lint`) checks the structure and metadata; a reviewer from the ModHelpers
-rotation handles the rest.
+There are **two equally-welcome ways** to contribute — see
+**[CONTRIBUTING.md](CONTRIBUTING.md)**:
+
+- **Host it here** — add the design files in a
+  `mods/<product>/<your-github-username>/<mod_name>/` folder (layout above).
+- **Link an external mod** — already have it in **your own repo**? You don't need
+  to move or relicense it. Just add a tiny `mod.yml` + `README.md` with
+  `source_url:` and your `license:`, and we **index and link** it in the gallery.
+  Your project stays yours; **its license may differ from this repo's default.**
+  See the worked example: [`mods/ossm/ortlof/m5-remote/`](mods/ossm/ortlof/m5-remote/)
+  (CC-BY-SA-4.0), and [CONTRIBUTING §3b](CONTRIBUTING.md#3b-linking-an-external-mod-how-to).
+
+Either way, open a pull request — CI (`mod-lint`) checks structure and metadata,
+and a reviewer from the ModHelpers rotation handles the rest.
 
 ## License
 
