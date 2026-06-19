@@ -12,6 +12,7 @@ from __future__ import annotations
 import html
 import json
 import os
+import re
 import shutil
 import sys
 
@@ -20,6 +21,18 @@ try:
 except ImportError:
     print("ERROR: PyYAML is required (pip install pyyaml)", file=sys.stderr)
     raise SystemExit(2)
+
+# Optional: render README markdown -> sanitized HTML for the in-page viewer.
+# Both libs ship in CI (see gallery.yml). Without them we fall back to escaped
+# plain text so the build never produces unsanitized contributor HTML.
+try:
+    import markdown as _markdown
+except ImportError:
+    _markdown = None
+try:
+    import nh3 as _nh3
+except ImportError:
+    _nh3 = None
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
@@ -35,6 +48,37 @@ PRODUCT_LABELS = {
 }
 REPO_SLUG = os.environ.get("GITHUB_REPOSITORY", "researchanddesire/community-mods")
 REPO_URL = f"https://github.com/{REPO_SLUG}"
+
+
+def render_readme(md_text: str, rel: str) -> str:
+    """Markdown -> sanitized HTML, with relative img/links rewritten to GitHub.
+
+    Contributor READMEs are untrusted, so the output is always sanitized (or
+    falls back to escaped plain text if the optional libs are unavailable).
+    """
+    if _markdown is not None and _nh3 is not None:
+        rendered = _markdown.markdown(
+            md_text, extensions=["fenced_code", "tables", "sane_lists"]
+        )
+        rendered = _nh3.clean(rendered)
+        # The modal already shows the mod title as a heading, so drop the
+        # README's own leading H1 (conventionally the same title) to avoid
+        # showing it twice.
+        rendered = re.sub(r"^\s*<h1>.*?</h1>\s*", "", rendered, count=1, flags=re.S)
+    else:
+        rendered = "<pre>" + html.escape(md_text) + "</pre>"
+
+    raw_base = f"https://raw.githubusercontent.com/{REPO_SLUG}/main/{rel}/"
+    blob_base = f"{REPO_URL}/blob/main/{rel}/"
+
+    def rewrite(match: re.Match) -> str:
+        attr, quote, url = match.group(1), match.group(2), match.group(3)
+        if url.startswith(("http://", "https://", "//", "#", "mailto:", "data:")):
+            return match.group(0)
+        base = raw_base if attr == "src" else blob_base
+        return f"{attr}={quote}{base}{url.lstrip('./')}{quote}"
+
+    return re.sub(r"""(src|href)=(["'])([^"']*)\2""", rewrite, rendered)
 
 
 def collect_mods() -> list[dict]:
@@ -60,6 +104,11 @@ def collect_mods() -> list[dict]:
                 except yaml.YAMLError:
                     continue
                 rel = os.path.relpath(mdir, REPO_ROOT).replace(os.sep, "/")
+                readme_path = os.path.join(mdir, "README.md")
+                readme_html = ""
+                if os.path.isfile(readme_path):
+                    with open(readme_path, encoding="utf-8") as rfh:
+                        readme_html = render_readme(rfh.read(), rel)
                 images = data.get("images") or []
                 first = images[0] if images else ""
                 if isinstance(first, str) and first.startswith(("http://", "https://")):
@@ -70,6 +119,7 @@ def collect_mods() -> list[dict]:
                     thumb = ""
                 mods.append(
                     {
+                        "id": rel,
                         "title": str(data.get("title", mod)),
                         "author": str(data.get("author", author)),
                         "product": product,
@@ -81,6 +131,7 @@ def collect_mods() -> list[dict]:
                         "license": str(data.get("license") or ""),
                         "folder": f"{REPO_URL}/tree/main/{rel}",
                         "readme": f"{REPO_URL}/blob/main/{rel}/README.md",
+                        "readme_html": readme_html,
                     }
                 )
     return mods
@@ -125,19 +176,51 @@ def render(mods: list[dict]) -> str:
     .sidebar {{ position:static; flex-basis:auto; width:100%; }}
     .sidebar .tags {{ flex-direction:row; flex-wrap:wrap; }}
   }}
-  .card {{ background:var(--card); border:1px solid #2a2f3a; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }}
+  .card {{ background:var(--card); border:1px solid #2a2f3a; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; cursor:pointer; transition:border-color .15s, transform .15s; }}
+  .card:hover {{ border-color:var(--accent); transform:translateY(-2px); }}
+  .card:focus-within {{ border-color:var(--accent); }}
   .card img {{ width:100%; height:170px; object-fit:cover; background:#11141a; }}
   .card .body {{ padding:.9rem 1rem 1rem; display:flex; flex-direction:column; gap:.4rem; flex:1; }}
   .chips {{ display:flex; gap:.4rem; align-items:center; flex-wrap:wrap; }}
   .badge {{ align-self:flex-start; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); border:1px solid var(--accent); border-radius:999px; padding:.1rem .5rem; }}
+  .ext {{ font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:#b694f5; border:1px solid #b694f5; border-radius:999px; padding:.1rem .5rem; }}
   .lic {{ font-size:.7rem; color:#e0b25a; border:1px solid #e0b25a; border-radius:999px; padding:.1rem .5rem; }}
   .card h3 {{ margin:.1rem 0 0; font-size:1.05rem; }}
+  .card .byline {{ color:var(--muted); font-size:.85rem; margin-top:-.15rem; }}
   .card .desc {{ color:var(--muted); font-size:.92rem; flex:1; }}
   .card .meta {{ color:var(--muted); font-size:.8rem; }}
-  .card .links {{ display:flex; gap:.6rem; margin-top:.3rem; }}
+  .card .note {{ font-size:.8rem; color:#b694f5; background:rgba(182,148,245,.08); border:1px solid rgba(182,148,245,.3); border-radius:8px; padding:.4rem .55rem; }}
+  .card .links {{ display:flex; gap:.6rem; margin-top:.3rem; flex-wrap:wrap; }}
   .card a {{ color:var(--accent); text-decoration:none; font-size:.9rem; }}
+  .card a:hover {{ text-decoration:underline; }}
   .empty {{ color:var(--muted); text-align:center; padding:3rem; grid-column:1/-1; }}
   a.top {{ color:var(--accent); }}
+  /* README viewer modal */
+  .modal {{ position:fixed; inset:0; z-index:50; display:flex; }}
+  .modal[hidden] {{ display:none; }}
+  .modal-backdrop {{ position:absolute; inset:0; background:rgba(0,0,0,.65); }}
+  .modal-panel {{ position:relative; margin:auto; background:var(--card); border:1px solid #2a2f3a; border-radius:12px; width:min(840px,94vw); max-height:88vh; display:flex; flex-direction:column; overflow:hidden; }}
+  .modal-head {{ display:flex; align-items:center; gap:.75rem; padding:.7rem 1rem; border-bottom:1px solid #2a2f3a; flex-wrap:wrap; }}
+  .modal-back {{ background:var(--bg); color:var(--fg); border:1px solid #2a2f3a; border-radius:8px; padding:.4rem .75rem; font:inherit; font-size:.9rem; cursor:pointer; }}
+  .modal-back:hover {{ border-color:var(--accent); }}
+  .modal-actions {{ display:flex; gap:.9rem; margin-left:auto; flex-wrap:wrap; }}
+  .modal-actions a {{ color:var(--accent); text-decoration:none; font-size:.9rem; }}
+  .modal-content {{ padding:1.25rem 1.5rem 2.5rem; overflow:auto; }}
+  .modal-hero h1 {{ margin:.4rem 0 .1rem; font-size:1.5rem; }}
+  .modal-hero .byline {{ color:var(--muted); }}
+  .readme {{ margin-top:1.25rem; }}
+  .readme img {{ max-width:100%; height:auto; border-radius:8px; }}
+  .readme a {{ color:var(--accent); }}
+  .readme pre {{ background:var(--bg); border:1px solid #2a2f3a; border-radius:8px; padding:.8rem; overflow:auto; }}
+  .readme code {{ background:var(--bg); border-radius:4px; padding:.1rem .35rem; font-size:.9em; }}
+  .readme pre code {{ padding:0; background:none; }}
+  .readme h1, .readme h2 {{ border-bottom:1px solid #2a2f3a; padding-bottom:.3rem; }}
+  .readme table {{ border-collapse:collapse; }}
+  .readme th, .readme td {{ border:1px solid #2a2f3a; padding:.35rem .6rem; }}
+  .readme blockquote {{ margin:.5rem 0; padding:.1rem .9rem; border-left:3px solid #2a2f3a; color:var(--muted); }}
+  @media (max-width:720px) {{
+    .modal-panel {{ width:100vw; height:100vh; max-height:100vh; margin:0; border:none; border-radius:0; }}
+  }}
 </style>
 </head>
 <body>
@@ -158,9 +241,23 @@ def render(mods: list[dict]) -> str:
   </aside>
   <main class="main"><div class="grid" id="grid"></div></main>
 </div>
+<div class="modal" id="modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <button class="modal-back" data-close type="button">← Back</button>
+      <div class="modal-actions" id="modal-actions"></div>
+    </div>
+    <div class="modal-content" id="modal-content"></div>
+  </div>
+</div>
 <script>
 const MODS = {payload};
+const MOD_BY_ID = Object.fromEntries(MODS.map(m => [m.id, m]));
 const grid = document.getElementById('grid');
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modal-content');
+const modalActions = document.getElementById('modal-actions');
 const q = document.getElementById('q');
 const product = document.getElementById('product');
 const tagsEl = document.getElementById('tags');
@@ -170,15 +267,23 @@ function card(m) {{
   const img = m.thumb ? `<img src="${{m.thumb}}" alt="" loading="lazy">` : '';
   const compat = (m.compatibility || []).join(', ');
   const lic = m.license ? `<span class="lic" title="License differs from repo default">${{m.license}}</span>` : '';
-  const primary = m.source_url
-    ? `<a href="${{m.source_url}}">Upstream source ↗</a>`
-    : `<a href="${{m.folder}}">View folder</a>`;
-  return `<div class="card">${{img}}<div class="body">
-    <div class="chips"><span class="badge">${{m.product}}</span>${{lic}}</div>
+  const external = !!m.source_url;
+  const extBadge = external ? `<span class="ext">External</span>` : '';
+  const note = external
+    ? `<div class="note">Externally linked — files are hosted in the author's own repo, not this mods repo.</div>`
+    : '';
+  const links = external
+    ? `<a href="${{m.source_url}}" target="_blank" rel="noopener" data-stop>Upstream source ↗</a>`
+    : `<a href="${{m.readme}}" target="_blank" rel="noopener" data-stop>View README on GitHub ↗</a>`
+      + `<a href="${{m.folder}}" target="_blank" rel="noopener" data-stop>Browse files ↗</a>`;
+  return `<div class="card" data-id="${{m.id}}" role="button" tabindex="0">${{img}}<div class="body">
+    <div class="chips"><span class="badge">${{m.product}}</span>${{extBadge}}${{lic}}</div>
     <h3>${{m.title}}</h3>
+    <div class="byline">by ${{m.author}}</div>
     <div class="desc">${{m.description}}</div>
-    <div class="meta">by ${{m.author}}${{compat ? ' · ' + compat : ''}}</div>
-    <div class="links"><a href="${{m.readme}}">Open README</a>${{primary}}</div>
+    ${{compat ? `<div class="meta">${{compat}}</div>` : ''}}
+    ${{note}}
+    <div class="links">${{links}}</div>
   </div></div>`;
 }}
 // Mods matching everything except the tag facet — used both to render cards and
@@ -211,6 +316,47 @@ function render() {{
   grid.innerHTML = items.length ? items.map(card).join('') : '<p class="empty">No mods match.</p>';
   renderTags(base);
 }}
+// Whole-card click opens the README in an in-page viewer. Inner links keep
+// their own behavior (they navigate to GitHub) via the closest('a') guard.
+function openModal(m) {{
+  if (!m) return;
+  const external = !!m.source_url;
+  const lic = m.license ? `<span class="lic">${{m.license}}</span>` : '';
+  const extBadge = external ? `<span class="ext">External</span>` : '';
+  const note = external
+    ? `<div class="note">Externally linked — files are hosted in the author's own repo, not this mods repo.</div>`
+    : '';
+  modalActions.innerHTML = external
+    ? `<a href="${{m.source_url}}" target="_blank" rel="noopener">Upstream source ↗</a>`
+    : `<a href="${{m.readme}}" target="_blank" rel="noopener">View README on GitHub ↗</a>`
+      + `<a href="${{m.folder}}" target="_blank" rel="noopener">Browse files ↗</a>`;
+  const body = m.readme_html || `<p>${{m.description || ''}}</p>`;
+  modalContent.innerHTML = `<div class="modal-hero">`
+    + `<div class="chips"><span class="badge">${{m.product}}</span>${{extBadge}}${{lic}}</div>`
+    + `<h1 id="modal-title">${{m.title}}</h1><div class="byline">by ${{m.author}}</div></div>`
+    + `${{note}}<div class="readme">${{body}}</div>`;
+  modalContent.scrollTop = 0;
+  modal.hidden = false;
+  document.body.style.overflow = 'hidden';
+}}
+function closeModal() {{
+  modal.hidden = true;
+  document.body.style.overflow = '';
+}}
+grid.addEventListener('click', e => {{
+  if (e.target.closest('a')) return;
+  const card = e.target.closest('.card');
+  if (card) openModal(MOD_BY_ID[card.dataset.id]);
+}});
+grid.addEventListener('keydown', e => {{
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const card = e.target.closest('.card');
+  if (!card || e.target.closest('a')) return;
+  e.preventDefault();
+  openModal(MOD_BY_ID[card.dataset.id]);
+}});
+modal.addEventListener('click', e => {{ if (e.target.closest('[data-close]')) closeModal(); }});
+document.addEventListener('keydown', e => {{ if (e.key === 'Escape' && !modal.hidden) closeModal(); }});
 tagsEl.addEventListener('click', e => {{
   const btn = e.target.closest('.tagbtn');
   if (!btn) return;
