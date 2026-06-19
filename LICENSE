@@ -1,0 +1,31 @@
+# Research and Desire — Community Mods License and Copyright Notices
+
+This repository hosts **community-contributed** modifications for Research and
+Desire products (Lockbox, Deep Throat Trainer, OSSM, RADR). Each mod is
+copyright its respective author.
+
+Contributions are accepted **only** under the unified RAD license model — the
+same licenses as the products they modify. There is no contributor license
+choice; by submitting, you agree your contribution is licensed as below
+(see `CONTRIBUTING.md` and the required DCO sign-off).
+
+## Path map
+
+1. Hardware / printable design files — `mods/**/cad/`, `mods/**/print/`
+   (STEP, STL, 3MF, F3D, etc.) → **CERN-OHL-S v2**.
+   Full text: [`LICENSES/CERN-OHL-S-2.0.txt`](LICENSES/CERN-OHL-S-2.0.txt).
+2. Software / firmware — any code shipped inside a mod
+   (`mods/**/src/`, scripts, sketches) → **MPL 2.0**.
+   Full text: [`LICENSES/MPL-2.0.txt`](LICENSES/MPL-2.0.txt).
+3. Documentation and images within a mod (`README.md`, `mods/**/img/`,
+   `mods/**/docs/`) → **CERN-OHL-S v2** (travels with the hardware it documents).
+4. Repository tooling — `.github/`, `schemas`, lint/gallery scripts → **MPL 2.0**.
+5. Research and Desire / product branding and trademarks
+   (`Research and Desire`, `Lockbox`, `Chastity Lockbox`, `Deep Throat Trainer`,
+   `DT Trainer`, `OSSM`, `RADR`) → all rights reserved; remove from derivatives.
+
+## Not warranted by RAD
+
+Mods in this repository are **community-maintained**. They are **not** official
+Research and Desire products and have **not** been safety-tested or certified by
+RAD. Use at your own risk. See `CONTRIBUTING.md` for the safety-review policy.

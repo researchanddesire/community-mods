@@ -1,0 +1,53 @@
+name: Mod lint
+
+on:
+  pull_request:
+    paths:
+      - 'mods/**'
+      - '.github/workflows/scripts/mod.schema.json'
+      - '.github/workflows/scripts/mod_lint.py'
+      - '.github/workflows/mod-lint.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mods/**'
+      - '.github/workflows/scripts/mod.schema.json'
+  workflow_dispatch:
+
+jobs:
+  mod-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install deps
+        run: pip install pyyaml jsonschema
+      - name: Validate mods against the RAD mod schema
+        run: python .github/workflows/scripts/mod_lint.py
+
+  dco:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require Signed-off-by on every PR commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          missing=0
+          for sha in $(git rev-list "$BASE_SHA".."$HEAD_SHA"); do
+            if ! git log -1 --format='%B' "$sha" | grep -qi '^Signed-off-by: .\+ <.\+@.\+>'; then
+              echo "::error::commit $sha is missing a DCO Signed-off-by line"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Sign your commits with 'git commit -s'. See CONTRIBUTING.md."
+            exit 1
+          fi
+          echo "All commits are signed off."

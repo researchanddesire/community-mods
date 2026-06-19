@@ -1,0 +1,20 @@
+# Sample mod metadata. Copy this folder, rename SAMPLE_AUTHOR to your GitHub
+# username and sample_mount to your mod name, then edit every field.
+# The schema is enforced by mod-lint: .github/workflows/scripts/mod.schema.json
+title: Sample quick-release mount
+author: SAMPLE_AUTHOR
+product: ossm                       # lockbox | dtt | ossm | radr
+description: A starter template showing the required folder layout and metadata.
+mod_version: 1                      # start at 1; bump when you change the mod
+compatibility:                      # only list what was actually tested
+  - OSSM v2
+images:
+  - img/printed.jpg                 # at least one; each path must exist
+tags:
+  - example
+  - mount
+safety:                             # required block — never leave blank
+  affects_restraint_release: false
+  affects_applied_force: false
+  affects_electrical: false
+  notes: "–"                        # describe safety-relevant behavior, or '–'

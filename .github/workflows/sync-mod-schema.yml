@@ -1,0 +1,38 @@
+name: Sync mod schema
+
+# Pulls the canonical mod schema from researchanddesire/dev-docs into this repo
+# (.github/workflows/scripts/mod.schema.json is vendored, read-only). Opens a PR
+# when it changes. Triggered weekly, manually, or by a repository_dispatch from
+# dev-docs.
+
+on:
+  schedule:
+    - cron: '23 6 * * 1'   # Mondays
+  workflow_dispatch:
+  repository_dispatch:
+    types: [mod-schema-update]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch canonical schema
+        run: |
+          curl -fsSL \
+            https://raw.githubusercontent.com/researchanddesire/dev-docs/main/schemas/mod.schema.json \
+            -o .github/workflows/scripts/mod.schema.json
+      - name: Open PR if schema changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/sync-mod-schema
+          title: 'chore: sync mod schema from dev-docs'
+          commit-message: 'chore: sync mod.schema.json from dev-docs'
+          body: |
+            Vendored `.github/workflows/scripts/mod.schema.json` updated from the canonical source
+            in [researchanddesire/dev-docs](https://github.com/researchanddesire/dev-docs/blob/main/schemas/mod.schema.json).
+          delete-branch: true

@@ -1,0 +1,58 @@
+---
+description: RAD community mod standard — folder layout, mod.yml contract, fixed license
+globs: mods/**/mod.yml
+alwaysApply: false
+---
+
+# Community mod standard (RAD)
+
+When creating or editing a mod under `mods/`, follow this contract. The schema is
+vendored read-only at `.github/workflows/scripts/mod.schema.json` (canonical
+source: `researchanddesire/dev-docs`) — do not hand-edit it.
+
+## Folder layout (exact)
+
+```
+mods/<product>/<author>/<mod_name>/
+├── cad/        # STEP required; native (F3D, etc.) optional
+├── print/      # STL / 3MF (Git LFS) — optional
+├── img/        # at least one image — required
+├── docs/       # optional extras (BOM, PDF)
+├── mod.yml     # metadata — required
+└── README.md   # required
+```
+
+- `<product>` ∈ `lockbox | dtt | ossm | radr`. No spaces in names. No deeper nesting.
+
+## mod.yml fields
+
+| Key             | Type        | Required | Notes |
+| --------------- | ----------- | -------- | ----- |
+| `title`         | string      | yes      | |
+| `author`        | string      | yes      | GitHub username; must match the folder |
+| `product`       | enum        | yes      | `lockbox` `dtt` `ossm` `radr` |
+| `description`   | string      | yes      | |
+| `mod_version`   | integer ≥ 1 | yes      | bump on changes |
+| `compatibility` | list        | yes      | non-empty; only tested models/revs |
+| `images`        | list        | yes      | non-empty; relative paths that exist |
+| `safety`        | object      | yes      | `affects_restraint_release`, `affects_applied_force`, `affects_electrical` (booleans) + `notes` |
+
+There is **no `license` key** — license is fixed (below).
+
+## License (fixed — not contributor choice)
+
+- Hardware / printable (`cad/`, `print/`) → **CERN-OHL-S v2**
+- Software / firmware (any code) → **MPL 2.0**
+- Docs / images → **CERN-OHL-S v2**
+
+Never add a per-mod `LICENSE` file. The root `LICENSE` path-map governs.
+
+## Safety
+
+Intimate devices — fill the `safety` block honestly. Anything touching
+restraint-release, applied force, or electrical/charging gets a human safety
+review before merge.
+
+## Validation
+
+`mod-lint` is the gate: `python .github/workflows/scripts/mod_lint.py`. Green = good.

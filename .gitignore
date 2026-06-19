@@ -1,0 +1,6 @@
+.DS_Store
+__pycache__/
+*.pyc
+# Generated gallery output (built by CI, deployed to Pages)
+site/
+mod-hub/

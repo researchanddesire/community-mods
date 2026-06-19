@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://dev.researchanddesire.com/schemas/mod.schema.json",
+  "title": "RAD Community Mod",
+  "description": "Contract for mods/<product>/<author>/<mod_name>/mod.yml across the community-mods repo. Canonical source lives in researchanddesire/dev-docs; vendored read-only here and enforced by mod-lint. There is no license field — license is fixed by the root LICENSE path-map (CERN-OHL-S hardware, MPL software).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title",
+    "author",
+    "product",
+    "description",
+    "mod_version",
+    "compatibility",
+    "images",
+    "safety"
+  ],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable mod name shown on the gallery card."
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9-_.]+$",
+      "description": "GitHub username; must match the author folder name."
+    },
+    "product": {
+      "type": "string",
+      "enum": ["lockbox", "dtt", "ossm", "radr"],
+      "description": "Which RAD product this mod targets; must match the product folder."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short description shown on the gallery card."
+    },
+    "mod_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Start at 1; increment on changes."
+    },
+    "compatibility": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Models / firmware revisions actually tested. Do not list untested ones."
+    },
+    "images": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Paths (relative to mod.yml) to images shipped with the mod; each must exist."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Optional free-form tags for discoverability."
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "affects_restraint_release",
+        "affects_applied_force",
+        "affects_electrical",
+        "notes"
+      ],
+      "description": "Required safety disclosure. Intimate-device mods touching these areas get a human safety review.",
+      "properties": {
+        "affects_restraint_release": { "type": "boolean" },
+        "affects_applied_force": { "type": "boolean" },
+        "affects_electrical": { "type": "boolean" },
+        "notes": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Describe any safety-relevant behavior, or '–' if none."
+        }
+      }
+    }
+  }
+}
