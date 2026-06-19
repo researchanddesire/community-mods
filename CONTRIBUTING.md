@@ -60,6 +60,9 @@ compatibility:           # only list what you (or someone) actually tested
   - OSSM v2
 images:
   - img/printed.jpg
+tags:                    # optional; power the gallery's "browse by tag" sidebar
+  - mount
+  - quick-release
 safety:                  # required block — do not leave blank
   affects_restraint_release: false
   affects_applied_force: false
@@ -70,6 +73,9 @@ safety:                  # required block — do not leave blank
 The schema is enforced by `mod-lint` and is canonical here at
 `.github/workflows/scripts/mod.schema.json`.
 There is **no `license` field** — license is fixed (see §4).
+
+`tags` is optional but recommended: each tag becomes a filter in the gallery's
+**"browse by tag"** sidebar, so good tags make your mod easier to discover.
 
 ## 3. Safety
 

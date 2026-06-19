@@ -10,7 +10,7 @@ compatibility:                      # only list what was actually tested
   - OSSM v2
 images:
   - img/printed.jpg                 # at least one; each path must exist
-tags:
+tags:                               # optional; power the gallery's "browse by tag" sidebar
   - example
   - mount
 safety:                             # required block — never leave blank

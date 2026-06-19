@@ -75,6 +75,7 @@ def collect_mods() -> list[dict]:
                         "product": product,
                         "description": str(data.get("description", "")),
                         "compatibility": data.get("compatibility") or [],
+                        "tags": [str(t) for t in (data.get("tags") or [])],
                         "thumb": thumb,
                         "source_url": str(data.get("source_url") or ""),
                         "license": str(data.get("license") or ""),
@@ -107,7 +108,23 @@ def render(mods: list[dict]) -> str:
   .controls {{ display:flex; gap:.75rem; flex-wrap:wrap; max-width:1100px; margin:1rem auto 0; padding:0 1.5rem; }}
   input,select {{ background:var(--card); color:var(--fg); border:1px solid #2a2f3a; border-radius:8px; padding:.6rem .8rem; font:inherit; }}
   input {{ flex:1; min-width:200px; }}
-  .grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1rem; max-width:1100px; margin:1.5rem auto; padding:0 1.5rem 3rem; }}
+  .layout {{ display:flex; gap:1.5rem; max-width:1100px; margin:1.5rem auto; padding:0 1.5rem 3rem; align-items:flex-start; }}
+  .sidebar {{ flex:0 0 220px; position:sticky; top:1rem; }}
+  .sidebar h2 {{ font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 .6rem; }}
+  .sidebar .tags {{ display:flex; flex-direction:column; gap:.3rem; }}
+  .tagbtn {{ display:flex; justify-content:space-between; gap:.5rem; align-items:center; background:var(--card); color:var(--fg); border:1px solid #2a2f3a; border-radius:8px; padding:.4rem .7rem; font:inherit; font-size:.9rem; cursor:pointer; text-align:left; }}
+  .tagbtn:hover {{ border-color:var(--accent); }}
+  .tagbtn.active {{ background:var(--accent); color:#08191a; border-color:var(--accent); font-weight:600; }}
+  .tagbtn .count {{ font-size:.75rem; color:var(--muted); }}
+  .tagbtn.active .count {{ color:#08191a; }}
+  .clear {{ background:none; border:none; color:var(--accent); font:inherit; font-size:.85rem; cursor:pointer; padding:.4rem 0 0; }}
+  .main {{ flex:1; min-width:0; }}
+  .grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem; }}
+  @media (max-width:720px) {{
+    .layout {{ flex-direction:column; }}
+    .sidebar {{ position:static; flex-basis:auto; width:100%; }}
+    .sidebar .tags {{ flex-direction:row; flex-wrap:wrap; }}
+  }}
   .card {{ background:var(--card); border:1px solid #2a2f3a; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }}
   .card img {{ width:100%; height:170px; object-fit:cover; background:#11141a; }}
   .card .body {{ padding:.9rem 1rem 1rem; display:flex; flex-direction:column; gap:.4rem; flex:1; }}
@@ -133,12 +150,22 @@ def render(mods: list[dict]) -> str:
   <input id="q" type="search" placeholder="Search mods…" autocomplete="off">
   <select id="product"><option value="">All products</option>{options}</select>
 </div>
-<div class="grid" id="grid"></div>
+<div class="layout">
+  <aside class="sidebar">
+    <h2>Browse by tag</h2>
+    <div class="tags" id="tags"></div>
+    <button class="clear" id="clear" hidden>Clear tags</button>
+  </aside>
+  <main class="main"><div class="grid" id="grid"></div></main>
+</div>
 <script>
 const MODS = {payload};
 const grid = document.getElementById('grid');
 const q = document.getElementById('q');
 const product = document.getElementById('product');
+const tagsEl = document.getElementById('tags');
+const clearBtn = document.getElementById('clear');
+const selectedTags = new Set();
 function card(m) {{
   const img = m.thumb ? `<img src="${{m.thumb}}" alt="" loading="lazy">` : '';
   const compat = (m.compatibility || []).join(', ');
@@ -154,15 +181,44 @@ function card(m) {{
     <div class="links"><a href="${{m.readme}}">Open README</a>${{primary}}</div>
   </div></div>`;
 }}
-function render() {{
+// Mods matching everything except the tag facet — used both to render cards and
+// to compute tag counts so the sidebar reflects the active search/product.
+function baseMatches() {{
   const term = q.value.toLowerCase();
   const p = product.value;
-  const items = MODS.filter(m =>
+  return MODS.filter(m =>
     (!p || m.product === p) &&
-    (!term || (m.title + ' ' + m.description + ' ' + m.author + ' ' + (m.compatibility||[]).join(' ')).toLowerCase().includes(term))
+    (!term || (m.title + ' ' + m.description + ' ' + m.author + ' ' + (m.compatibility||[]).join(' ') + ' ' + (m.tags||[]).join(' ')).toLowerCase().includes(term))
+  );
+}}
+function renderTags(base) {{
+  const counts = {{}};
+  base.forEach(m => (m.tags||[]).forEach(t => {{ counts[t] = (counts[t]||0) + 1; }}));
+  const names = Object.keys(counts).sort((a,b) => a.localeCompare(b));
+  selectedTags.forEach(t => {{ if (!(t in counts)) counts[t] = 0; if (!names.includes(t)) names.push(t); }});
+  if (!names.length) {{ tagsEl.innerHTML = '<span class="meta">No tags yet.</span>'; clearBtn.hidden = true; return; }}
+  tagsEl.innerHTML = names.map(t => {{
+    const active = selectedTags.has(t) ? ' active' : '';
+    return `<button class="tagbtn${{active}}" data-tag="${{t}}">${{t}}<span class="count">${{counts[t]}}</span></button>`;
+  }}).join('');
+  clearBtn.hidden = selectedTags.size === 0;
+}}
+function render() {{
+  const base = baseMatches();
+  const items = base.filter(m =>
+    selectedTags.size === 0 || [...selectedTags].every(t => (m.tags||[]).includes(t))
   );
   grid.innerHTML = items.length ? items.map(card).join('') : '<p class="empty">No mods match.</p>';
+  renderTags(base);
 }}
+tagsEl.addEventListener('click', e => {{
+  const btn = e.target.closest('.tagbtn');
+  if (!btn) return;
+  const t = btn.dataset.tag;
+  selectedTags.has(t) ? selectedTags.delete(t) : selectedTags.add(t);
+  render();
+}});
+clearBtn.addEventListener('click', () => {{ selectedTags.clear(); render(); }});
 q.addEventListener('input', render);
 product.addEventListener('change', render);
 render();

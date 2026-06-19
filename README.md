@@ -14,6 +14,11 @@ Every accepted mod appears automatically in the gallery at
 the `mods/` tree on merge), or browse the source directly under
 [`mods/`](mods/).
 
+In the gallery you can search by keyword, filter by product, and **browse by
+tag** using the sidebar — pick one or more tags to narrow the list. Tags come
+from the optional `tags:` field in each mod's `mod.yml`, so adding relevant tags
+makes your mod easier to discover.
+
 ```
 mods/
 ├── lockbox/<author>/<mod_name>/
