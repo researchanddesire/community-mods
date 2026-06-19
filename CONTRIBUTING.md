@@ -4,6 +4,21 @@ Thanks for sharing a mod for a Research and Desire product. This guide covers th
 folder layout, metadata, license, and review process. It mirrors the
 gold-standard [VoronUsers](https://github.com/VoronDesign/VoronUsers) flow.
 
+## Two kinds of mods — both equally welcome
+
+You do **not** have to move your project into this repo to be listed. Pick
+whichever fits:
+
+- **Hosted mod** — you add the design files here, in your `mods/...` folder. Best
+  for new parts you're happy to publish under the RAD license model.
+- **External / linked mod** — your mod already lives in **your own repository**
+  (any platform, any license) and we simply **index and link** it so people can
+  find it on the [Mod Hub](https://mods.researchanddesire.com). **You keep
+  ownership, maintenance, and your own license.** This is a fully first-class way
+  to contribute — see [§3b](#3b-linking-an-external-mod-how-to). If you already
+  have a great OSSM/Lockbox/DTT/RADR project out there, **linking it is
+  encouraged** — no need to relicense or relocate anything.
+
 ## 1. Folder layout
 
 Add **one mod per pull request** at exactly this depth:
@@ -28,6 +43,10 @@ Inside `<mod_name>/`:
 | `README.md` | **yes**  | Description, BOM, assembly notes, vendor links (no referral/affiliate links). |
 
 A starter is provided at [`mods/ossm/SAMPLE_AUTHOR/sample_mount/`](mods/ossm/SAMPLE_AUTHOR/sample_mount/) — copy it and edit.
+
+> The table above is for **hosted** mods. **External / linked** mods are lighter
+> — just `mod.yml` + `README.md` (no `cad/`/`print/` needed, files stay
+> upstream). See [§3b](#3b-linking-an-external-mod-how-to).
 
 ## 2. `mod.yml`
 
@@ -59,20 +78,60 @@ These are intimate devices, not 3D printers. If your mod changes how a device
 **electrical / charging**, set the relevant `safety` flag to `true` and describe
 it in `notes`. Flagged mods get an explicit **safety review** before merge.
 
-## 3b. Two kinds of mods: hosted vs external/linked
+## 3b. Linking an external mod (how-to)
 
-- **Hosted mod (default):** the design files live here, in your `mods/...`
-  folder. License is **fixed** by this repo (see §4) — omit any `license` field.
-- **External / linked mod:** the mod already lives in **your own repository**
-  (e.g. a standalone OSSM accessory project). Instead of copying it in, you
-  **index** it: add `source_url:` (your repo) and `license:` (your repo's SPDX
-  id) to `mod.yml`, a `README.md` that links upstream, and at least one image
-  (a URL is fine — point at your repo's raw image). No `cad/` is required here
-  since the files live upstream. Its license **may differ** from the repo
-  default, and you must declare it — see
-  [`mods/ossm/ortlof/m5-remote/`](mods/ossm/ortlof/m5-remote/) for a worked
-  example (CC-BY-SA-4.0). `mod-lint` requires `license` exactly when `source_url`
-  is set, and forbids it otherwise.
+Already have your mod in your own repo? **Link it — that's encouraged, and it
+keeps your project yours.** We index it in the gallery and send people to your
+repo; we don't copy your files or change your license.
+
+**What's different from a hosted mod:**
+
+- **No `cad/`, `print/`, or local image needed** — your files stay upstream.
+- You **declare your own license** (it can differ from this repo's default).
+- The gallery card shows a license badge and an **"Upstream source ↗"** link
+  straight to your repo.
+
+**Steps:**
+
+1. Create just the folder `mods/<product>/<your-github-username>/<mod_name>/`
+   with **two files**: `mod.yml` and `README.md`.
+2. In `mod.yml`, set `source_url:` (your repo) and `license:` (your repo's SPDX
+   id, e.g. `CC-BY-SA-4.0`, `MIT`, `GPL-3.0-or-later`). Use an image **URL**
+   (e.g. a raw link to a photo in your repo) in `images:`.
+3. In `README.md`, briefly describe the mod and link to your repo. Note the
+   license if it differs from this repo's default.
+4. Open the PR (see §5). `mod-lint` requires `license` exactly when `source_url`
+   is set (and forbids it otherwise), so the difference is always explicit.
+
+**Example `mod.yml`** (a linked mod under a different license):
+
+```yaml
+title: OSSM M5 Remote
+author: ortlof
+product: ossm
+description: A wireless M5Stack remote for the OSSM (speed/depth/stroke).
+mod_version: 1
+compatibility:
+  - OSSM (requires the OSSM-Stroke firmware)
+  - M5Stack CoreS3 / Core2
+source_url: https://github.com/ortlof/OSSM-M5-Remote   # your repo
+license: CC-BY-SA-4.0                                   # your license (may differ)
+images:
+  - https://raw.githubusercontent.com/ortlof/OSSM-M5-Remote/master/image/remote.png
+tags: [remote, external]
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: "Commands OSSM motion; requires third-party OSSM-Stroke firmware."
+```
+
+See the live worked example at
+[`mods/ossm/ortlof/m5-remote/`](mods/ossm/ortlof/m5-remote/).
+
+> We **don't** require you to relicense or relocate an existing project to be
+> listed. The only ask: declare the license honestly, keep your `README` links
+> working, and fill in the `safety` block (it applies to every mod).
 
 ## 4. License (fixed for hosted mods — not your choice)
 
@@ -110,6 +169,8 @@ sign-off on every commit fail CI.
 2. Add your `mods/<product>/<author>/<mod_name>/` folder, `git commit -s`, push.
 3. Open a pull request and fill in the checklist.
 
-`mod-lint` runs automatically. Once it's green, a **ModHelpers** reviewer will
-check structure, CAD, images, and safety, then merge — and your mod shows up on
-[mods.researchanddesire.com](https://mods.researchanddesire.com).
+`mod-lint` runs automatically (it knows hosted vs external from your `mod.yml`).
+Once it's green, a **ModHelpers** reviewer will check structure, images, license,
+and safety — plus CAD for hosted mods — then merge, and your mod shows up on
+[mods.researchanddesire.com](https://mods.researchanddesire.com). **Both hosted
+and linked mods are accepted on equal footing.**
