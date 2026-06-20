@@ -1,0 +1,40 @@
+title: OSSM ALT Edition
+author: jollydodo
+product: ossm
+description: >-
+  A community-driven, ground-up redesign of the OSSM with a custom 28V 140W
+  USB-C PD power board (ESP32-S3 + RS485), MGN12H / MGN15H rail options, and a
+  fully open hardware design optimized for 3D printing and European sourcing.
+mod_version: 1
+compatibility:
+  - OSSM ALT Edition Light (MGN12H, belts up to 12mm)
+  - OSSM ALT Edition Heavy (MGN15H, belts up to 15mm)
+  - ESP32-S3 + RS485, made for OSSM Rust (ossm-rs) firmware
+  - Step/dir control for original firmware adaptation
+  - Compatible with Pitclamp Mini (includes alternative dowelled mount)
+# External / linked mod: the design files live in the author's own repo, so this
+# entry is an index pointer. license is REQUIRED here; it matches the repo's
+# hardware default (CERN-OHL-S-2.0) but is declared explicitly for the upstream.
+source_url: https://github.com/jollydodo/OSSM-ALT-Edition
+license: CERN-OHL-S-2.0
+images:
+  - https://raw.githubusercontent.com/jollydodo/OSSM-ALT-Edition/main/Images/cover.jpg
+  - https://raw.githubusercontent.com/jollydodo/OSSM-ALT-Edition/main/Images/pcb.png
+tags:
+  - hardware
+  - pcb
+  - usb-c-pd
+  - esp32-s3
+  - mgn-rail
+  - external
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: true
+  notes: >-
+    Full hardware redesign: a custom 28V 140W USB-C PD power board (with
+    over/under-voltage, reverse-current, ESD, and inrush protection, plus an
+    optional brake-chopper add-on) drives an actuator that applies motion force.
+    DIY build involving mains-derived USB-C PD power and a motor — verify
+    wiring, protection circuits, e-stop, and safe limits before use. Project is
+    in beta; build and use at your own risk.
