@@ -9,6 +9,7 @@ mods.vorondesign.com pattern: the gallery is generated, never hand-edited.
 
 from __future__ import annotations
 
+import base64
 import html
 import json
 import os
@@ -48,6 +49,23 @@ PRODUCT_LABELS = {
 }
 REPO_SLUG = os.environ.get("GITHUB_REPOSITORY", "researchanddesire/community-mods")
 REPO_URL = f"https://github.com/{REPO_SLUG}"
+LOGO_PATH = os.path.join(SCRIPT_DIR, "assets", "rad-logo.png")
+
+
+def logo_data_uri() -> str:
+    """The R+D logo as an inline base64 data URI (keeps the site self-contained).
+
+    Returns '' if the file is missing or is still an unresolved Git LFS pointer
+    (e.g. a clone without LFS pulled); the gallery then falls back to a text mark.
+    """
+    try:
+        with open(LOGO_PATH, "rb") as fh:
+            data = fh.read()
+    except OSError:
+        return ""
+    if data.startswith(b"version https://git-lfs"):
+        return ""
+    return "data:image/png;base64," + base64.b64encode(data).decode("ascii")
 
 
 def render_readme(md_text: str, rel: str) -> str:
@@ -143,20 +161,30 @@ def render(mods: list[dict]) -> str:
         f'<option value="{code}">{html.escape(label)}</option>'
         for code, label in PRODUCT_LABELS.items()
     )
+    logo_uri = logo_data_uri()
+    # Defined once on :root so the (large) data URI isn't repeated per <a>.
+    logo_var = f'--logo:url("{logo_uri}");' if logo_uri else ""
+    # Image logo → empty anchor (logo shows via background); else a text mark.
+    logo_inner = "" if logo_uri else "R+D"
+    favicon = f'<link rel="icon" type="image/png" href="{logo_uri}">' if logo_uri else ""
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RAD Mod Hub</title>
+{favicon}
 <style>
-  :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; }}
+  :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; {logo_var} }}
   * {{ box-sizing:border-box; }}
   body {{ margin:0; font:16px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--fg); }}
   .topbar {{ position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid #2a2f3a; padding-bottom:1rem; }}
   header {{ padding:1.5rem 1.5rem .75rem; max-width:1100px; margin:0 auto; }}
-  h1 {{ margin:0 0 .25rem; }}
-  .sub {{ color:var(--muted); }}
+  .brand {{ display:flex; align-items:center; gap:.75rem; }}
+  .logo {{ flex:0 0 auto; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1rem; letter-spacing:.01em; color:var(--accent); background:center/contain no-repeat; background-image:var(--logo,none); text-decoration:none; }}
+  .brand .logo:hover {{ opacity:.82; }}
+  h1 {{ margin:0 0 .15rem; line-height:1.1; }}
+  .sub {{ color:var(--muted); margin:0; }}
   .controls {{ display:flex; gap:.75rem; flex-wrap:wrap; max-width:1100px; margin:0 auto; padding:0 1.5rem; }}
   input,select {{ background:var(--card); color:var(--fg); border:1px solid #2a2f3a; border-radius:8px; padding:.6rem .8rem; font:inherit; }}
   input {{ flex:1; min-width:200px; }}
@@ -197,6 +225,19 @@ def render(mods: list[dict]) -> str:
   .card a:hover {{ text-decoration:underline; }}
   .empty {{ color:var(--muted); text-align:center; padding:3rem; grid-column:1/-1; }}
   a.top {{ color:var(--accent); }}
+  footer {{ border-top:1px solid #2a2f3a; background:var(--card); }}
+  .footer-inner {{ max-width:1100px; margin:0 auto; padding:2.25rem 1.5rem; display:flex; flex-wrap:wrap; gap:2rem 3.5rem; justify-content:space-between; align-items:flex-start; }}
+  .footer-brand {{ max-width:680px; flex:1 1 420px; }}
+  .footer-brand .brand {{ margin-bottom:.6rem; }}
+  .footer-brand .logo {{ width:92px; height:92px; }}
+  .footer-brand .name {{ font-weight:700; font-size:1.1rem; }}
+  .footer-brand p {{ color:var(--muted); font-size:.92rem; margin:0; }}
+  .footer-col h2 {{ font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 .6rem; }}
+  .footer-links {{ display:flex; flex-direction:column; gap:.45rem; }}
+  .footer-links a {{ color:var(--accent); text-decoration:none; font-size:.95rem; }}
+  .footer-links a:hover {{ text-decoration:underline; }}
+  .footer-bottom {{ border-top:1px solid #2a2f3a; color:var(--muted); font-size:.82rem; }}
+  .footer-bottom div {{ max-width:1100px; margin:0 auto; padding:1rem 1.5rem; }}
   /* README viewer modal */
   .modal {{ position:fixed; inset:0; z-index:50; display:flex; }}
   .modal[hidden] {{ display:none; }}
@@ -228,9 +269,14 @@ def render(mods: list[dict]) -> str:
 <body>
 <div class="topbar">
 <header>
-  <h1>RAD Mod Hub</h1>
-  <p class="sub">Community-built upgrades for Research and Desire products.
-  Not safety-tested or warranted by RAD. <a class="top" href="{REPO_URL}">Repo &amp; submit a mod →</a></p>
+  <div class="brand">
+    <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire">{logo_inner}</a>
+    <div>
+      <h1>RAD Mod Hub</h1>
+      <p class="sub">Community-built upgrades for Research and Desire products.
+      Not safety-tested or warranted by RAD. <a class="top" href="{REPO_URL}">Repo &amp; submit a mod →</a></p>
+    </div>
+  </div>
 </header>
 <div class="controls">
   <input id="q" type="search" placeholder="Search mods…" autocomplete="off">
@@ -247,6 +293,30 @@ def render(mods: list[dict]) -> str:
   </aside>
   <main class="main"><div class="grid" id="grid"></div></main>
 </div>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="brand">
+        <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire">{logo_inner}</a>
+        {'' if logo_uri else '<span class="name">Research and Desire</span>'}
+      </div>
+      <p>We make toys and gear powered by tech, robotics, and community. The Mod
+      Hub collects community-built upgrades for RAD products — Lockbox, Deep
+      Throat Trainer, OSSM, and RADR. Mods are contributed by their authors and
+      are not safety-tested or warranted by RAD.</p>
+    </div>
+    <div class="footer-col">
+      <h2>Connect</h2>
+      <div class="footer-links">
+        <a href="https://researchanddesire.com" target="_blank" rel="noopener">researchanddesire.com ↗</a>
+        <a href="https://docs.researchanddesire.com" target="_blank" rel="noopener">Documentation ↗</a>
+        <a href="https://discord.gg/VtZcudpxT6" target="_blank" rel="noopener">KinkyMakers Discord ↗</a>
+        <a href="{REPO_URL}" target="_blank" rel="noopener">Mods repo &amp; submit ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom"><div>© Research and Desire · Community mods remain the work of their respective authors.</div></div>
+</footer>
 <div class="modal" id="modal" hidden>
   <div class="modal-backdrop" data-close></div>
   <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
