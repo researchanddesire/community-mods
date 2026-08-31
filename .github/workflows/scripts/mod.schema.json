@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://mods.researchanddesire.com/mod.schema.json",
   "title": "R+D Community Project",
-  "description": "Canonical contract for the legacy mods/<product>/<author>/<project_slug>/mod.yml interface. The product key identifies the project ecosystem; mod.yml, mod_version, and mod-lint retain their legacy names for compatibility. Enforced by mod-lint.",
+  "description": "Canonical contract for project entries at mods/<ecosystem>/<author>/<project_slug>/mod.yml. The product key identifies the project ecosystem, and mod_version tracks the catalog-entry version. Enforced by mod-lint.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -43,7 +43,7 @@
     "product": {
       "type": "string",
       "enum": ["lockbox", "dtt", "ossm", "radr"],
-      "description": "Legacy key identifying the project's ecosystem; must match the ecosystem folder."
+      "description": "Identifies the project's ecosystem; must match the ecosystem folder."
     },
     "description": {
       "type": "string",
@@ -53,7 +53,7 @@
     "mod_version": {
       "type": "integer",
       "minimum": 1,
-      "description": "Legacy catalog-entry version; start at 1 and increment when the entry changes."
+      "description": "Catalog-entry version; start at 1 and increment when the entry changes."
     },
     "compatibility": {
       "type": "array",
@@ -81,8 +81,9 @@
     "license": {
       "type": "string",
       "minLength": 1,
-      "pattern": "^(?:LicenseRef-[A-Za-z0-9][A-Za-z0-9.-]*|(?!LicenseRef-)[A-Za-z0-9][A-Za-z0-9.+-]*)$",
-      "description": "Required for every project. Use the disclosed upstream SPDX identifier or LicenseRef-* for an indexed project; mod-lint verifies registered identifiers and canonical spelling. A hosted OSSM project must use CERN-OHL-S-2.0; another hosted project may use any disclosed SPDX identifier or LicenseRef-* and must include its license text at the project root."
+      "maxLength": 120,
+      "pattern": "\\S",
+      "description": "Required for every project. Copy the license name used by the project, such as MIT, GPL-3.0-only, or CERN-OHL-S-2.0. For custom terms, use a plain descriptive name such as Community Use Terms. Indexed projects use the same name as their upstream project. A hosted OSSM project must use CERN-OHL-S-2.0; another hosted project must include its matching license text at the project root."
     },
     "safety": {
       "type": "object",

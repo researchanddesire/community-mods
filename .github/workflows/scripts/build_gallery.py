@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Generate the static R+D Project Hub gallery from the legacy mods/ tree.
+"""Generate the static R+D Project Hub site from the established mods/ tree.
 
-Scans mods/<ecosystem>/<author>/<project_slug>/mod.yml and emits a single
-self-contained site/index.html (cards + client-side search). Deployed to
-mods.researchanddesire.com by gallery.yml. The legacy directory and metadata
-names remain stable for contributor and URL compatibility.
+Scans mods/<ecosystem>/<author>/<project_slug>/mod.yml and emits the gallery
+plus a branded contribution guide generated from the repository's canonical
+CONTRIBUTING.md. Deployed to mods.researchanddesire.com by gallery.yml. The
+established directory and metadata names remain stable for contributor and URL
+compatibility.
 """
 
 from __future__ import annotations
@@ -13,9 +14,11 @@ import base64
 import html
 import json
 import os
+import posixpath
 import re
 import shutil
 import sys
+from urllib.parse import urlsplit
 
 try:
     import yaml
@@ -38,6 +41,7 @@ except ImportError:
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
 MODS_ROOT = os.path.join(REPO_ROOT, "mods")
+CONTRIBUTING_PATH = os.path.join(REPO_ROOT, "CONTRIBUTING.md")
 OUT_DIR = os.path.join(REPO_ROOT, "site")
 ECOSYSTEMS = {"lockbox", "dtt", "ossm", "radr"}
 SKIP_AUTHORS = {"SAMPLE_AUTHOR"}
@@ -53,6 +57,7 @@ LOGO_PATH = os.path.join(SCRIPT_DIR, "assets", "rad-logo.png")
 SOCIAL_IMAGE_PATH = os.path.join(SCRIPT_DIR, "assets", "project-hub-og.png")
 CANONICAL_URL = "https://mods.researchanddesire.com/"
 SOCIAL_IMAGE_URL = f"{CANONICAL_URL}project-hub-og.png"
+CONTRIBUTING_URL = f"{CANONICAL_URL}contributing/"
 
 
 def logo_data_uri() -> str:
@@ -71,35 +76,72 @@ def logo_data_uri() -> str:
     return "data:image/png;base64," + base64.b64encode(data).decode("ascii")
 
 
-def render_readme(md_text: str, rel: str) -> str:
+def render_repository_markdown(md_text: str, rel: str) -> str:
     """Markdown -> sanitized HTML, with relative img/links rewritten to GitHub.
 
-    Contributor READMEs are untrusted, so the output is always sanitized (or
-    falls back to escaped plain text if the optional libs are unavailable).
+    Repository Markdown can contain contributor-controlled content, so output
+    is always sanitized (or falls back to escaped text if optional libraries
+    are unavailable). ``rel`` is the source document's repository directory.
     """
     if _markdown is not None and _nh3 is not None:
         rendered = _markdown.markdown(
             md_text, extensions=["fenced_code", "tables", "sane_lists"]
         )
         rendered = _nh3.clean(rendered)
-        # The modal already shows the project title as a heading, so drop the
-        # README's own leading H1 (conventionally the same title) to avoid
-        # showing it twice.
+        # The surrounding page already shows the document title, so drop the
+        # Markdown's leading H1 to avoid showing it twice.
         rendered = re.sub(r"^\s*<h1>.*?</h1>\s*", "", rendered, count=1, flags=re.S)
     else:
         rendered = "<pre>" + html.escape(md_text) + "</pre>"
 
-    raw_base = f"https://raw.githubusercontent.com/{REPO_SLUG}/main/{rel}/"
-    blob_base = f"{REPO_URL}/blob/main/{rel}/"
-
+    rel = rel.strip("/")
     def rewrite(match: re.Match) -> str:
         attr, quote, url = match.group(1), match.group(2), match.group(3)
-        if url.startswith(("http://", "https://", "//", "#", "mailto:", "data:")):
+        # Markdown/sanitizer output is already entity-encoded. Decode relative
+        # URLs before parsing, then encode the final attribute exactly once.
+        decoded_url = html.unescape(url)
+        if decoded_url.startswith(("http://", "https://", "//", "#", "mailto:", "data:")):
             return match.group(0)
-        base = raw_base if attr == "src" else blob_base
-        return f"{attr}={quote}{base}{url.lstrip('./')}{quote}"
+        parsed = urlsplit(decoded_url)
+        path = parsed.path.lstrip("/")
+        target = posixpath.normpath(posixpath.join(rel, path))
+        if target == ".":
+            target = ""
+        if target == ".." or target.startswith("../"):
+            return f"{attr}={quote}#{quote}"
+        if attr == "src":
+            base = f"https://raw.githubusercontent.com/{REPO_SLUG}/main/"
+        elif parsed.path.endswith("/"):
+            base = f"{REPO_URL}/tree/main/"
+        else:
+            base = f"{REPO_URL}/blob/main/"
+        rewritten = f"{base}{target}"
+        if parsed.query:
+            rewritten += f"?{parsed.query}"
+        if parsed.fragment:
+            rewritten += f"#{parsed.fragment}"
+        # This rewrite runs after Markdown sanitization, so escape the final URL
+        # before inserting it back into an HTML attribute. Catalog paths are
+        # contributor-controlled and may contain quote characters.
+        return f"{attr}={quote}{html.escape(rewritten, quote=True)}{quote}"
 
     return re.sub(r"""(src|href)=(["'])([^"']*)\2""", rewrite, rendered)
+
+
+def render_readme(md_text: str, rel: str) -> str:
+    """Render a project README for the gallery modal."""
+    return render_repository_markdown(md_text, rel)
+
+
+def branding_fragments() -> tuple[str, str, str]:
+    """Return CSS, content, and favicon fragments for the shared R+D mark."""
+    logo_uri = logo_data_uri()
+    logo_var = f'--logo:url("{logo_uri}");' if logo_uri else ""
+    logo_inner = "" if logo_uri else "R+D"
+    favicon = (
+        f'<link rel="icon" type="image/png" href="{logo_uri}">' if logo_uri else ""
+    )
+    return logo_var, logo_inner, favicon
 
 
 def collect_mods() -> list[dict]:
@@ -169,12 +211,7 @@ def render(mods: list[dict]) -> str:
         for code, label in ECOSYSTEM_LABELS.items()
         if code in active_ecosystems
     )
-    logo_uri = logo_data_uri()
-    # Defined once on :root so the (large) data URI isn't repeated per <a>.
-    logo_var = f'--logo:url("{logo_uri}");' if logo_uri else ""
-    # Image logo → empty anchor (logo shows via background); else a text mark.
-    logo_inner = "" if logo_uri else "R+D"
-    favicon = f'<link rel="icon" type="image/png" href="{logo_uri}">' if logo_uri else ""
+    logo_var, logo_inner, favicon = branding_fragments()
     social_image_meta = ""
     if os.path.isfile(SOCIAL_IMAGE_PATH):
         social_image_meta = f'''<meta property="og:image" content="{SOCIAL_IMAGE_URL}">
@@ -213,6 +250,10 @@ def render(mods: list[dict]) -> str:
   .brand .logo:hover {{ opacity:.82; }}
   h1 {{ margin:0 0 .15rem; line-height:1.1; }}
   .sub {{ color:var(--muted); margin:0; }}
+  .site-nav {{ display:flex; gap:1rem; margin:.8rem 0 0 4rem; }}
+  .site-nav a {{ color:var(--muted); text-decoration:none; font-size:.92rem; }}
+  .site-nav a:hover {{ color:var(--accent); }}
+  .site-nav a[aria-current="page"] {{ color:var(--fg); font-weight:650; }}
   .controls {{ display:flex; gap:.75rem; flex-wrap:wrap; max-width:1100px; margin:0 auto; padding:0 1.5rem; }}
   input,select {{ background:var(--card); color:var(--fg); border:1px solid #2a2f3a; border-radius:8px; padding:.6rem .8rem; font:inherit; }}
   input {{ flex:1; min-width:200px; }}
@@ -233,6 +274,7 @@ def render(mods: list[dict]) -> str:
     .layout {{ flex-direction:column; }}
     .sidebar {{ position:static; flex-basis:auto; width:100%; }}
     .sidebar .tags {{ flex-direction:row; flex-wrap:wrap; }}
+    .site-nav {{ margin-left:0; }}
   }}
   .card {{ background:var(--card); border:1px solid #2a2f3a; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; cursor:pointer; transition:border-color .15s, transform .15s; }}
   .card:hover {{ border-color:var(--accent); transform:translateY(-2px); }}
@@ -310,6 +352,10 @@ def render(mods: list[dict]) -> str:
       or warranty by R+D. <a class="top" href="{REPO_URL}">Project repository →</a></p>
     </div>
   </div>
+  <nav class="site-nav" aria-label="Site">
+    <a href="./" aria-current="page">Projects</a>
+    <a href="contributing/">Contributing</a>
+  </nav>
 </header>
 <div class="controls">
   <input id="q" type="search" placeholder="Search projects…" aria-label="Search projects" autocomplete="off">
@@ -343,7 +389,8 @@ def render(mods: list[dict]) -> str:
         <a href="https://researchanddesire.com" target="_blank" rel="noopener">researchanddesire.com ↗</a>
         <a href="https://docs.researchanddesire.com" target="_blank" rel="noopener">Documentation ↗</a>
         <a href="https://discord.gg/VtZcudpxT6" target="_blank" rel="noopener">KinkyMakers Discord ↗</a>
-        <a href="{REPO_URL}" target="_blank" rel="noopener">Project repository &amp; contribute ↗</a>
+        <a href="contributing/">Contribute a project</a>
+        <a href="{REPO_URL}" target="_blank" rel="noopener">Project repository ↗</a>
       </div>
     </div>
   </div>
@@ -504,6 +551,106 @@ render();
 """
 
 
+def render_contributing(md_text: str) -> str:
+    """Render the canonical repository contribution guide as a branded page."""
+    logo_var, logo_inner, favicon = branding_fragments()
+    guidance = render_repository_markdown(md_text, "")
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contributing a project · R+D Project Hub</title>
+<meta name="description" content="How to index or host a project in the R+D Project Hub.">
+<link rel="canonical" href="{CONTRIBUTING_URL}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="R+D Project Hub">
+<meta property="og:title" content="Contributing a project · R+D Project Hub">
+<meta property="og:description" content="How to index or host a project in the R+D Project Hub.">
+<meta property="og:url" content="{CONTRIBUTING_URL}">
+<meta property="og:image" content="{SOCIAL_IMAGE_URL}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="R+D Project Hub — community-built projects across R+D-adjacent ecosystems">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contributing a project · R+D Project Hub">
+<meta name="twitter:description" content="How to index or host a project in the R+D Project Hub.">
+<meta name="twitter:image" content="{SOCIAL_IMAGE_URL}">
+<meta name="twitter:image:alt" content="R+D Project Hub — community-built projects across R+D-adjacent ecosystems">
+{favicon}
+<style>
+  :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; {logo_var} }}
+  * {{ box-sizing:border-box; }}
+  body {{ margin:0; font:16px/1.6 system-ui,sans-serif; background:var(--bg); color:var(--fg); }}
+  .topbar {{ border-bottom:1px solid #2a2f3a; background:var(--bg); }}
+  header {{ max-width:900px; margin:0 auto; padding:1.5rem; }}
+  .brand {{ display:flex; align-items:center; gap:.75rem; }}
+  .logo {{ flex:0 0 auto; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1rem; color:var(--accent); background:center/contain no-repeat; background-image:var(--logo,none); text-decoration:none; }}
+  .logo:hover {{ opacity:.82; }}
+  h1 {{ margin:0; line-height:1.15; }}
+  .eyebrow {{ color:var(--muted); margin:0 0 .12rem; font-size:.86rem; text-transform:uppercase; letter-spacing:.06em; }}
+  .site-nav {{ display:flex; gap:1rem; margin:.8rem 0 0 4rem; }}
+  .site-nav a {{ color:var(--muted); text-decoration:none; font-size:.92rem; }}
+  .site-nav a:hover {{ color:var(--accent); }}
+  .site-nav a[aria-current="page"] {{ color:var(--fg); font-weight:650; }}
+  main {{ max-width:900px; margin:1.5rem auto 3rem; padding:0 1.5rem; }}
+  .document {{ background:var(--card); border:1px solid #2a2f3a; border-radius:12px; padding:1.5rem clamp(1.1rem,4vw,3rem) 2.5rem; }}
+  .document h2 {{ margin-top:2rem; border-bottom:1px solid #2a2f3a; padding-bottom:.35rem; line-height:1.25; }}
+  .document h3 {{ margin-top:1.6rem; line-height:1.3; }}
+  .document a {{ color:var(--accent); }}
+  .document code {{ background:var(--bg); border-radius:4px; padding:.12rem .35rem; font-size:.9em; overflow-wrap:anywhere; }}
+  .document pre {{ background:var(--bg); border:1px solid #2a2f3a; border-radius:8px; padding:1rem; overflow:auto; }}
+  .document pre code {{ padding:0; background:none; overflow-wrap:normal; }}
+  .document table {{ width:100%; border-collapse:collapse; display:block; overflow-x:auto; }}
+  .document th, .document td {{ border:1px solid #2a2f3a; padding:.45rem .65rem; text-align:left; }}
+  .document blockquote {{ margin:.75rem 0; padding:.2rem 1rem; border-left:3px solid var(--accent); color:var(--muted); }}
+  .document img {{ max-width:100%; height:auto; }}
+  .source-note {{ color:var(--muted); font-size:.88rem; margin:1rem 0 0; }}
+  .source-note a {{ color:var(--accent); }}
+  footer {{ border-top:1px solid #2a2f3a; color:var(--muted); }}
+  .footer-inner {{ max-width:900px; margin:0 auto; padding:1.5rem; display:flex; flex-wrap:wrap; gap:.6rem 1.25rem; justify-content:space-between; }}
+  footer a {{ color:var(--accent); text-decoration:none; }}
+  footer a:hover {{ text-decoration:underline; }}
+  @media (max-width:620px) {{
+    .site-nav {{ margin-left:0; }}
+    .document {{ border-radius:8px; }}
+  }}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <header>
+    <div class="brand">
+      <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire">{logo_inner}</a>
+      <div>
+        <p class="eyebrow">R+D Project Hub</p>
+        <h1>Contributing a project</h1>
+      </div>
+    </div>
+    <nav class="site-nav" aria-label="Site">
+      <a href="../">Projects</a>
+      <a href="./" aria-current="page">Contributing</a>
+    </nav>
+  </header>
+</div>
+<main>
+  <article class="document">{guidance}</article>
+  <p class="source-note">This page is generated from the repository's
+  <a href="{REPO_URL}/blob/main/CONTRIBUTING.md">canonical contribution guide</a>
+  so the website and pull-request guidance stay together.</p>
+</main>
+<footer>
+  <div class="footer-inner">
+    <span>Hosted by Research and Desire</span>
+    <span><a href="../">Browse projects</a> · <a href="{REPO_URL}">Project repository ↗</a></span>
+  </div>
+</footer>
+</body>
+</html>
+"""
+
+
 def main() -> int:
     mods = collect_mods()
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -528,7 +675,16 @@ def main() -> int:
     out_html = os.path.join(OUT_DIR, "index.html")
     with open(out_html, "w", encoding="utf-8") as fh:
         fh.write(render(mods))
-    print(f"Wrote {out_html} with {len(mods)} project(s).")
+    with open(CONTRIBUTING_PATH, encoding="utf-8") as fh:
+        contribution_guidance = fh.read()
+    contributing_dir = os.path.join(OUT_DIR, "contributing")
+    os.makedirs(contributing_dir, exist_ok=True)
+    contributing_html = os.path.join(contributing_dir, "index.html")
+    with open(contributing_html, "w", encoding="utf-8") as fh:
+        fh.write(render_contributing(contribution_guidance))
+    print(
+        f"Wrote {out_html} with {len(mods)} project(s) and {contributing_html}."
+    )
     return 0
 
 

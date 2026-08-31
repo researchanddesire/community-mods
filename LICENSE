@@ -1,18 +1,13 @@
 # Research and Desire Project Hub — License and Copyright Notice
 
-> **Owner/legal approval required:** this notice changes the repository's
-> licensing and trademark policy. Do not merge it until the project owner and a
-> qualified legal reviewer have approved the wording and the rights needed for
-> existing material.
-
 The R+D Project Hub catalogs independently maintained OSSM variants,
 controllers, software, hardware, accessories, and related projects. Copyright
 in each contribution remains with its respective author unless stated
 otherwise. Inclusion in this catalog is not an endorsement, safety
 certification, or warranty by Research and Desire (R+D).
 
-The legacy paths and keys `mods/`, `mod.yml`, and `mod_version` do not determine
-the license. The following path and project-type rules do.
+The technical paths and keys `mods/`, `mod.yml`, and `mod_version` do not
+determine the license. The following path and project-type rules do.
 
 ## License map
 
@@ -43,32 +38,31 @@ the license. The following path and project-type rules do.
    includes that hosted project's hardware, software, printable files,
    project-authored documentation, and images. Full text:
    [`LICENSES/CERN-OHL-S-2.0.txt`](LICENSES/CERN-OHL-S-2.0.txt). A hosted OSSM
-   project's `mod.yml` must declare `license: CERN-OHL-S-2.0`; it must not add a
-   project-local license file.
+   project's `mod.yml` declares `license: CERN-OHL-S-2.0`. Its files are already
+   covered here, so a separate project-local license file is not needed.
 
 4. **Other hosted projects** — project content stored under another ecosystem
-   without a `source_url` is governed by the license identifier declared in its
-   `mod.yml` and the corresponding license text included at that project's
-   root. Subject to the catalog-layer exception in item 1, that project-specific
-   license governs the author-supplied files and documentation inside the hosted
-   project directory.
+   without a `source_url` is governed by the license name entered in its
+   `mod.yml` and the matching license text included at that project's root.
+   Subject to the catalog-layer exception in item 1, that project-specific
+   license governs the author-supplied files and documentation inside the
+   hosted project directory.
 
 5. **Indexed projects** — when `mod.yml` contains `source_url`, this repository
    stores a catalog record and links to files maintained upstream; it does not
    relicense those upstream files. Upstream content remains governed by the
    license disclosed by its maintainer and identified in `mod.yml`. The
    hub-authored catalog record itself is covered by CC-BY-4.0 as described
-   above. Indexed projects must not copy an upstream `LICENSE` into their local
-   catalog directory.
+   above. License files stay in the upstream source repository rather than
+   being copied into the local catalog directory.
 
-Contributors are responsible for having the rights needed to submit material
-under the applicable license. DCO sign-off records authorship and permission to
-contribute; it does not replace the applicable license terms.
+Only submit material you have permission to share under the project's license.
 
-The Hub does not use an open-license-only allowlist. A nonstandard or
-proprietary license must be clearly disclosed with a `LicenseRef-*` identifier;
-when the project is hosted here, its full terms must be included in the required
-project-root license file.
+Indexed projects may use any clearly stated upstream license. Hosted OSSM
+projects use CERN-OHL-S-2.0; other hosted projects may use any clearly stated
+terms. If a project uses its own terms, enter a plain descriptive name in
+`mod.yml`, such as `Community Use Terms`. When the project is hosted here,
+include the full terms in its project-root license file.
 
 ## Names and trademarks
 
@@ -77,15 +71,15 @@ independently maintained variants. This repository does not claim that OSSM is
 an R+D-owned trademark, and this notice makes no determination about rights
 that may be held by third parties.
 
-Research and Desire, R+D, and clearly R+D-owned product names, logos, trade
-dress, and branding remain reserved. No copyright or open-source license in
+Research and Desire, R+D, and clearly R+D-owned names, logos, trade dress, and
+branding remain reserved. No copyright or open-source license in
 this repository grants trademark rights or permission to imply sponsorship,
 endorsement, or official status.
 
 ## No warranty or safety certification
 
 Projects listed or hosted here are independently maintained. Unless a project
-explicitly says otherwise, it is not an official R+D product and has not been
+explicitly says otherwise, it is not an official R+D release and has not been
 safety-tested or certified by R+D. Material is provided under the warranty and
 liability terms of its applicable license. Use and build projects at your own
 risk, verify safety controls, and follow the safety-review policy in

@@ -1,11 +1,11 @@
 # OSSM ecosystem projects
 
-OSSM is treated here as a shared ecosystem, not as a single R+D product. This
-directory welcomes independently maintained machine variants, controllers,
-software, hardware, accessories, and tools. R+D's OSSM implementation is one
-participant among many possible variants.
+OSSM is treated here as a shared ecosystem with multiple independently
+maintained implementations. This directory welcomes complete machine variants,
+controllers, software, hardware, accessories, tools, and mods. No single
+implementation defines the ecosystem.
 
-Index an upstream project or host one here at the retained legacy path
+Index an upstream project or host one here at the catalog path
 `mods/ossm/<your-github-username>/<project_slug>/`. Both contribution paths are
 equal in the hub.
 

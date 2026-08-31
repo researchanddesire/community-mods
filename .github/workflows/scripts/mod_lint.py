@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Validate every legacy mods/<ecosystem>/<author>/<project_slug>/ directory.
+"""Validate every project entry under mods/<ecosystem>/<author>/<project_slug>/.
 
 Schema source of truth: .github/workflows/scripts/mod.schema.json (canonical
 in this repo — the project standard has a single consumer, so it is not vendored
-from dev-docs the way the cross-product BOM schema is).
+from dev-docs like schemas shared across repositories).
 See CONTRIBUTING.md and https://dev.researchanddesire.com/meta/community-mods/.
 
 Checks (structure, not taste):
@@ -16,7 +16,7 @@ Checks (structure, not taste):
   - other hosted projects include a project-root LICENSE
   - at least one declared local image, or an HTTP(S) URL for indexed projects
   - mod.yml validates against mod.schema.json (JSON Schema draft-07)
-  - legacy mod.yml.product matches the ecosystem folder; author matches its folder
+  - mod.yml.product matches the ecosystem folder; author matches its folder
   - every local (non-URL) path in mod.yml.images exists
 
 CAD and source files are optional: a hosted project may consist of documentation,
@@ -42,18 +42,6 @@ except ImportError:
     print("ERROR: jsonschema is required (pip install jsonschema)", file=sys.stderr)
     raise SystemExit(2)
 
-try:
-    from packaging.licenses import (
-        InvalidLicenseExpression,
-        canonicalize_license_expression,
-    )
-except ImportError:
-    print(
-        "ERROR: packaging>=24.2 is required (pip install 'packaging>=24.2')",
-        file=sys.stderr,
-    )
-    raise SystemExit(2)
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
 SCHEMA_PATH = os.path.join(SCRIPT_DIR, "mod.schema.json")
@@ -64,7 +52,7 @@ OSSM_HOSTED_LICENSE = "CERN-OHL-S-2.0"
 
 
 def find_mod_dirs() -> list[str]:
-    """A project dir uses the legacy mods/<ecosystem>/<author>/<slug>/ shape."""
+    """Find project directories using mods/<ecosystem>/<author>/<slug>/."""
     projects: set[str] = set()
     if not os.path.isdir(MODS_ROOT):
         return []
@@ -154,7 +142,7 @@ def local_image_error(project_dir: str, image: str) -> str | None:
 
 
 def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
-    """Lint one project directory; name retained as part of the legacy tool API."""
+    """Lint one project directory against the catalog contract."""
     rel = os.path.relpath(mod_dir, REPO_ROOT)
     errors: list[str] = []
 
@@ -200,27 +188,13 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
     if isinstance(source_url, str) and not valid_http_url(source_url):
         errors.append(f"{rel}/mod.yml: source_url: must be a complete HTTP(S) URL")
     declared_license = data.get("license")
-    if isinstance(declared_license, str):
-        try:
-            canonical_license = canonicalize_license_expression(declared_license)
-        except InvalidLicenseExpression as exc:
-            errors.append(
-                f"{rel}/mod.yml: license: use a recognized SPDX identifier or "
-                f"LicenseRef-* ({exc})"
-            )
-        else:
-            if canonical_license != declared_license:
-                errors.append(
-                    f"{rel}/mod.yml: license: use canonical SPDX spelling "
-                    f"'{canonical_license}'"
-                )
     license_files = local_license_files(mod_dir)
 
     if is_indexed:
         if license_files:
             errors.append(
-                f"{rel}: indexed projects must not include a local LICENSE "
-                f"({', '.join(license_files)}); license terms live upstream"
+                f"{rel}: remove the local LICENSE ({', '.join(license_files)}); "
+                "indexed project license terms live upstream"
             )
     elif product == "ossm":
         if declared_license not in (None, OSSM_HOSTED_LICENSE):
@@ -230,14 +204,16 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
             )
         if license_files:
             errors.append(
-                f"{rel}: hosted OSSM projects must not include a project-local "
-                f"LICENSE ({', '.join(license_files)}); use the repository copy"
+                f"{rel}: remove the project-local LICENSE "
+                f"({', '.join(license_files)}); hosted OSSM files use the "
+                "repository's CERN-OHL-S-2.0 license text"
             )
     else:
         if not license_files:
             errors.append(
                 f"{rel}: hosted {product} projects must include a project-root "
-                "LICENSE (LICENSE, LICENSE.txt, or LICENSE.md) matching mod.yml"
+                "LICENSE (LICENSE, LICENSE.txt, or LICENSE.md) containing the "
+                "project's license terms"
             )
         elif not any(
             license_file_has_text(mod_dir, filename) for filename in license_files
@@ -294,7 +270,7 @@ def main() -> int:
 
     projects = find_mod_dirs()
     if not projects:
-        print("No projects found under the legacy mods/ path — nothing to lint.")
+        print("No projects found under mods/ — nothing to lint.")
         return 0
 
     all_errors: list[str] = []

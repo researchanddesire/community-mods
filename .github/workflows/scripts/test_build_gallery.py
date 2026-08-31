@@ -19,6 +19,12 @@ class ProjectHubBuildTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.projects = build_gallery.collect_mods()
         cls.html = build_gallery.render(cls.projects)
+        cls.contribution_guidance = Path(
+            build_gallery.CONTRIBUTING_PATH
+        ).read_text(encoding="utf-8")
+        cls.contributing_html = build_gallery.render_contributing(
+            cls.contribution_guidance
+        )
 
     def test_catalog_contains_the_four_expected_projects_in_peer_order(self) -> None:
         self.assertEqual(
@@ -108,6 +114,61 @@ class ProjectHubBuildTests(unittest.TestCase):
             "selectedTags.clear(); render();",
         ):
             self.assertIn(behavior, self.html)
+
+    def test_gallery_navigation_links_to_contributing_page_relatively(self) -> None:
+        # Relative navigation works at both the custom-domain root and the
+        # retained GitHub Pages /community-mods/ project path.
+        self.assertIn('<a href="./" aria-current="page">Projects</a>', self.html)
+        self.assertIn('<a href="contributing/">Contributing</a>', self.html)
+        self.assertIn('<a href="contributing/">Contribute a project</a>', self.html)
+
+    def test_contributing_page_is_generated_from_canonical_guidance(self) -> None:
+        for phrase in (
+            "Two contribution paths — equal in the hub",
+            "Indexed project",
+            "Hosted project",
+            "Open the pull request",
+        ):
+            self.assertIn(phrase, self.contributing_html)
+
+        self.assertIn(
+            '<link rel="canonical" href="https://mods.researchanddesire.com/contributing/">',
+            self.contributing_html,
+        )
+        self.assertIn(
+            '<meta property="og:url" content="https://mods.researchanddesire.com/contributing/">',
+            self.contributing_html,
+        )
+        self.assertIn(
+            '<meta name="twitter:card" content="summary_large_image">',
+            self.contributing_html,
+        )
+        self.assertIn(
+            '<meta name="twitter:image:alt" content="R+D Project Hub — '
+            'community-built projects across R+D-adjacent ecosystems">',
+            self.contributing_html,
+        )
+        self.assertIn(
+            '<meta property="og:image:width" content="1200">',
+            self.contributing_html,
+        )
+        self.assertIn('<a href="../">Projects</a>', self.contributing_html)
+        self.assertIn(
+            "https://github.com/researchanddesire/community-mods/tree/main/"
+            "mods/ossm/SAMPLE_AUTHOR/sample_mount",
+            self.contributing_html,
+        )
+        self.assertNotIn("/main//", self.contributing_html)
+        self.assertNotIn("legacy", self.contributing_html.casefold())
+        self.assertNotIn("R+D product", self.contributing_html)
+        self.assertNotIn("SPDX", self.contribution_guidance)
+        self.assertNotIn("DCO", self.contribution_guidance)
+        self.assertNotIn("Signed-off-by", self.contribution_guidance)
+        self.assertNotIn("forbidden", self.contribution_guidance.casefold())
+        self.assertIn(
+            "Hosted OSSM project files are already covered by the repository license.",
+            self.contribution_guidance,
+        )
 
     def test_runtime_search_tags_and_modal_keyboard_behavior(self) -> None:
         runtime_match = re.search(r"<script>\n(.*)\n</script>", self.html, re.S)
@@ -284,6 +345,35 @@ assert(elements.modal.hidden === true, 'inner link does not open modal');
         self.assertNotIn("<script", rendered)
         self.assertNotIn("onerror", rendered)
 
+    def test_repository_markdown_resolves_parent_and_directory_links(self) -> None:
+        rendered = build_gallery.render_repository_markdown(
+            "[parent](../README.md) [directory](../other-project/)",
+            "mods/ossm/alice/example-project",
+        )
+        self.assertIn(
+            "https://github.com/researchanddesire/community-mods/blob/main/"
+            "mods/ossm/alice/README.md",
+            rendered,
+        )
+        self.assertIn(
+            "https://github.com/researchanddesire/community-mods/tree/main/"
+            "mods/ossm/alice/other-project",
+            rendered,
+        )
+
+    def test_repository_markdown_escapes_catalog_paths_after_rewriting(self) -> None:
+        rendered = build_gallery.render_repository_markdown(
+            "[notes](notes.md?x=1&y=2)",
+            'mods/ossm/alice/evil"onmouseover="alert(1)',
+        )
+
+        self.assertIn(
+            "evil&quot;onmouseover=&quot;alert(1)/notes.md?x=1&amp;y=2",
+            rendered,
+        )
+        self.assertNotIn("&amp;amp;", rendered)
+        self.assertNotIn(' onmouseover="', rendered)
+
     def test_main_writes_html_and_social_card_to_the_pages_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             output = Path(temp_dir)
@@ -291,10 +381,16 @@ assert(elements.modal.hidden === true, 'inner link does not open modal');
                 self.assertEqual(0, build_gallery.main())
 
             index = output / "index.html"
+            contributing = output / "contributing" / "index.html"
             social = output / "project-hub-og.png"
             self.assertTrue(index.is_file())
+            self.assertTrue(contributing.is_file())
             self.assertTrue(social.is_file())
             self.assertEqual(self.html, index.read_text(encoding="utf-8"))
+            self.assertEqual(
+                self.contributing_html,
+                contributing.read_text(encoding="utf-8"),
+            )
             self.assertEqual(
                 Path(build_gallery.SOCIAL_IMAGE_PATH).read_bytes(), social.read_bytes()
             )

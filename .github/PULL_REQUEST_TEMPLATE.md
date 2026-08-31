@@ -2,7 +2,7 @@
 
 ## Project
 
-- **Ecosystem:** <!-- lockbox | dtt | ossm | radr; stored in the legacy `product` key -->
+- **Ecosystem:** <!-- lockbox | dtt | ossm | radr; stored in `product` -->
 - **Folder:** `mods/<ecosystem>/<your-username>/<project_slug>/`
 - **Contribution path:** <!-- indexed (maintained upstream) | hosted (files live here) -->
 - **What it does:**
@@ -10,24 +10,23 @@
 ## Submission checklist — every project
 
 - [ ] One project at exactly `mods/<ecosystem>/<author>/<project_slug>/`, with no spaces in those catalog directory names
-- [ ] Legacy-named `mod.yml` and `README.md` are present
+- [ ] `mod.yml` and `README.md` are present
 - [ ] `mod.yml` declares a non-empty compatibility list, a license, at least one image, and a complete safety block
-- [ ] The legacy `product` key identifies the ecosystem and `mod_version` identifies the catalog-entry version
+- [ ] `product` identifies the ecosystem and `mod_version` identifies the catalog-entry version
 - [ ] The README contains no referral or affiliate links
-- [ ] All commits are signed off (`git commit -s` → DCO)
 
 ## If indexed (maintained upstream)
 
-- [ ] `mod.yml` has `source_url` and the license disclosed upstream, as an SPDX identifier or `LicenseRef-*`
+- [ ] `mod.yml` has `source_url` and the same license name used upstream
 - [ ] `images` contains a working upstream URL or a local image in `img/`
 - [ ] The README links to the upstream project
-- [ ] There is no project-local `LICENSE` in this repository
+- [ ] The upstream project hosts its license terms; this catalog entry does not copy them
 
 ## If hosted (files live here)
 
 - [ ] `source_url` is omitted and `images` references at least one local image
-- [ ] An OSSM project declares exactly `CERN-OHL-S-2.0` and has no project-local `LICENSE`
-- [ ] A non-OSSM project declares its SPDX identifier or `LicenseRef-*` and includes matching text in a project-root `LICENSE`
+- [ ] An OSSM project declares exactly `CERN-OHL-S-2.0`; its files use the repository license, so no separate project-local `LICENSE` is needed
+- [ ] A non-OSSM project enters its license name and includes matching text in a project-root `LICENSE`
 - [ ] Optional CAD, print, source, and documentation files are in the project folder; CAD or source code is not required
 
 ## Safety
@@ -37,7 +36,3 @@
 
 > Inclusion in the R+D Project Hub is not endorsement, safety certification, or
 > warranty by Research and Desire.
-
-## Repository policy
-
-- [ ] This pull request does not change the repository-wide license or trademark notice, **or** the project owner and a qualified legal reviewer have approved those changes before merge

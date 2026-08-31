@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'mods/**'
+      - 'CONTRIBUTING.md'
       - '.github/workflows/scripts/build_gallery.py'
       - '.github/workflows/scripts/assets/**'
       - '.github/workflows/gallery.yml'
@@ -30,7 +31,7 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install dependencies
-        run: pip install pyyaml jsonschema markdown nh3 'packaging>=24.2'
+        run: pip install pyyaml jsonschema markdown nh3
       - name: Validate project catalog
         run: python .github/workflows/scripts/mod_lint.py
       - name: Run catalog regression tests

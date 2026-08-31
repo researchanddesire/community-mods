@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression tests for the legacy-named project catalog linter."""
+"""Regression tests for the project catalog linter."""
 
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ class ModLintTests(unittest.TestCase):
             "compatibility": ["Tested configuration"],
             "images": ["img/cover.png"],
             "license": (
-                "CERN-OHL-S-2.0" if product == "ossm" else "LicenseRef-Example"
+                "CERN-OHL-S-2.0" if product == "ossm" else "Community Use Terms"
             ),
             "safety": {
                 "affects_restraint_release": False,
@@ -112,7 +112,7 @@ class ModLintTests(unittest.TestCase):
             self.make_project(metadata=data, image=False, license_file=True)
         )
 
-        self.assertTrue(any("must not include a local LICENSE" in e for e in errors))
+        self.assertTrue(any("license terms live upstream" in e for e in errors))
 
     def test_indexed_project_requires_complete_source_and_image_urls(self) -> None:
         malformed_source = self.metadata()
@@ -146,28 +146,28 @@ class ModLintTests(unittest.TestCase):
 
         self.assertTrue(any("'license' is a required property" in e for e in errors))
 
-    def test_license_is_a_registered_spdx_id_or_license_ref(self) -> None:
-        invalid_data = self.metadata(product="dtt")
-        invalid_data["license"] = "Totally-Made-Up"
-        errors = self.lint(
+    def test_license_accepts_a_human_readable_name_but_not_blank_text(self) -> None:
+        custom_data = self.metadata(product="radr")
+        custom_data["license"] = "Alice's Community Hardware Terms 1.0"
+        custom_project = self.make_project(
+            product="radr",
+            slug="custom-license",
+            metadata=custom_data,
+            license_file=True,
+        )
+        self.assertEqual([], self.lint(custom_project))
+
+        blank_data = self.metadata(product="dtt")
+        blank_data["license"] = "   "
+        blank_errors = self.lint(
             self.make_project(
                 product="dtt",
-                slug="invalid-license",
-                metadata=invalid_data,
+                slug="blank-license",
+                metadata=blank_data,
                 license_file=True,
             )
         )
-        self.assertTrue(any("recognized SPDX identifier" in e for e in errors))
-
-        valid_data = self.metadata(product="radr")
-        valid_data["license"] = "LicenseRef-Custom-Terms"
-        project = self.make_project(
-            product="radr",
-            slug="custom-license",
-            metadata=valid_data,
-            license_file=True,
-        )
-        self.assertEqual([], self.lint(project))
+        self.assertTrue(any("/mod.yml: license:" in e for e in blank_errors))
 
     def test_hosted_ossm_project_requires_exact_license_and_no_local_copy(self) -> None:
         valid_project = self.make_project(slug="valid")
@@ -186,10 +186,10 @@ class ModLintTests(unittest.TestCase):
             self.make_project(slug="local-license", license_file=True)
         )
         self.assertTrue(
-            any("must not include a project-local LICENSE" in e for e in local_errors)
+            any("hosted OSSM files use the repository's" in e for e in local_errors)
         )
 
-    def test_other_hosted_project_requires_matching_local_license_text(self) -> None:
+    def test_other_hosted_project_requires_local_license_text(self) -> None:
         valid_project = self.make_project(product="dtt", license_file=True)
         self.assertEqual([], self.lint(valid_project))
 

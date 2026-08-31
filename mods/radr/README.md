@@ -5,7 +5,7 @@ Projects related to the
 including remote variants, controllers, hardware, software, accessories, and
 tools.
 
-Index an upstream project or host one here at the retained legacy path
+Index an upstream project or host one here at the catalog path
 `mods/radr/<your-github-username>/<project_slug>/`. Both contribution paths are
 equal in the hub.
 
