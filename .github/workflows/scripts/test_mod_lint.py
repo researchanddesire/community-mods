@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression tests for the legacy-named project catalog linter."""
+"""Regression tests for the project catalog linter."""
 
 from __future__ import annotations
 

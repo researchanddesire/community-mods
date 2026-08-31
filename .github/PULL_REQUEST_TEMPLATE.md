@@ -2,7 +2,7 @@
 
 ## Project
 
-- **Ecosystem:** <!-- lockbox | dtt | ossm | radr; stored in the legacy `product` key -->
+- **Ecosystem:** <!-- lockbox | dtt | ossm | radr; stored in `product` -->
 - **Folder:** `mods/<ecosystem>/<your-username>/<project_slug>/`
 - **Contribution path:** <!-- indexed (maintained upstream) | hosted (files live here) -->
 - **What it does:**
@@ -10,9 +10,9 @@
 ## Submission checklist — every project
 
 - [ ] One project at exactly `mods/<ecosystem>/<author>/<project_slug>/`, with no spaces in those catalog directory names
-- [ ] Legacy-named `mod.yml` and `README.md` are present
+- [ ] `mod.yml` and `README.md` are present
 - [ ] `mod.yml` declares a non-empty compatibility list, a license, at least one image, and a complete safety block
-- [ ] The legacy `product` key identifies the ecosystem and `mod_version` identifies the catalog-entry version
+- [ ] `product` identifies the ecosystem and `mod_version` identifies the catalog-entry version
 - [ ] The README contains no referral or affiliate links
 - [ ] All commits are signed off (`git commit -s` → DCO)
 

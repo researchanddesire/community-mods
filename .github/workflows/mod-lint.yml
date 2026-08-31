@@ -33,8 +33,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Retain the legacy job id because main-branch protection requires the
-  # `mod-lint` status context. The workflow and step names remain project-first.
+  # Keep this stable job id because main-branch protection requires the
+  # `mod-lint` status context. The workflow and step names are project-first.
   mod-lint:
     runs-on: ubuntu-latest
     steps:

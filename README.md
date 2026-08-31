@@ -18,10 +18,9 @@ Search by keyword, filter by ecosystem, or combine tags to find variants,
 controllers, software, hardware, accessories, and other related work. Tags come
 from the optional `tags:` field in each project's metadata.
 
-## The retained catalog interface
+## Catalog format
 
-The hub now uses project-first language, but keeps its established file and
-validation interfaces for compatibility:
+Every project uses the same established file and validation interfaces:
 
 ```text
 mods/<ecosystem>/<author>/<project_slug>/
@@ -31,21 +30,21 @@ mods/<ecosystem>/<author>/<project_slug>/
 ├── src/        # optional software or firmware
 ├── docs/       # optional BOMs, assembly guides, and other documentation
 ├── LICENSE     # required only for hosted, non-OSSM projects
-├── mod.yml     # required metadata (legacy filename)
+├── mod.yml     # required project metadata
 └── README.md   # required project description
 ```
 
-The exact path remains
-`mods/<ecosystem>/<author>/<project_slug>/mod.yml`. Within `mod.yml`, `product`
-is the legacy key for the ecosystem and `mod_version` is the legacy key for the
-catalog-entry version. The validation command also retains its legacy name,
-`mod-lint`. These names do not imply that a project must be a modification or
-an R+D product.
+The catalog path is `mods/<ecosystem>/<author>/<project_slug>/mod.yml`. Within
+`mod.yml`, `product` identifies the ecosystem and `mod_version` tracks the
+catalog-entry version. Run the validator with `mod-lint`. These stable technical
+names support projects of every kind, including complete variants, controllers,
+software, hardware, accessories, and mods.
 
 ## Submit a project
 
-There are two equally welcome contribution paths. See
-**[CONTRIBUTING.md](CONTRIBUTING.md)** for the complete contract.
+There are two equally welcome contribution paths. See the Project Hub's
+**[Contributing guide](https://mods.researchanddesire.com/contributing/)** for
+the complete contract; its source lives in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 - **Index a project** — keep the project in its maintainer's repository and add
   metadata plus a short README here. Set `source_url` and the upstream project's
@@ -56,7 +55,7 @@ There are two equally welcome contribution paths. See
   image, and a declared license. CAD and source code are optional, not minimum
   requirements.
 
-Either way, open a pull request. CI runs `mod-lint` to check the legacy catalog
+Either way, open a pull request. CI runs `mod-lint` to check the catalog
 structure and metadata before maintainer review. Indexed and hosted projects
 are presented on equal footing in the gallery.
 
