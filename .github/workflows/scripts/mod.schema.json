@@ -81,8 +81,9 @@
     "license": {
       "type": "string",
       "minLength": 1,
-      "pattern": "^(?:LicenseRef-[A-Za-z0-9][A-Za-z0-9.-]*|(?!LicenseRef-)[A-Za-z0-9][A-Za-z0-9.+-]*)$",
-      "description": "Required for every project. Use the disclosed upstream SPDX identifier or LicenseRef-* for an indexed project; mod-lint verifies registered identifiers and canonical spelling. A hosted OSSM project must use CERN-OHL-S-2.0; another hosted project may use any disclosed SPDX identifier or LicenseRef-* and must include its license text at the project root."
+      "maxLength": 120,
+      "pattern": "\\S",
+      "description": "Required for every project. Copy the license name used by the project, such as MIT, GPL-3.0-only, or CERN-OHL-S-2.0. For custom terms, use a plain descriptive name such as Community Use Terms. Indexed projects use the same name as their upstream project. A hosted OSSM project must use CERN-OHL-S-2.0; another hosted project must include its matching license text at the project root."
     },
     "safety": {
       "type": "object",

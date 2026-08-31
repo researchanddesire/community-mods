@@ -21,20 +21,23 @@ from this tree. Never hand-edit a generated top-level gallery.
   catalog level below `<project_slug>`.
 - Every project requires `mod.yml`, `README.md`, a non-empty `images` list, a
   complete `safety` object, and a declared `license`.
+- In `license`, copy the license name used by the project, such as `MIT`,
+  `GPL-3.0-only`, or `CERN-OHL-S-2.0`. If the project has its own terms, use a
+  plain descriptive name such as `Community Use Terms`.
 - **Indexed project:** set `source_url` to the upstream project and `license` to
-  its disclosed SPDX identifier or `LicenseRef-*`. An upstream image URL is
-  allowed. Do not add a project-local `LICENSE`.
+  the same short license name used there. An upstream image URL is allowed. Do
+  not add a project-local `LICENSE`.
 - **Hosted OSSM project:** omit `source_url`, set `license` to exactly
   `CERN-OHL-S-2.0`, include at least one local image, and do not add a
   project-local `LICENSE`.
-- **Other hosted project:** omit `source_url`, declare its SPDX identifier or
-  `LicenseRef-*`, include at least one local image, and add the matching license
-  text at the project root as `LICENSE`.
+- **Other hosted project:** omit `source_url`, enter its license name,
+  include at least one local image, and add the matching license text at the
+  project root as `LICENSE`.
 - CAD and source code are optional. A hosted project does not need a `cad/`,
   STEP file, or source directory to qualify. Put print files in `print/` and
   track applicable binaries through Git LFS.
-- Any honestly disclosed license is eligible; the hub does not impose an
-  open-license-only requirement.
+- Indexed projects may use any clearly stated upstream license; hosted projects
+  follow the ecosystem rules above.
 - Fill every `safety` flag honestly and keep `safety.notes` non-blank. Applied
   force, restraint-release, and electrical or charging behavior require human
   safety review.

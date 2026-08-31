@@ -42,18 +42,6 @@ except ImportError:
     print("ERROR: jsonschema is required (pip install jsonschema)", file=sys.stderr)
     raise SystemExit(2)
 
-try:
-    from packaging.licenses import (
-        InvalidLicenseExpression,
-        canonicalize_license_expression,
-    )
-except ImportError:
-    print(
-        "ERROR: packaging>=24.2 is required (pip install 'packaging>=24.2')",
-        file=sys.stderr,
-    )
-    raise SystemExit(2)
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
 SCHEMA_PATH = os.path.join(SCRIPT_DIR, "mod.schema.json")
@@ -200,20 +188,6 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
     if isinstance(source_url, str) and not valid_http_url(source_url):
         errors.append(f"{rel}/mod.yml: source_url: must be a complete HTTP(S) URL")
     declared_license = data.get("license")
-    if isinstance(declared_license, str):
-        try:
-            canonical_license = canonicalize_license_expression(declared_license)
-        except InvalidLicenseExpression as exc:
-            errors.append(
-                f"{rel}/mod.yml: license: use a recognized SPDX identifier or "
-                f"LicenseRef-* ({exc})"
-            )
-        else:
-            if canonical_license != declared_license:
-                errors.append(
-                    f"{rel}/mod.yml: license: use canonical SPDX spelling "
-                    f"'{canonical_license}'"
-                )
     license_files = local_license_files(mod_dir)
 
     if is_indexed:
@@ -237,7 +211,8 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
         if not license_files:
             errors.append(
                 f"{rel}: hosted {product} projects must include a project-root "
-                "LICENSE (LICENSE, LICENSE.txt, or LICENSE.md) matching mod.yml"
+                "LICENSE (LICENSE, LICENSE.txt, or LICENSE.md) containing the "
+                "project's license terms"
             )
         elif not any(
             license_file_has_text(mod_dir, filename) for filename in license_files

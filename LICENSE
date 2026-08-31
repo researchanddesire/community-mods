@@ -42,11 +42,11 @@ determine the license. The following path and project-type rules do.
    project-local license file.
 
 4. **Other hosted projects** — project content stored under another ecosystem
-   without a `source_url` is governed by the license identifier declared in its
-   `mod.yml` and the corresponding license text included at that project's
-   root. Subject to the catalog-layer exception in item 1, that project-specific
-   license governs the author-supplied files and documentation inside the hosted
-   project directory.
+   without a `source_url` is governed by the license name entered in its
+   `mod.yml` and the matching license text included at that project's root.
+   Subject to the catalog-layer exception in item 1, that project-specific
+   license governs the author-supplied files and documentation inside the
+   hosted project directory.
 
 5. **Indexed projects** — when `mod.yml` contains `source_url`, this repository
    stores a catalog record and links to files maintained upstream; it does not
@@ -56,14 +56,13 @@ determine the license. The following path and project-type rules do.
    above. Indexed projects must not copy an upstream `LICENSE` into their local
    catalog directory.
 
-Contributors are responsible for having the rights needed to submit material
-under the applicable license. DCO sign-off records authorship and permission to
-contribute; it does not replace the applicable license terms.
+Only submit material you have permission to share under the project's license.
 
-The Hub does not use an open-license-only allowlist. A nonstandard or
-proprietary license must be clearly disclosed with a `LicenseRef-*` identifier;
-when the project is hosted here, its full terms must be included in the required
-project-root license file.
+Indexed projects may use any clearly stated upstream license. Hosted OSSM
+projects use CERN-OHL-S-2.0; other hosted projects may use any clearly stated
+terms. If a project uses its own terms, enter a plain descriptive name in
+`mod.yml`, such as `Community Use Terms`. When the project is hosted here,
+include the full terms in its project-root license file.
 
 ## Names and trademarks
 

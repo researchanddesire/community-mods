@@ -88,9 +88,12 @@ must be non-empty. The `safety` object requires all three boolean flags plus
 non-blank `notes`. `tags` is optional, free-form classification used by the
 gallery. `source_url` is added only for an indexed project.
 
-Every project must disclose a license using an SPDX identifier or
-`LicenseRef-*`. Any honestly disclosed license is eligible; this directory does
-not impose an open-license-only admission rule.
+For `license`, copy the license name the project already uses, such as `MIT`,
+`GPL-3.0-only`, or `CERN-OHL-S-2.0`. If the project has its own terms, use a
+plain descriptive name such as `Community Use Terms`. Indexed projects may use
+any clearly stated upstream license; hosted projects follow the ecosystem rules
+below. If you are not sure what to enter, open the pull request anyway and a
+maintainer can help.
 
 The canonical schema is
 `.github/workflows/scripts/mod.schema.json`, enforced by `mod-lint`.
@@ -104,8 +107,8 @@ upstream repository.
 
 1. Create `mods/<ecosystem>/<your-github-username>/<project_slug>/` with
    `mod.yml` and `README.md`.
-2. Set `source_url` to the upstream project and `license` to the license
-   disclosed there, using its SPDX identifier or `LicenseRef-*`.
+2. Set `source_url` to the upstream project and copy its license name into
+   `license`.
 3. Add at least one image to `images`; an absolute upstream image URL is
    accepted.
 4. Link the upstream source from the README. Do not add a project-local
@@ -150,8 +153,8 @@ The license rule depends on ecosystem:
   `CERN-OHL-S-2.0` and must not include a project-local `LICENSE`. The root
   repository notice supplies the applicable text.
 - A hosted project under `mods/lockbox/`, `mods/dtt/`, or `mods/radr/` may
-  declare any honestly disclosed SPDX identifier or `LicenseRef-*` and must
-  include the matching license text at
+  use any license or custom terms. Enter the license name in `license`
+  and include the matching license text at
   `mods/<ecosystem>/<author>/<project_slug>/LICENSE`.
 
 Hub-authored catalog summaries, metadata, and general documentation use
@@ -170,32 +173,18 @@ Inclusion is not endorsement, safety certification, or warranty by Research
 and Desire. Maintainers and users remain responsible for evaluating the project
 and its upstream documentation.
 
-## 5. DCO sign-off
-
-Every commit must be signed off under the
-[Developer Certificate of Origin](https://developercertificate.org/). Sign-off
-affirms that you have the right to contribute under the terms disclosed for the
-project:
-
-```bash
-git commit -s -m "Add my project"
-```
-
-This adds a `Signed-off-by: Your Name <you@example.com>` line. Pull requests
-without sign-off on every commit fail CI.
-
-## 6. Open the pull request
+## 5. Open the pull request
 
 1. Fork this repository and create a branch other than `main`.
-2. Add one `mods/<ecosystem>/<author>/<project_slug>/` entry, sign off the
-   commit, and push it.
+2. Add one `mods/<ecosystem>/<author>/<project_slug>/` entry, commit it, and
+   push it.
 3. Open a pull request and complete the project checklist.
 
-`mod-lint` automatically validates structure, metadata, image presence,
-licenses, and safety disclosure. Maintainers then review the project entry,
-links, license, and safety information. OSSM is treated as a shared ecosystem
-name rather than an R+D-owned trademark; names and branding clearly owned by
-Research and Desire remain reserved.
+`mod-lint` checks the catalog structure, metadata, image presence, license field
+and any required license file, and safety disclosure. Maintainers then review
+the project entry, links, license, and safety information. OSSM is treated as a
+shared ecosystem name rather than an R+D-owned trademark; names and branding
+clearly owned by Research and Desire remain reserved.
 
 After merge, indexed and hosted projects appear on equal footing at
 [mods.researchanddesire.com](https://mods.researchanddesire.com).

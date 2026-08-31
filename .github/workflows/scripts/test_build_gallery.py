@@ -127,7 +127,7 @@ class ProjectHubBuildTests(unittest.TestCase):
             "Two contribution paths — equal in the hub",
             "Indexed project",
             "Hosted project",
-            "DCO sign-off",
+            "Open the pull request",
         ):
             self.assertIn(phrase, self.contributing_html)
 
@@ -161,6 +161,9 @@ class ProjectHubBuildTests(unittest.TestCase):
         self.assertNotIn("/main//", self.contributing_html)
         self.assertNotIn("legacy", self.contributing_html.casefold())
         self.assertNotIn("R+D product", self.contributing_html)
+        self.assertNotIn("SPDX", self.contribution_guidance)
+        self.assertNotIn("DCO", self.contribution_guidance)
+        self.assertNotIn("Signed-off-by", self.contribution_guidance)
 
     def test_runtime_search_tags_and_modal_keyboard_behavior(self) -> None:
         runtime_match = re.search(r"<script>\n(.*)\n</script>", self.html, re.S)

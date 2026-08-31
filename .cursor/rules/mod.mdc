@@ -46,7 +46,7 @@ mods/<ecosystem>/<author>/<project_slug>/
 | `description` | string | yes | Concise project summary. |
 | `mod_version` | integer ≥ 1 | yes | Bump when the catalog entry changes. |
 | `compatibility` | list | yes | Non-empty; list only tested variants and revisions. |
-| `license` | string | yes | Disclosed SPDX identifier or `LicenseRef-*`. |
+| `license` | string | yes | License name as written by the project, such as `MIT`, `GPL-3.0-only`, or `CERN-OHL-S-2.0`. |
 | `images` | list | yes | Non-empty; local paths for hosted projects or URLs for indexed projects. |
 | `safety` | object | yes | Three boolean flags plus non-blank `notes`. |
 | `tags` | list | no | Free-form gallery classification. |
@@ -58,11 +58,14 @@ mods/<ecosystem>/<author>/<project_slug>/
   Keep project files and license upstream; do not add a local `LICENSE`.
 - **Hosted under `mods/ossm/`:** omit `source_url`, declare exactly
   `CERN-OHL-S-2.0`, and do not add a project-local `LICENSE`.
-- **Hosted in another ecosystem:** omit `source_url`, declare any honestly
-  disclosed SPDX identifier or `LicenseRef-*`, and add matching license text as
-  `LICENSE` at the project root.
+- **Hosted in another ecosystem:** omit `source_url`, enter the project's
+  license name, and add matching license text as `LICENSE` at the project root.
 
-The hub does not require an open license. See the root `LICENSE` notice for
+For a project with its own terms, use a plain descriptive name such as
+`Community Use Terms`.
+
+Indexed projects may use any clearly stated upstream license. Hosted projects
+follow the ecosystem rules above. See the root `LICENSE` notice for
 path-specific terms.
 
 ## Safety

@@ -14,11 +14,10 @@
 - [ ] `mod.yml` declares a non-empty compatibility list, a license, at least one image, and a complete safety block
 - [ ] `product` identifies the ecosystem and `mod_version` identifies the catalog-entry version
 - [ ] The README contains no referral or affiliate links
-- [ ] All commits are signed off (`git commit -s` → DCO)
 
 ## If indexed (maintained upstream)
 
-- [ ] `mod.yml` has `source_url` and the license disclosed upstream, as an SPDX identifier or `LicenseRef-*`
+- [ ] `mod.yml` has `source_url` and the same license name used upstream
 - [ ] `images` contains a working upstream URL or a local image in `img/`
 - [ ] The README links to the upstream project
 - [ ] There is no project-local `LICENSE` in this repository
@@ -27,7 +26,7 @@
 
 - [ ] `source_url` is omitted and `images` references at least one local image
 - [ ] An OSSM project declares exactly `CERN-OHL-S-2.0` and has no project-local `LICENSE`
-- [ ] A non-OSSM project declares its SPDX identifier or `LicenseRef-*` and includes matching text in a project-root `LICENSE`
+- [ ] A non-OSSM project enters its license name and includes matching text in a project-root `LICENSE`
 - [ ] Optional CAD, print, source, and documentation files are in the project folder; CAD or source code is not required
 
 ## Safety

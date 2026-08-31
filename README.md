@@ -61,16 +61,18 @@ are presented on equal footing in the gallery.
 
 ## Licensing
 
-Every project declares `license` in `mod.yml`. The hub accepts any honestly
-disclosed SPDX identifier or `LicenseRef-*`; projects are not required to use an
-open-source license.
+Every project declares `license` in `mod.yml`. Copy the license name the project
+already uses, such as `MIT`, `GPL-3.0-only`, or `CERN-OHL-S-2.0`. If a project
+has its own terms, use a plain descriptive name such as `Community Use Terms`.
+Indexed projects may use any clearly stated upstream license. Hosted projects
+follow the ecosystem rules below.
 
 - **Indexed projects:** the disclosed upstream license governs. Set
   `source_url` and do not add a project-local `LICENSE` here.
 - **Hosted OSSM projects:** declare exactly `CERN-OHL-S-2.0`. Do not add a
   project-local `LICENSE`; the repository's license notice governs this content.
-- **Other hosted projects:** declare their SPDX identifier or `LicenseRef-*`
-  and include the matching license text in a `LICENSE` file at the project root.
+- **Other hosted projects:** enter their license name and include the
+  full license terms in a `LICENSE` file at the project root.
 
 Hub-authored catalog summaries, metadata, and general documentation use
 `CC-BY-4.0`; repository tooling uses `MPL-2.0`. Hosted project files follow the
