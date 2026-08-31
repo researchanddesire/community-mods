@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://mods.researchanddesire.com/mod.schema.json",
-  "title": "RAD Community Mod",
-  "description": "Contract for mods/<product>/<author>/<mod_name>/mod.yml. Canonical and edited here in the community-mods repo (single-consumer standard — not vendored from dev-docs like the cross-product BOM schema). Enforced by mod-lint. There is no license field — license is fixed by the root LICENSE path-map (CERN-OHL-S hardware, MPL software).",
+  "title": "R+D Community Project",
+  "description": "Canonical contract for the legacy mods/<product>/<author>/<project_slug>/mod.yml interface. The product key identifies the project ecosystem; mod.yml, mod_version, and mod-lint retain their legacy names for compatibility. Enforced by mod-lint.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -13,16 +13,26 @@
     "mod_version",
     "compatibility",
     "images",
+    "license",
     "safety"
   ],
-  "if": { "required": ["source_url"] },
-  "then": { "required": ["license"] },
-  "else": { "not": { "required": ["license"] } },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "product": { "const": "ossm" } },
+        "required": ["product"],
+        "not": { "required": ["source_url"] }
+      },
+      "then": {
+        "properties": { "license": { "const": "CERN-OHL-S-2.0" } }
+      }
+    }
+  ],
   "properties": {
     "title": {
       "type": "string",
       "minLength": 1,
-      "description": "Human-readable mod name shown on the gallery card."
+      "description": "Human-readable project name shown on the gallery card."
     },
     "author": {
       "type": "string",
@@ -33,7 +43,7 @@
     "product": {
       "type": "string",
       "enum": ["lockbox", "dtt", "ossm", "radr"],
-      "description": "Which RAD product this mod targets; must match the product folder."
+      "description": "Legacy key identifying the project's ecosystem; must match the ecosystem folder."
     },
     "description": {
       "type": "string",
@@ -43,7 +53,7 @@
     "mod_version": {
       "type": "integer",
       "minimum": 1,
-      "description": "Start at 1; increment on changes."
+      "description": "Legacy catalog-entry version; start at 1 and increment when the entry changes."
     },
     "compatibility": {
       "type": "array",
@@ -55,7 +65,7 @@
       "type": "array",
       "minItems": 1,
       "items": { "type": "string", "minLength": 1 },
-      "description": "Paths (relative to mod.yml) to images shipped with the mod; each must exist."
+      "description": "Non-empty list of project images. Local paths are relative to mod.yml and must exist; indexed projects may use HTTP(S) URLs."
     },
     "tags": {
       "type": "array",
@@ -66,12 +76,13 @@
       "type": "string",
       "format": "uri",
       "pattern": "^https?://",
-      "description": "Set ONLY for an external/linked mod whose files live in the author's own repo. Its presence makes this an index entry (files are not hosted here) and requires the 'license' field."
+      "description": "Set for an indexed project whose files live in the author's upstream repository. Omit for a project hosted in this repository."
     },
     "license": {
       "type": "string",
       "minLength": 1,
-      "description": "ONLY allowed (and required) for external/linked mods (when source_url is set): the upstream SPDX license id, e.g. CC-BY-SA-4.0. Hosted mods must omit this — their license is fixed by the root LICENSE path-map."
+      "pattern": "^(?:LicenseRef-[A-Za-z0-9][A-Za-z0-9.-]*|(?!LicenseRef-)[A-Za-z0-9][A-Za-z0-9.+-]*)$",
+      "description": "Required for every project. Use the disclosed upstream SPDX identifier or LicenseRef-* for an indexed project; mod-lint verifies registered identifiers and canonical spelling. A hosted OSSM project must use CERN-OHL-S-2.0; another hosted project may use any disclosed SPDX identifier or LicenseRef-* and must include its license text at the project root."
     },
     "safety": {
       "type": "object",
@@ -82,7 +93,7 @@
         "affects_electrical",
         "notes"
       ],
-      "description": "Required safety disclosure. Intimate-device mods touching these areas get a human safety review.",
+      "description": "Required safety disclosure. Projects touching these areas receive human safety review.",
       "properties": {
         "affects_restraint_release": { "type": "boolean" },
         "affects_applied_force": { "type": "boolean" },
@@ -90,6 +101,7 @@
         "notes": {
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "description": "Describe any safety-relevant behavior, or '–' if none."
         }
       }

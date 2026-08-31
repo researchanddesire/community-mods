@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Generate the static Mod Hub gallery from the mods/ tree.
+"""Generate the static R+D Project Hub gallery from the legacy mods/ tree.
 
-Scans mods/<product>/<author>/<mod_name>/mod.yml and emits a single
+Scans mods/<ecosystem>/<author>/<project_slug>/mod.yml and emits a single
 self-contained site/index.html (cards + client-side search). Deployed to
-mods.researchanddesire.com by gallery.yml. Mirrors the Magpie Mod Hub /
-mods.vorondesign.com pattern: the gallery is generated, never hand-edited.
+mods.researchanddesire.com by gallery.yml. The legacy directory and metadata
+names remain stable for contributor and URL compatibility.
 """
 
 from __future__ import annotations
@@ -39,9 +39,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
 MODS_ROOT = os.path.join(REPO_ROOT, "mods")
 OUT_DIR = os.path.join(REPO_ROOT, "site")
-PRODUCTS = {"lockbox", "dtt", "ossm", "radr"}
+ECOSYSTEMS = {"lockbox", "dtt", "ossm", "radr"}
 SKIP_AUTHORS = {"SAMPLE_AUTHOR"}
-PRODUCT_LABELS = {
+ECOSYSTEM_LABELS = {
     "lockbox": "Chastity Lockbox",
     "dtt": "Deep Throat Trainer",
     "ossm": "OSSM",
@@ -50,6 +50,9 @@ PRODUCT_LABELS = {
 REPO_SLUG = os.environ.get("GITHUB_REPOSITORY", "researchanddesire/community-mods")
 REPO_URL = f"https://github.com/{REPO_SLUG}"
 LOGO_PATH = os.path.join(SCRIPT_DIR, "assets", "rad-logo.png")
+SOCIAL_IMAGE_PATH = os.path.join(SCRIPT_DIR, "assets", "project-hub-og.png")
+CANONICAL_URL = "https://mods.researchanddesire.com/"
+SOCIAL_IMAGE_URL = f"{CANONICAL_URL}project-hub-og.png"
 
 
 def logo_data_uri() -> str:
@@ -79,7 +82,7 @@ def render_readme(md_text: str, rel: str) -> str:
             md_text, extensions=["fenced_code", "tables", "sane_lists"]
         )
         rendered = _nh3.clean(rendered)
-        # The modal already shows the mod title as a heading, so drop the
+        # The modal already shows the project title as a heading, so drop the
         # README's own leading H1 (conventionally the same title) to avoid
         # showing it twice.
         rendered = re.sub(r"^\s*<h1>.*?</h1>\s*", "", rendered, count=1, flags=re.S)
@@ -105,7 +108,7 @@ def collect_mods() -> list[dict]:
         return mods
     for product in sorted(os.listdir(MODS_ROOT)):
         pdir = os.path.join(MODS_ROOT, product)
-        if not os.path.isdir(pdir) or product not in PRODUCTS:
+        if not os.path.isdir(pdir) or product not in ECOSYSTEMS:
             continue
         for author in sorted(os.listdir(pdir)):
             adir = os.path.join(pdir, author)
@@ -141,6 +144,7 @@ def collect_mods() -> list[dict]:
                         "title": str(data.get("title", mod)),
                         "author": str(data.get("author", author)),
                         "product": product,
+                        "ecosystem_label": ECOSYSTEM_LABELS[product],
                         "description": str(data.get("description", "")),
                         "compatibility": data.get("compatibility") or [],
                         "tags": [str(t) for t in (data.get("tags") or [])],
@@ -152,14 +156,18 @@ def collect_mods() -> list[dict]:
                         "readme_html": readme_html,
                     }
                 )
+    mods.sort(key=lambda project: (project["title"].casefold(), project["author"].casefold()))
     return mods
 
 
 def render(mods: list[dict]) -> str:
-    payload = json.dumps(mods)
+    # Avoid allowing contributor-controlled strings to terminate the script tag.
+    payload = json.dumps(mods).replace("</", "<\\/")
+    active_ecosystems = {project["product"] for project in mods}
     options = "".join(
         f'<option value="{code}">{html.escape(label)}</option>'
-        for code, label in PRODUCT_LABELS.items()
+        for code, label in ECOSYSTEM_LABELS.items()
+        if code in active_ecosystems
     )
     logo_uri = logo_data_uri()
     # Defined once on :root so the (large) data URI isn't repeated per <a>.
@@ -167,12 +175,32 @@ def render(mods: list[dict]) -> str:
     # Image logo → empty anchor (logo shows via background); else a text mark.
     logo_inner = "" if logo_uri else "R+D"
     favicon = f'<link rel="icon" type="image/png" href="{logo_uri}">' if logo_uri else ""
+    social_image_meta = ""
+    if os.path.isfile(SOCIAL_IMAGE_PATH):
+        social_image_meta = f'''<meta property="og:image" content="{SOCIAL_IMAGE_URL}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="R+D Project Hub — community-built projects across R+D-adjacent ecosystems">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{SOCIAL_IMAGE_URL}">
+<meta name="twitter:image:alt" content="R+D Project Hub — community-built projects across R+D-adjacent ecosystems">'''
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RAD Mod Hub</title>
+<title>R+D Project Hub</title>
+<meta name="description" content="Community-built OSSM variants, controllers, software, hardware, accessories, and tools across R+D-adjacent ecosystems.">
+<link rel="canonical" href="{CANONICAL_URL}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="R+D Project Hub">
+<meta property="og:title" content="R+D Project Hub">
+<meta property="og:description" content="Community-built OSSM variants, controllers, software, hardware, accessories, and tools across R+D-adjacent ecosystems.">
+<meta property="og:url" content="{CANONICAL_URL}">
+<meta name="twitter:title" content="R+D Project Hub">
+<meta name="twitter:description" content="Community-built OSSM variants, controllers, software, hardware, accessories, and tools across R+D-adjacent ecosystems.">
+{social_image_meta}
 {favicon}
 <style>
   :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; {logo_var} }}
@@ -213,13 +241,15 @@ def render(mods: list[dict]) -> str:
   .card .body {{ padding:.9rem 1rem 1rem; display:flex; flex-direction:column; gap:.4rem; flex:1; }}
   .chips {{ display:flex; gap:.4rem; align-items:center; flex-wrap:wrap; }}
   .badge {{ align-self:flex-start; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); border:1px solid var(--accent); border-radius:999px; padding:.1rem .5rem; }}
-  .ext {{ font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:#b694f5; border:1px solid #b694f5; border-radius:999px; padding:.1rem .5rem; }}
+  .provenance {{ font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:#b694f5; border:1px solid #b694f5; border-radius:999px; padding:.1rem .5rem; }}
   .lic {{ font-size:.7rem; color:#e0b25a; border:1px solid #e0b25a; border-radius:999px; padding:.1rem .5rem; }}
   .card h3 {{ margin:.1rem 0 0; font-size:1.05rem; }}
   .card .byline {{ color:var(--muted); font-size:.85rem; margin-top:-.15rem; }}
   .card .desc {{ color:var(--muted); font-size:.92rem; flex:1; }}
   .card .meta {{ color:var(--muted); font-size:.8rem; }}
-  .card .note {{ font-size:.8rem; color:#b694f5; background:rgba(182,148,245,.08); border:1px solid rgba(182,148,245,.3); border-radius:8px; padding:.4rem .55rem; }}
+  .project-tags {{ display:flex; flex-wrap:wrap; gap:.32rem; margin-top:.1rem; }}
+  .project-tag {{ font-size:.72rem; color:var(--muted); background:var(--bg); border:1px solid #2a2f3a; border-radius:999px; padding:.08rem .45rem; }}
+  .more-tags {{ font-size:.72rem; color:var(--muted); padding:.08rem .15rem; }}
   .card .links {{ display:flex; gap:.6rem; margin-top:.3rem; flex-wrap:wrap; }}
   .card a {{ color:var(--accent); text-decoration:none; font-size:.9rem; }}
   .card a:hover {{ text-decoration:underline; }}
@@ -229,8 +259,8 @@ def render(mods: list[dict]) -> str:
   .footer-inner {{ max-width:1100px; margin:0 auto; padding:2.25rem 1.5rem; display:flex; flex-wrap:wrap; gap:2rem 3.5rem; justify-content:space-between; align-items:flex-start; }}
   .footer-brand {{ max-width:680px; flex:1 1 420px; }}
   .footer-brand .brand {{ margin-bottom:.6rem; }}
-  .footer-brand .logo {{ width:92px; height:92px; }}
-  .footer-brand .name {{ font-weight:700; font-size:1.1rem; }}
+  .footer-brand .logo {{ width:42px; height:42px; opacity:.78; }}
+  .footer-brand .name {{ color:var(--muted); font-weight:600; font-size:.95rem; }}
   .footer-brand p {{ color:var(--muted); font-size:.92rem; margin:0; }}
   .footer-col h2 {{ font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 .6rem; }}
   .footer-links {{ display:flex; flex-direction:column; gap:.45rem; }}
@@ -251,6 +281,7 @@ def render(mods: list[dict]) -> str:
   .modal-content {{ padding:1.25rem 1.5rem 2.5rem; overflow:auto; }}
   .modal-hero h1 {{ margin:.4rem 0 .1rem; font-size:1.5rem; }}
   .modal-hero .byline {{ color:var(--muted); }}
+  .modal-hero .project-tags {{ margin-top:.7rem; }}
   .readme {{ margin-top:1.25rem; }}
   .readme img {{ max-width:100%; height:auto; border-radius:8px; }}
   .readme a {{ color:var(--accent); }}
@@ -272,15 +303,17 @@ def render(mods: list[dict]) -> str:
   <div class="brand">
     <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire">{logo_inner}</a>
     <div>
-      <h1>RAD Mod Hub</h1>
-      <p class="sub">Community-built upgrades for Research and Desire products.
-      Not safety-tested or warranted by RAD. <a class="top" href="{REPO_URL}">Repo &amp; submit a mod →</a></p>
+      <h1>R+D Project Hub</h1>
+      <p class="sub">Community-built OSSM variants, controllers, software, hardware,
+      accessories, and tools across R+D-adjacent ecosystems. Projects are
+      independently maintained; inclusion is not endorsement, safety certification,
+      or warranty by R+D. <a class="top" href="{REPO_URL}">Project repository →</a></p>
     </div>
   </div>
 </header>
 <div class="controls">
-  <input id="q" type="search" placeholder="Search mods…" autocomplete="off">
-  <select id="product"><option value="">All products</option>{options}</select>
+  <input id="q" type="search" placeholder="Search projects…" aria-label="Search projects" autocomplete="off">
+  <select id="ecosystem" aria-label="Filter by ecosystem"><option value="">All ecosystems</option>{options}</select>
 </div>
 </div>
 <div class="layout">
@@ -298,12 +331,11 @@ def render(mods: list[dict]) -> str:
     <div class="footer-brand">
       <div class="brand">
         <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire">{logo_inner}</a>
-        {'' if logo_uri else '<span class="name">Research and Desire</span>'}
+        <span class="name">Hosted by Research and Desire</span>
       </div>
-      <p>We make toys and gear powered by tech, robotics, and community. The Mod
-      Hub collects community-built upgrades for RAD products — Lockbox, Deep
-      Throat Trainer, OSSM, and RADR. Mods are contributed by their authors and
-      are not safety-tested or warranted by RAD.</p>
+      <p>Each project remains independently maintained and licensed by its
+      authors; inclusion is not endorsement, safety certification, or warranty
+      by R+D.</p>
     </div>
     <div class="footer-col">
       <h2>Connect</h2>
@@ -311,11 +343,11 @@ def render(mods: list[dict]) -> str:
         <a href="https://researchanddesire.com" target="_blank" rel="noopener">researchanddesire.com ↗</a>
         <a href="https://docs.researchanddesire.com" target="_blank" rel="noopener">Documentation ↗</a>
         <a href="https://discord.gg/VtZcudpxT6" target="_blank" rel="noopener">KinkyMakers Discord ↗</a>
-        <a href="{REPO_URL}" target="_blank" rel="noopener">Mods repo &amp; submit ↗</a>
+        <a href="{REPO_URL}" target="_blank" rel="noopener">Project repository &amp; contribute ↗</a>
       </div>
     </div>
   </div>
-  <div class="footer-bottom"><div>© Research and Desire · Community mods remain the work of their respective authors.</div></div>
+  <div class="footer-bottom"><div>© Research and Desire · Projects remain the work of their respective authors.</div></div>
 </footer>
 <div class="modal" id="modal" hidden>
   <div class="modal-backdrop" data-close></div>
@@ -328,58 +360,78 @@ def render(mods: list[dict]) -> str:
   </div>
 </div>
 <script>
-const MODS = {payload};
-const MOD_BY_ID = Object.fromEntries(MODS.map(m => [m.id, m]));
+const PROJECTS = {payload};
+const PROJECT_BY_ID = Object.fromEntries(PROJECTS.map(project => [project.id, project]));
 const grid = document.getElementById('grid');
 const modal = document.getElementById('modal');
 const modalContent = document.getElementById('modal-content');
 const modalActions = document.getElementById('modal-actions');
 const q = document.getElementById('q');
-const product = document.getElementById('product');
+const ecosystem = document.getElementById('ecosystem');
 const tagsEl = document.getElementById('tags');
 const clearBtn = document.getElementById('clear');
 const selectedTags = new Set();
-function card(m) {{
-  const img = m.thumb ? `<img src="${{m.thumb}}" alt="" loading="lazy">` : '';
-  const compat = (m.compatibility || []).join(', ');
-  const lic = m.license ? `<span class="lic" title="License differs from repo default">${{m.license}}</span>` : '';
-  const external = !!m.source_url;
-  const extBadge = external ? `<span class="ext">External</span>` : '';
-  const note = external
-    ? `<div class="note">Externally linked — files are hosted in the author's own repo, not this mods repo.</div>`
+function esc(value) {{
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({{
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }})[ch]);
+}}
+function safeUrl(value) {{
+  try {{
+    const parsed = new URL(String(value || ''), window.location.href);
+    return ['http:', 'https:'].includes(parsed.protocol) ? esc(parsed.href) : '#';
+  }} catch {{
+    return '#';
+  }}
+}}
+function projectTags(tags, limit) {{
+  const all = Array.isArray(tags) ? tags : [];
+  if (!all.length) return '';
+  const visible = Number.isInteger(limit) ? all.slice(0, limit) : all;
+  const more = Number.isInteger(limit) && all.length > limit
+    ? `<span class="more-tags">+${{all.length - limit}} more</span>`
     : '';
-  const links = external
-    ? `<a href="${{m.source_url}}" target="_blank" rel="noopener" data-stop>Upstream source ↗</a>`
-    : `<a href="${{m.folder}}" target="_blank" rel="noopener" data-stop>View in mod repo ↗</a>`;
-  return `<div class="card" data-id="${{m.id}}" role="button" tabindex="0">${{img}}<div class="body">
-    <div class="chips"><span class="badge">${{m.product}}</span>${{extBadge}}${{lic}}</div>
-    <h3>${{m.title}}</h3>
-    <div class="byline">by ${{m.author}}</div>
-    <div class="desc">${{m.description}}</div>
+  return `<div class="project-tags">${{visible.map(tag => `<span class="project-tag">${{esc(tag)}}</span>`).join('')}}${{more}}</div>`;
+}}
+function card(m) {{
+  const imageUrl = m.thumb ? safeUrl(m.thumb) : '#';
+  const img = imageUrl !== '#' ? `<img src="${{imageUrl}}" alt="${{esc(m.title)}}" loading="lazy">` : '';
+  const compat = (m.compatibility || []).map(esc).join(', ');
+  const lic = m.license ? `<span class="lic" title="Declared license">${{esc(m.license)}}</span>` : '';
+  const indexed = !!m.source_url;
+  const provenance = `<span class="provenance">${{indexed ? 'Indexed' : 'Hosted'}}</span>`;
+  const links = indexed
+    ? `<a href="${{safeUrl(m.source_url)}}" target="_blank" rel="noopener" data-stop>Project source ↗</a>`
+    : `<a href="${{safeUrl(m.folder)}}" target="_blank" rel="noopener" data-stop>Project files ↗</a>`;
+  return `<div class="card" data-id="${{esc(m.id)}}" role="button" tabindex="0">${{img}}<div class="body">
+    <div class="chips"><span class="badge">${{esc(m.ecosystem_label)}}</span>${{provenance}}${{lic}}</div>
+    <h3>${{esc(m.title)}}</h3>
+    <div class="byline">by ${{esc(m.author)}}</div>
+    <div class="desc">${{esc(m.description)}}</div>
     ${{compat ? `<div class="meta">${{compat}}</div>` : ''}}
-    ${{note}}
+    ${{projectTags(m.tags, 4)}}
     <div class="links">${{links}}</div>
   </div></div>`;
 }}
-// Mods matching everything except the tag facet — used both to render cards and
-// to compute tag counts so the sidebar reflects the active search/product.
+// Projects matching everything except the tag facet — used both to render cards
+// and to compute tag counts so the sidebar reflects search and ecosystem filters.
 function baseMatches() {{
   const term = q.value.toLowerCase();
-  const p = product.value;
-  return MODS.filter(m =>
-    (!p || m.product === p) &&
+  const selectedEcosystem = ecosystem.value;
+  return PROJECTS.filter(m =>
+    (!selectedEcosystem || m.product === selectedEcosystem) &&
     (!term || (m.title + ' ' + m.description + ' ' + m.author + ' ' + (m.compatibility||[]).join(' ') + ' ' + (m.tags||[]).join(' ')).toLowerCase().includes(term))
   );
 }}
 function renderTags(base) {{
-  const counts = {{}};
+  const counts = Object.create(null);
   base.forEach(m => (m.tags||[]).forEach(t => {{ counts[t] = (counts[t]||0) + 1; }}));
   const names = Object.keys(counts).sort((a,b) => a.localeCompare(b));
   selectedTags.forEach(t => {{ if (!(t in counts)) counts[t] = 0; if (!names.includes(t)) names.push(t); }});
   if (!names.length) {{ tagsEl.innerHTML = '<span class="meta">No tags yet.</span>'; clearBtn.hidden = true; return; }}
   tagsEl.innerHTML = names.map(t => {{
     const active = selectedTags.has(t) ? ' active' : '';
-    return `<button class="tagbtn${{active}}" data-tag="${{t}}">${{t}}<span class="count">${{counts[t]}}</span></button>`;
+    return `<button class="tagbtn${{active}}" data-tag="${{esc(t)}}">${{esc(t)}}<span class="count">${{counts[t]}}</span></button>`;
   }}).join('');
   clearBtn.hidden = selectedTags.size === 0;
 }}
@@ -388,27 +440,24 @@ function render() {{
   const items = base.filter(m =>
     selectedTags.size === 0 || [...selectedTags].every(t => (m.tags||[]).includes(t))
   );
-  grid.innerHTML = items.length ? items.map(card).join('') : '<p class="empty">No mods match.</p>';
+  grid.innerHTML = items.length ? items.map(card).join('') : '<p class="empty">No projects match.</p>';
   renderTags(base);
 }}
 // Whole-card click opens the README in an in-page viewer. Inner links keep
 // their own behavior (they navigate to GitHub) via the closest('a') guard.
 function openModal(m) {{
   if (!m) return;
-  const external = !!m.source_url;
-  const lic = m.license ? `<span class="lic">${{m.license}}</span>` : '';
-  const extBadge = external ? `<span class="ext">External</span>` : '';
-  const note = external
-    ? `<div class="note">Externally linked — files are hosted in the author's own repo, not this mods repo.</div>`
-    : '';
-  modalActions.innerHTML = external
-    ? `<a href="${{m.source_url}}" target="_blank" rel="noopener">Upstream source ↗</a>`
-    : `<a href="${{m.folder}}" target="_blank" rel="noopener">View in mod repo ↗</a>`;
-  const body = m.readme_html || `<p>${{m.description || ''}}</p>`;
+  const indexed = !!m.source_url;
+  const lic = m.license ? `<span class="lic">${{esc(m.license)}}</span>` : '';
+  const provenance = `<span class="provenance">${{indexed ? 'Indexed' : 'Hosted'}}</span>`;
+  modalActions.innerHTML = indexed
+    ? `<a href="${{safeUrl(m.source_url)}}" target="_blank" rel="noopener">Project source ↗</a>`
+    : `<a href="${{safeUrl(m.folder)}}" target="_blank" rel="noopener">Project files ↗</a>`;
+  const body = m.readme_html || `<p>${{esc(m.description || '')}}</p>`;
   modalContent.innerHTML = `<div class="modal-hero">`
-    + `<div class="chips"><span class="badge">${{m.product}}</span>${{extBadge}}${{lic}}</div>`
-    + `<h1 id="modal-title">${{m.title}}</h1><div class="byline">by ${{m.author}}</div></div>`
-    + `${{note}}<div class="readme">${{body}}</div>`;
+    + `<div class="chips"><span class="badge">${{esc(m.ecosystem_label)}}</span>${{provenance}}${{lic}}</div>`
+    + `<h1 id="modal-title">${{esc(m.title)}}</h1><div class="byline">by ${{esc(m.author)}}</div>`
+    + `${{projectTags(m.tags)}}</div><div class="readme">${{body}}</div>`;
   modalContent.scrollTop = 0;
   modal.hidden = false;
   document.body.style.overflow = 'hidden';
@@ -420,14 +469,14 @@ function closeModal() {{
 grid.addEventListener('click', e => {{
   if (e.target.closest('a')) return;
   const card = e.target.closest('.card');
-  if (card) openModal(MOD_BY_ID[card.dataset.id]);
+  if (card) openModal(PROJECT_BY_ID[card.dataset.id]);
 }});
 grid.addEventListener('keydown', e => {{
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const card = e.target.closest('.card');
   if (!card || e.target.closest('a')) return;
   e.preventDefault();
-  openModal(MOD_BY_ID[card.dataset.id]);
+  openModal(PROJECT_BY_ID[card.dataset.id]);
 }});
 modal.addEventListener('click', e => {{ if (e.target.closest('[data-close]')) closeModal(); }});
 document.addEventListener('keydown', e => {{ if (e.key === 'Escape' && !modal.hidden) closeModal(); }});
@@ -440,7 +489,7 @@ tagsEl.addEventListener('click', e => {{
 }});
 clearBtn.addEventListener('click', () => {{ selectedTags.clear(); render(); }});
 q.addEventListener('input', render);
-product.addEventListener('change', render);
+ecosystem.addEventListener('change', render);
 // Keep the sticky sidebar parked just below the sticky top bar, whatever its
 // height (it grows when the description wraps on narrow viewports).
 const topbar = document.querySelector('.topbar');
@@ -458,6 +507,11 @@ render();
 def main() -> int:
     mods = collect_mods()
     os.makedirs(OUT_DIR, exist_ok=True)
+    social_image_out = os.path.join(OUT_DIR, "project-hub-og.png")
+    if os.path.isfile(SOCIAL_IMAGE_PATH):
+        shutil.copyfile(SOCIAL_IMAGE_PATH, social_image_out)
+    elif os.path.exists(social_image_out):
+        os.remove(social_image_out)
     # Copy thumbnails into the site output, preserving their relative path so the
     # generated index.html resolves them.
     for m in mods:
@@ -474,7 +528,7 @@ def main() -> int:
     out_html = os.path.join(OUT_DIR, "index.html")
     with open(out_html, "w", encoding="utf-8") as fh:
         fh.write(render(mods))
-    print(f"Wrote {out_html} with {len(mods)} mod(s).")
+    print(f"Wrote {out_html} with {len(mods)} project(s).")
     return 0
 
 

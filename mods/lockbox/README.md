@@ -1,7 +1,12 @@
-# Lockbox mods
+# Lockbox ecosystem projects
 
-Community mods for the [Chastity Lockbox](https://github.com/researchanddesire/Lockbox).
+Projects related to the
+[Lockbox ecosystem](https://github.com/researchanddesire/Lockbox), including
+variants, accessories, hardware, software, and tools.
 
-Add yours at `mods/lockbox/<your-github-username>/<mod_name>/`. See the
-[contributing guide](../../CONTRIBUTING.md) and the
-[sample template](../ossm/SAMPLE_AUTHOR/sample_mount/).
+Index an upstream project or host one here at the retained legacy path
+`mods/lockbox/<your-github-username>/<project_slug>/`. Both contribution paths
+are equal in the hub.
+
+See the [contributing guide](../../CONTRIBUTING.md) and the
+[sample entry](../ossm/SAMPLE_AUTHOR/sample_mount/).

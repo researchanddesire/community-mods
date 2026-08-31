@@ -1,69 +1,84 @@
 ---
-description: RAD community mod standard — folder layout, mod.yml contract, fixed license
+description: R+D Project Hub catalog contract, legacy paths, licensing, and safety
 globs: mods/**/mod.yml
 alwaysApply: false
 ---
 
-# Community mod standard (RAD)
+# R+D Project Hub catalog standard
 
-When creating or editing a mod under `mods/`, follow this contract. The schema is
-canonical here at `.github/workflows/scripts/mod.schema.json` (this repo is the
-only consumer, so it is not vendored from dev-docs). Edit it deliberately when
-the standard changes — `mod-lint` enforces it.
+Treat entries under `mods/` as projects: variants, controllers, software,
+hardware, accessories, tools, and other ecosystem-related work. Indexed and
+hosted entries are equal contribution paths.
 
-## Folder layout (exact)
+The metadata schema is canonical at
+`.github/workflows/scripts/mod.schema.json`. This repository is its only
+consumer; edit it deliberately when the standard changes. The legacy
+`mod-lint` command enforces it.
 
-```
-mods/<product>/<author>/<mod_name>/
-├── cad/        # STEP required; native (F3D, etc.) optional
-├── print/      # STL / 3MF (Git LFS) — optional
-├── img/        # at least one image — required
-├── docs/       # optional extras (BOM, PDF)
-├── mod.yml     # metadata — required
+## Retained interface
+
+```text
+mods/<ecosystem>/<author>/<project_slug>/
+├── img/        # at least one local image for hosted projects
+├── cad/        # optional
+├── print/      # optional STL / 3MF files (Git LFS)
+├── src/        # optional
+├── docs/       # optional
+├── LICENSE     # required only for hosted, non-OSSM projects
+├── mod.yml     # required legacy metadata filename
 └── README.md   # required
 ```
 
-- `<product>` ∈ `lockbox | dtt | ossm | radr`. No spaces in names. No deeper nesting.
+- `<ecosystem>` is `lockbox`, `dtt`, `ossm`, or `radr`.
+- Keep exactly the catalog depth shown; use no spaces in the three catalog
+  directory names.
+- `product` remains the legacy metadata key for ecosystem.
+- `mod_version` remains the legacy catalog-entry version key.
+- CAD, STEP, and source files are optional; none is a minimum requirement.
 
-## mod.yml fields
+## `mod.yml` fields
 
-| Key             | Type        | Required | Notes |
-| --------------- | ----------- | -------- | ----- |
-| `title`         | string      | yes      | |
-| `author`        | string      | yes      | GitHub username; must match the folder |
-| `product`       | enum        | yes      | `lockbox` `dtt` `ossm` `radr` |
-| `description`   | string      | yes      | |
-| `mod_version`   | integer ≥ 1 | yes      | bump on changes |
-| `compatibility` | list        | yes      | non-empty; only tested models/revs |
-| `images`        | list        | yes      | non-empty; relative paths that exist |
-| `safety`        | object      | yes      | `affects_restraint_release`, `affects_applied_force`, `affects_electrical` (booleans) + `notes` |
-| `source_url`    | uri         | external only | Upstream repo. Its presence marks the mod as external/linked (files live upstream) |
-| `license`       | string      | external only | Upstream SPDX id (e.g. `CC-BY-SA-4.0`). Required iff `source_url` is set; forbidden otherwise |
+| Key | Type | Required | Notes |
+|---|---|---:|---|
+| `title` | string | yes | Project title. |
+| `author` | string | yes | Must match the author folder. |
+| `product` | enum | yes | Legacy ecosystem key: `lockbox`, `dtt`, `ossm`, or `radr`. |
+| `description` | string | yes | Concise project summary. |
+| `mod_version` | integer ≥ 1 | yes | Legacy key; bump when the catalog entry changes. |
+| `compatibility` | list | yes | Non-empty; list only tested variants and revisions. |
+| `license` | string | yes | Disclosed SPDX identifier or `LicenseRef-*`. |
+| `images` | list | yes | Non-empty; local paths for hosted projects or URLs for indexed projects. |
+| `safety` | object | yes | Three boolean flags plus non-blank `notes`. |
+| `tags` | list | no | Free-form gallery classification. |
+| `source_url` | URI | indexed only | Upstream project; its presence marks the entry as indexed. |
 
-Hosted mods have **no `license` key** — license is fixed (below). External/linked
-mods declare the upstream `license` (which may differ) alongside `source_url`.
+## Hosting and license rules
 
-## License
+- **Indexed:** set `source_url` and the upstream project's disclosed `license`.
+  Keep project files and license upstream; do not add a local `LICENSE`.
+- **Hosted under `mods/ossm/`:** omit `source_url`, declare exactly
+  `CERN-OHL-S-2.0`, and do not add a project-local `LICENSE`.
+- **Hosted in another ecosystem:** omit `source_url`, declare any honestly
+  disclosed SPDX identifier or `LicenseRef-*`, and add matching license text as
+  `LICENSE` at the project root.
 
-**Hosted mods (fixed — not contributor choice):**
-
-- Hardware / printable (`cad/`, `print/`) → **CERN-OHL-S v2**
-- Software / firmware (any code) → **MPL 2.0**
-- Docs / images → **CERN-OHL-S v2**
-
-**External / linked mods:** keep their upstream license, declared in `mod.yml`
-`license:` (may differ from the default — e.g. CC-BY-SA-4.0). We index/link, not
-relicense.
-
-Never add a per-mod `LICENSE` file in either case. The root `LICENSE` path-map
-governs hosted content.
+The hub does not require an open license. See the root `LICENSE` notice for
+path-specific terms. Repository-wide license or trademark-notice changes require
+owner/legal review before merge.
 
 ## Safety
 
-Intimate devices — fill the `safety` block honestly. Anything touching
-restraint-release, applied force, or electrical/charging gets a human safety
-review before merge.
+Complete `safety` for every project. Anything affecting restraint release,
+applied force, or electrical or charging behavior receives human safety review.
+Inclusion is not endorsement, safety certification, or warranty by Research and
+Desire.
 
 ## Validation
 
-`mod-lint` is the gate: `python .github/workflows/scripts/mod_lint.py`. Green = good.
+Run:
+
+```bash
+python .github/workflows/scripts/mod_lint.py
+```
+
+A green result confirms the catalog contract, not the project's safety.

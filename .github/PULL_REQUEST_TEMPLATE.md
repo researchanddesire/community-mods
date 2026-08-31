@@ -1,31 +1,43 @@
-<!-- One mod per PR. See CONTRIBUTING.md. Both hosted and external/linked mods welcome. -->
+<!-- One project per PR. Indexed and hosted projects are equally welcome. See CONTRIBUTING.md. -->
 
-## Mod
+## Project
 
-- **Product:** <!-- lockbox | dtt | ossm | radr -->
-- **Folder:** `mods/<product>/<your-username>/<mod_name>/`
-- **Type:** <!-- hosted (files in this repo) | external/linked (lives in my own repo) -->
+- **Ecosystem:** <!-- lockbox | dtt | ossm | radr; stored in the legacy `product` key -->
+- **Folder:** `mods/<ecosystem>/<your-username>/<project_slug>/`
+- **Contribution path:** <!-- indexed (maintained upstream) | hosted (files live here) -->
 - **What it does:**
 
-## Submission checklist (all mods)
+## Submission checklist — every project
 
-- [ ] One mod, at `mods/<product>/<author>/<mod_name>/` (no extra nesting, no spaces in names)
-- [ ] `mod.yml` + `README.md` present, with the `safety` block filled (no blank fields)
-- [ ] At least one image (an `img/` file, or an image URL for external mods)
-- [ ] No per-mod `LICENSE` file; no referral/affiliate links in the README
+- [ ] One project at exactly `mods/<ecosystem>/<author>/<project_slug>/`, with no spaces in those catalog directory names
+- [ ] Legacy-named `mod.yml` and `README.md` are present
+- [ ] `mod.yml` declares a non-empty compatibility list, a license, at least one image, and a complete safety block
+- [ ] The legacy `product` key identifies the ecosystem and `mod_version` identifies the catalog-entry version
+- [ ] The README contains no referral or affiliate links
 - [ ] All commits are signed off (`git commit -s` → DCO)
 
-## If hosted (files in this repo)
+## If indexed (maintained upstream)
 
-- [ ] `cad/` has a STEP file (print files, if any, go in `print/` via Git LFS)
-- [ ] No `license` field in `mod.yml` (hosted license is fixed by the repo)
+- [ ] `mod.yml` has `source_url` and the license disclosed upstream, as an SPDX identifier or `LicenseRef-*`
+- [ ] `images` contains a working upstream URL or a local image in `img/`
+- [ ] The README links to the upstream project
+- [ ] There is no project-local `LICENSE` in this repository
 
-## If external / linked (lives in my own repo)
+## If hosted (files live here)
 
-- [ ] `mod.yml` has `source_url:` (my repo) and `license:` (my repo's SPDX id — may differ from the default)
-- [ ] README links to the upstream repo and notes the license if it differs
+- [ ] `source_url` is omitted and `images` references at least one local image
+- [ ] An OSSM project declares exactly `CERN-OHL-S-2.0` and has no project-local `LICENSE`
+- [ ] A non-OSSM project declares its SPDX identifier or `LicenseRef-*` and includes matching text in a project-root `LICENSE`
+- [ ] Optional CAD, print, source, and documentation files are in the project folder; CAD or source code is not required
 
 ## Safety
 
-- [ ] This mod does **not** affect restraint-release, applied force, or electrical/charging
-- [ ] **or** it does, and I described it in `mod.yml` → `safety.notes` (expect a safety review)
+- [ ] The project does **not** affect restraint release, applied force, or electrical or charging behavior
+- [ ] **or** it does, each relevant flag is `true`, and the behavior is explained in `mod.yml` → `safety.notes`
+
+> Inclusion in the R+D Project Hub is not endorsement, safety certification, or
+> warranty by Research and Desire.
+
+## Repository policy
+
+- [ ] This pull request does not change the repository-wide license or trademark notice, **or** the project owner and a qualified legal reviewer have approved those changes before merge

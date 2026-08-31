@@ -1,9 +1,11 @@
 # Sample quick-release mount
 
 > This is a **template**. Copy `mods/ossm/SAMPLE_AUTHOR/sample_mount/` to
-> `mods/<product>/<your-username>/<mod_name>/` and replace everything below.
+> `mods/<ecosystem>/<your-username>/<project_slug>/` and replace everything
+> below. The folder and metadata names are retained legacy interfaces.
 
-A one-paragraph description of what the mod is and why you'd want it.
+A one-paragraph description of what the project is and why someone would want
+to build or use it.
 
 ## Compatibility
 
@@ -26,6 +28,9 @@ A one-paragraph description of what the mod is and why you'd want it.
 1. Step one.
 2. Step two.
 
-## CAD
+## Project files
 
-Editable source in `cad/` (STEP required; native CAD optional).
+Include the files needed to use the project. CAD, printable parts, software,
+firmware, documentation, or other source files are welcome when applicable;
+none of those specific file types is required. Every hosted project must include
+at least one image and a complete safety disclosure in `mod.yml`.

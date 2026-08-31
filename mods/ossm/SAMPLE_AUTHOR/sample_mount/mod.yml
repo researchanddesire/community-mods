@@ -1,18 +1,19 @@
-# Sample mod metadata. Copy this folder, rename SAMPLE_AUTHOR to your GitHub
-# username and sample_mount to your mod name, then edit every field.
+# Sample project metadata. Copy this folder, rename SAMPLE_AUTHOR to your GitHub
+# username and sample_mount to your project slug, then edit every field.
 # The schema is enforced by mod-lint: .github/workflows/scripts/mod.schema.json
 title: Sample quick-release mount
 author: SAMPLE_AUTHOR
-product: ossm                       # lockbox | dtt | ossm | radr
+product: ossm                       # legacy ecosystem key: lockbox | dtt | ossm | radr
 description: A starter template showing the required folder layout and metadata.
-mod_version: 1                      # start at 1; bump when you change the mod
+mod_version: 1                      # start at 1; bump when the project entry changes
 compatibility:                      # only list what was actually tested
   - OSSM v2
 images:
-  - img/printed.jpg                 # at least one; each path must exist
+  - img/sample-preview.svg          # replace with a real project image
 tags:                               # optional; power the gallery's "browse by tag" sidebar
   - example
   - mount
+license: CERN-OHL-S-2.0             # required for a hosted OSSM project
 safety:                             # required block — never leave blank
   affects_restraint_release: false
   affects_applied_force: false
