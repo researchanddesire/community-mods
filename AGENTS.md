@@ -9,7 +9,7 @@ software, hardware, accessories, tools, and projects in related ecosystems.
 Research and Desire hosts the directory; inclusion is not endorsement, safety
 certification, or warranty.
 
-One project entry lives at the retained legacy path
+Each project entry uses the catalog path
 `mods/<ecosystem>/<author>/<project_slug>/`, where `<ecosystem>` is `lockbox`,
 `dtt`, `ossm`, or `radr`. The gallery at mods.researchanddesire.com is generated
 from this tree. Never hand-edit a generated top-level gallery.
@@ -43,10 +43,10 @@ from this tree. Never hand-edit a generated top-level gallery.
 - `.github/workflows/scripts/mod.schema.json` is the canonical metadata schema.
   Edit it deliberately when the standard changes; `mod-lint` enforces it.
 
-## Retained legacy interfaces
+## Catalog interface
 
 Use project-first and ecosystem-first wording in UI, documentation, reviews,
-and validation output. Preserve these compatibility interfaces:
+and validation output. Preserve these stable technical interfaces:
 
 - catalog path: `mods/<ecosystem>/<author>/<project_slug>/mod.yml`
 - metadata filename: `mod.yml`
@@ -54,12 +54,12 @@ and validation output. Preserve these compatibility interfaces:
 - catalog-entry version key: `mod_version`
 - validation command and script name: `mod-lint` / `mod_lint.py`
 
-These retained names do not mean every entry is a modification or an R+D
-product.
+These names apply equally to complete variants, controllers, software,
+hardware, accessories, tools, and mods.
 
 ## `mod.yml` contract
 
-Required keys are `title`, `author`, `product` (legacy ecosystem enum),
+Required keys are `title`, `author`, `product` (ecosystem enum),
 `description`, `mod_version` (integer at least 1), `compatibility` (non-empty
 list), `license`, `images` (non-empty list of paths or URLs), and `safety` (the
 three boolean flags plus non-blank `notes`). `tags` is optional and free-form.
@@ -70,7 +70,7 @@ not imply that indexed projects are warnings or lesser entries.
 
 ## Validation
 
-Run the legacy validator with:
+Run the catalog validator with:
 
 ```bash
 python .github/workflows/scripts/mod_lint.py

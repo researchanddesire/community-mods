@@ -2,8 +2,8 @@
 
 Thanks for sharing a project with the R+D Project Hub. The directory welcomes
 complete OSSM variants, controllers, software, hardware, accessories, tools,
-and other work related to the ecosystems represented here. A submission does
-not have to modify an R+D product.
+and other work related to the ecosystems represented here. Projects may be
+standalone builds, compatible variants, additions, or mods.
 
 ## Two contribution paths — equal in the hub
 
@@ -19,7 +19,7 @@ Choose the path that fits how the project is maintained:
 Both paths receive equal placement in the gallery. Indexing does not transfer
 ownership, maintenance, or licensing to Research and Desire.
 
-## 1. Retained folder interface
+## 1. Catalog layout
 
 Add one project per pull request at exactly this depth:
 
@@ -32,11 +32,10 @@ mods/<ecosystem>/<your-github-username>/<project_slug>/
   directory names.
 - Do not nest the catalog entry deeper than `<project_slug>/`.
 
-The path, metadata filename, and validator retain legacy names for
-compatibility: every project uses
-`mods/<ecosystem>/<author>/<project_slug>/mod.yml`; `product` is the legacy
-metadata key for ecosystem; `mod_version` is the legacy key for the catalog
-entry's version; and the validation command is still named `mod-lint`.
+Every project uses
+`mods/<ecosystem>/<author>/<project_slug>/mod.yml`. In the metadata, `product`
+identifies the ecosystem and `mod_version` tracks the catalog entry's version.
+The validation command is named `mod-lint`.
 
 For a hosted project, the root may contain:
 
@@ -65,9 +64,9 @@ This hosted OSSM example shows the required core:
 ```yaml
 title: Quick-release wall mount
 author: your-github-username
-product: ossm            # legacy key: lockbox | dtt | ossm | radr
+product: ossm            # ecosystem: lockbox | dtt | ossm | radr
 description: A wall bracket with a quick-release dovetail.
-mod_version: 1           # legacy key: bump when the catalog entry changes
+mod_version: 1           # bump when the catalog entry changes
 compatibility:
   - OSSM variant and revision actually tested
 license: CERN-OHL-S-2.0

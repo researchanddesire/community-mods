@@ -11,8 +11,8 @@ in each contribution remains with its respective author unless stated
 otherwise. Inclusion in this catalog is not an endorsement, safety
 certification, or warranty by Research and Desire (R+D).
 
-The legacy paths and keys `mods/`, `mod.yml`, and `mod_version` do not determine
-the license. The following path and project-type rules do.
+The technical paths and keys `mods/`, `mod.yml`, and `mod_version` do not
+determine the license. The following path and project-type rules do.
 
 ## License map
 
@@ -77,15 +77,15 @@ independently maintained variants. This repository does not claim that OSSM is
 an R+D-owned trademark, and this notice makes no determination about rights
 that may be held by third parties.
 
-Research and Desire, R+D, and clearly R+D-owned product names, logos, trade
-dress, and branding remain reserved. No copyright or open-source license in
+Research and Desire, R+D, and clearly R+D-owned names, logos, trade dress, and
+branding remain reserved. No copyright or open-source license in
 this repository grants trademark rights or permission to imply sponsorship,
 endorsement, or official status.
 
 ## No warranty or safety certification
 
 Projects listed or hosted here are independently maintained. Unless a project
-explicitly says otherwise, it is not an official R+D product and has not been
+explicitly says otherwise, it is not an official R+D release and has not been
 safety-tested or certified by R+D. Material is provided under the warranty and
 liability terms of its applicable license. Use and build projects at your own
 risk, verify safety controls, and follow the safety-review policy in

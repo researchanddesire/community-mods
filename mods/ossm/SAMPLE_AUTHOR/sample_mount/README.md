@@ -2,7 +2,7 @@
 
 > This is a **template**. Copy `mods/ossm/SAMPLE_AUTHOR/sample_mount/` to
 > `mods/<ecosystem>/<your-username>/<project_slug>/` and replace everything
-> below. The folder and metadata names are retained legacy interfaces.
+> below. Keep the folder layout and metadata filename shown here.
 
 A one-paragraph description of what the project is and why someone would want
 to build or use it.

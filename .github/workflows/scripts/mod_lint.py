@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Validate every legacy mods/<ecosystem>/<author>/<project_slug>/ directory.
+"""Validate every project entry under mods/<ecosystem>/<author>/<project_slug>/.
 
 Schema source of truth: .github/workflows/scripts/mod.schema.json (canonical
 in this repo — the project standard has a single consumer, so it is not vendored
-from dev-docs the way the cross-product BOM schema is).
+from dev-docs like schemas shared across repositories).
 See CONTRIBUTING.md and https://dev.researchanddesire.com/meta/community-mods/.
 
 Checks (structure, not taste):
@@ -16,7 +16,7 @@ Checks (structure, not taste):
   - other hosted projects include a project-root LICENSE
   - at least one declared local image, or an HTTP(S) URL for indexed projects
   - mod.yml validates against mod.schema.json (JSON Schema draft-07)
-  - legacy mod.yml.product matches the ecosystem folder; author matches its folder
+  - mod.yml.product matches the ecosystem folder; author matches its folder
   - every local (non-URL) path in mod.yml.images exists
 
 CAD and source files are optional: a hosted project may consist of documentation,
@@ -64,7 +64,7 @@ OSSM_HOSTED_LICENSE = "CERN-OHL-S-2.0"
 
 
 def find_mod_dirs() -> list[str]:
-    """A project dir uses the legacy mods/<ecosystem>/<author>/<slug>/ shape."""
+    """Find project directories using mods/<ecosystem>/<author>/<slug>/."""
     projects: set[str] = set()
     if not os.path.isdir(MODS_ROOT):
         return []
@@ -154,7 +154,7 @@ def local_image_error(project_dir: str, image: str) -> str | None:
 
 
 def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
-    """Lint one project directory; name retained as part of the legacy tool API."""
+    """Lint one project directory against the catalog contract."""
     rel = os.path.relpath(mod_dir, REPO_ROOT)
     errors: list[str] = []
 
@@ -294,7 +294,7 @@ def main() -> int:
 
     projects = find_mod_dirs()
     if not projects:
-        print("No projects found under the legacy mods/ path — nothing to lint.")
+        print("No projects found under mods/ — nothing to lint.")
         return 0
 
     all_errors: list[str] = []

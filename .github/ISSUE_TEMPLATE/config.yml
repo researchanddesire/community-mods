@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Submit a project
-    url: https://github.com/researchanddesire/community-mods/blob/main/CONTRIBUTING.md
+    url: https://mods.researchanddesire.com/contributing/
     about: Projects are added by pull request. Indexed and hosted submissions are equally welcome.
   - name: R+D user documentation
     url: https://docs.researchanddesire.com
