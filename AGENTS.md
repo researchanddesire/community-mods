@@ -38,8 +38,6 @@ from this tree. Never hand-edit a generated top-level gallery.
 - Fill every `safety` flag honestly and keep `safety.notes` non-blank. Applied
   force, restraint-release, and electrical or charging behavior require human
   safety review.
-- Changes to the repository-wide license or trademark notice require
-  owner/legal review before merge.
 - `.github/workflows/scripts/mod.schema.json` is the canonical metadata schema.
   Edit it deliberately when the standard changes; `mod-lint` enforces it.
 

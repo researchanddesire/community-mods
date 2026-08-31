@@ -63,8 +63,7 @@ mods/<ecosystem>/<author>/<project_slug>/
   `LICENSE` at the project root.
 
 The hub does not require an open license. See the root `LICENSE` notice for
-path-specific terms. Repository-wide license or trademark-notice changes require
-owner/legal review before merge.
+path-specific terms.
 
 ## Safety
 

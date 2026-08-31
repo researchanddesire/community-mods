@@ -37,7 +37,3 @@
 
 > Inclusion in the R+D Project Hub is not endorsement, safety certification, or
 > warranty by Research and Desire.
-
-## Repository policy
-
-- [ ] This pull request does not change the repository-wide license or trademark notice, **or** the project owner and a qualified legal reviewer have approved those changes before merge

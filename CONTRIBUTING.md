@@ -195,8 +195,7 @@ without sign-off on every commit fail CI.
 licenses, and safety disclosure. Maintainers then review the project entry,
 links, license, and safety information. OSSM is treated as a shared ecosystem
 name rather than an R+D-owned trademark; names and branding clearly owned by
-Research and Desire remain reserved. Changes to the repository-wide license or
-trademark notice require owner/legal review before merge.
+Research and Desire remain reserved.
 
 After merge, indexed and hosted projects appear on equal footing at
 [mods.researchanddesire.com](https://mods.researchanddesire.com).
