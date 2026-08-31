@@ -1,182 +1,203 @@
-# Contributing a mod
+# Contributing a project
 
-Thanks for sharing a mod for a Research and Desire product. This guide covers the
-folder layout, metadata, license, and review process. It mirrors the
-gold-standard [VoronUsers](https://github.com/VoronDesign/VoronUsers) flow.
+Thanks for sharing a project with the R+D Project Hub. The directory welcomes
+complete OSSM variants, controllers, software, hardware, accessories, tools,
+and other work related to the ecosystems represented here. A submission does
+not have to modify an R+D product.
 
-## Two kinds of mods — both equally welcome
+## Two contribution paths — equal in the hub
 
-You do **not** have to move your project into this repo to be listed. Pick
-whichever fits:
+Choose the path that fits how the project is maintained:
 
-- **Hosted mod** — you add the design files here, in your `mods/...` folder. Best
-  for new parts you're happy to publish under the RAD license model.
-- **External / linked mod** — your mod already lives in **your own repository**
-  (any platform, any license) and we simply **index and link** it so people can
-  find it on the [Mod Hub](https://mods.researchanddesire.com). **You keep
-  ownership, maintenance, and your own license.** This is a fully first-class way
-  to contribute — see [§3b](#3b-linking-an-external-mod-how-to). If you already
-  have a great OSSM/Lockbox/DTT/RADR project out there, **linking it is
-  encouraged** — no need to relicense or relocate anything.
+- **Indexed project** — the project stays in its maintainer's own repository.
+  This repository stores only its catalog metadata and a short README, and the
+  gallery links people to the upstream source.
+- **Hosted project** — the project and any files its maintainer wants to publish
+  live in this repository. CAD and source code are supported but are not
+  submission requirements.
 
-## 1. Folder layout
+Both paths receive equal placement in the gallery. Indexing does not transfer
+ownership, maintenance, or licensing to Research and Desire.
 
-Add **one mod per pull request** at exactly this depth:
+## 1. Retained folder interface
 
+Add one project per pull request at exactly this depth:
+
+```text
+mods/<ecosystem>/<your-github-username>/<project_slug>/
 ```
-mods/<product>/<your-github-username>/<mod_name>/
-```
 
-- `<product>` is one of `lockbox`, `dtt`, `ossm`, `radr`.
-- No spaces in file or folder names.
-- Do not nest deeper than `<mod_name>/`.
+- `<ecosystem>` is one of `lockbox`, `dtt`, `ossm`, or `radr`.
+- Use no spaces in the `<ecosystem>`, `<author>`, or `<project_slug>` catalog
+  directory names.
+- Do not nest the catalog entry deeper than `<project_slug>/`.
 
-Inside `<mod_name>/`:
+The path, metadata filename, and validator retain legacy names for
+compatibility: every project uses
+`mods/<ecosystem>/<author>/<project_slug>/mod.yml`; `product` is the legacy
+metadata key for ecosystem; `mod_version` is the legacy key for the catalog
+entry's version; and the validation command is still named `mod-lint`.
 
-| Path        | Required | Contents |
-|-------------|----------|----------|
-| `cad/`      | **yes**  | At least one **CAD** file. STEP (`.step`) is required (open format); native (`.f3d`, etc.) optional. |
-| `print/`    | optional | Print-ready `.stl` / `.3mf` (tracked via Git LFS). |
-| `img/`      | **yes**  | At least one render or photo of the mod. |
-| `docs/`     | optional | BOM, assembly PDF, extra documentation. |
-| `mod.yml`   | **yes**  | Metadata (see below). |
-| `README.md` | **yes**  | Description, BOM, assembly notes, vendor links (no referral/affiliate links). |
+For a hosted project, the root may contain:
 
-A starter is provided at [`mods/ossm/SAMPLE_AUTHOR/sample_mount/`](mods/ossm/SAMPLE_AUTHOR/sample_mount/) — copy it and edit.
+| Path | Required | Contents |
+|---|---:|---|
+| `mod.yml` | yes | Catalog metadata, license, compatibility, and safety disclosure. |
+| `README.md` | yes | Description, usage, attribution, and relevant project links. |
+| `img/` | yes | At least one local project image referenced by `images`. |
+| `LICENSE` | conditional | Required for hosted non-OSSM projects; forbidden for hosted OSSM projects. |
+| `cad/` | no | Optional design files; use open formats where practical. |
+| `print/` | no | Optional `.stl` or `.3mf` files, tracked through Git LFS. |
+| `src/` | no | Optional software or firmware. |
+| `docs/` | no | Optional BOMs, assembly guides, PDFs, or other supporting material. |
 
-> The table above is for **hosted** mods. **External / linked** mods are lighter
-> — just `mod.yml` + `README.md` (no `cad/`/`print/` needed, files stay
-> upstream). See [§3b](#3b-linking-an-external-mod-how-to).
+There is no minimum CAD or source-code requirement. An indexed project's local
+entry usually contains only `mod.yml` and `README.md`; its image may be an
+upstream URL, and it must not include a local `LICENSE` file.
 
-## 2. `mod.yml`
+A starter entry is available at
+[`mods/ossm/SAMPLE_AUTHOR/sample_mount/`](mods/ossm/SAMPLE_AUTHOR/sample_mount/).
+
+## 2. Metadata in `mod.yml`
+
+This hosted OSSM example shows the required core:
 
 ```yaml
 title: Quick-release wall mount
 author: your-github-username
-product: ossm            # lockbox | dtt | ossm | radr
+product: ossm            # legacy key: lockbox | dtt | ossm | radr
 description: A wall bracket with a quick-release dovetail.
-mod_version: 1           # start at 1; bump when you change the mod
-compatibility:           # only list what you (or someone) actually tested
-  - OSSM v2
+mod_version: 1           # legacy key: bump when the catalog entry changes
+compatibility:
+  - OSSM variant and revision actually tested
+license: CERN-OHL-S-2.0
 images:
   - img/printed.jpg
-tags:                    # optional; power the gallery's "browse by tag" sidebar
+tags:
+  - accessory
   - mount
-  - quick-release
-safety:                  # required block — do not leave blank
+safety:
   affects_restraint_release: false
   affects_applied_force: false
   affects_electrical: false
-  notes: "–"             # describe any safety-relevant behavior, or '–'
+  notes: "–"
 ```
 
-The schema is enforced by `mod-lint` and is canonical here at
-`.github/workflows/scripts/mod.schema.json`.
-There is **no `license` field** — license is fixed (see §4).
+Required keys are `title`, `author`, `product`, `description`, `mod_version`,
+`compatibility`, `license`, `images`, and `safety`. `compatibility` and `images`
+must be non-empty. The `safety` object requires all three boolean flags plus
+non-blank `notes`. `tags` is optional, free-form classification used by the
+gallery. `source_url` is added only for an indexed project.
 
-`tags` is optional but recommended: each tag becomes a filter in the gallery's
-**"browse by tag"** sidebar, so good tags make your mod easier to discover.
+Every project must disclose a license using an SPDX identifier or
+`LicenseRef-*`. Any honestly disclosed license is eligible; this directory does
+not impose an open-license-only admission rule.
 
-## 3. Safety
+The canonical schema is
+`.github/workflows/scripts/mod.schema.json`, enforced by `mod-lint`.
 
-These are intimate devices, not 3D printers. If your mod changes how a device
-**releases a restraint**, the **force/torque** it can apply, or anything
-**electrical / charging**, set the relevant `safety` flag to `true` and describe
-it in `notes`. Flagged mods get an explicit **safety review** before merge.
+## 3. Choose the project's hosting model
 
-## 3b. Linking an external mod (how-to)
+### 3a. Index a project maintained elsewhere
 
-Already have your mod in your own repo? **Link it — that's encouraged, and it
-keeps your project yours.** We index it in the gallery and send people to your
-repo; we don't copy your files or change your license.
+An indexed entry keeps its files, releases, issue tracking, and license in the
+upstream repository.
 
-**What's different from a hosted mod:**
+1. Create `mods/<ecosystem>/<your-github-username>/<project_slug>/` with
+   `mod.yml` and `README.md`.
+2. Set `source_url` to the upstream project and `license` to the license
+   disclosed there, using its SPDX identifier or `LicenseRef-*`.
+3. Add at least one image to `images`; an absolute upstream image URL is
+   accepted.
+4. Link the upstream source from the README. Do not add a project-local
+   `LICENSE` to this repository.
 
-- **No `cad/`, `print/`, or local image needed** — your files stay upstream.
-- You **declare your own license** (it can differ from this repo's default).
-- The gallery card shows a license badge and an **"Upstream source ↗"** link
-  straight to your repo.
-
-**Steps:**
-
-1. Create just the folder `mods/<product>/<your-github-username>/<mod_name>/`
-   with **two files**: `mod.yml` and `README.md`.
-2. In `mod.yml`, set `source_url:` (your repo) and `license:` (your repo's SPDX
-   id, e.g. `CC-BY-SA-4.0`, `MIT`, `GPL-3.0-or-later`). Use an image **URL**
-   (e.g. a raw link to a photo in your repo) in `images:`.
-3. In `README.md`, briefly describe the mod and link to your repo. Note the
-   license if it differs from this repo's default.
-4. Open the PR (see §5). `mod-lint` requires `license` exactly when `source_url`
-   is set (and forbids it otherwise), so the difference is always explicit.
-
-**Example `mod.yml`** (a linked mod under a different license):
+Example indexed metadata:
 
 ```yaml
-title: OSSM M5 Remote
-author: ortlof
+title: Example OSSM controller
+author: your-github-username
 product: ossm
-description: A wireless M5Stack remote for the OSSM (speed/depth/stroke).
+description: A separately maintained controller for OSSM-compatible machines.
 mod_version: 1
 compatibility:
-  - OSSM (requires the OSSM-Stroke firmware)
-  - M5Stack CoreS3 / Core2
-source_url: https://github.com/ortlof/OSSM-M5-Remote   # your repo
-license: CC-BY-SA-4.0                                   # your license (may differ)
+  - Tested OSSM-compatible firmware and hardware revision
+source_url: https://github.com/your-github-username/example-controller
+license: MIT
 images:
-  - https://raw.githubusercontent.com/ortlof/OSSM-M5-Remote/master/image/remote.png
-tags: [remote, external]
+  - https://raw.githubusercontent.com/your-github-username/example-controller/main/controller.jpg
+tags:
+  - controller
+  - hardware
 safety:
   affects_restraint_release: false
   affects_applied_force: true
-  affects_electrical: false
-  notes: "Commands OSSM motion; requires third-party OSSM-Stroke firmware."
+  affects_electrical: true
+  notes: "Controls machine motion and uses external electrical power; follow the upstream safety instructions."
 ```
 
-See the live worked example at
-[`mods/ossm/ortlof/m5-remote/`](mods/ossm/ortlof/m5-remote/).
+The license declaration describes the upstream project; the hub indexes and
+links the work rather than relicensing it.
 
-> We **don't** require you to relicense or relocate an existing project to be
-> listed. The only ask: declare the license honestly, keep your `README` links
-> working, and fill in the `safety` block (it applies to every mod).
+### 3b. Host a project in this repository
 
-## 4. License (fixed for hosted mods — not your choice)
+Every hosted project includes `mod.yml`, `README.md`, a complete `safety` block,
+and at least one local image. Add CAD, print, source, or supporting files only
+when they are part of the project.
 
-For a **hosted** mod, by submitting you agree your contribution is licensed
-under the unified RAD model, matching the product it modifies:
+The license rule depends on ecosystem:
 
-- Hardware / printable design files (`cad`, `print`) → **CERN-OHL-S v2**
-- Software / firmware (any code) → **MPL 2.0**
-- Docs and images → **CERN-OHL-S v2**
+- A hosted project under `mods/ossm/` must declare exactly
+  `CERN-OHL-S-2.0` and must not include a project-local `LICENSE`. The root
+  repository notice supplies the applicable text.
+- A hosted project under `mods/lockbox/`, `mods/dtt/`, or `mods/radr/` may
+  declare any honestly disclosed SPDX identifier or `LicenseRef-*` and must
+  include the matching license text at
+  `mods/<ecosystem>/<author>/<project_slug>/LICENSE`.
 
-Do **not** add a per-mod `LICENSE` file or pick a different license for a hosted
-mod. See [LICENSE](LICENSE).
+Hub-authored catalog summaries, metadata, and general documentation use
+`CC-BY-4.0`, while repository tooling uses `MPL-2.0`. See the repository
+[LICENSE](LICENSE) notice for the complete path-specific terms.
 
-For an **external / linked** mod (§3b), the upstream license governs — declare
-it in `mod.yml` `license:`. It can differ from the default; we link to it rather
-than relicense it. Still no per-mod `LICENSE` file here — the declaration lives
-in `mod.yml`.
+## 4. Safety disclosure
 
-### DCO sign-off (required)
+Safety metadata is mandatory for every indexed and hosted project. If a project
+changes how a restraint releases, the force or torque a machine can apply, or
+anything electrical or charging-related, set the corresponding flag to `true`
+and explain the behavior in `safety.notes`. Flagged entries receive explicit
+human safety review before merge.
+
+Inclusion is not endorsement, safety certification, or warranty by Research
+and Desire. Maintainers and users remain responsible for evaluating the project
+and its upstream documentation.
+
+## 5. DCO sign-off
 
 Every commit must be signed off under the
-[Developer Certificate of Origin](https://developercertificate.org/) — it
-affirms you have the right to contribute under the license above:
+[Developer Certificate of Origin](https://developercertificate.org/). Sign-off
+affirms that you have the right to contribute under the terms disclosed for the
+project:
 
 ```bash
-git commit -s -m "Add my mod"
+git commit -s -m "Add my project"
 ```
 
-This adds a `Signed-off-by: Your Name <you@example.com>` line. PRs without
-sign-off on every commit fail CI.
+This adds a `Signed-off-by: Your Name <you@example.com>` line. Pull requests
+without sign-off on every commit fail CI.
 
-## 5. Open the PR
+## 6. Open the pull request
 
-1. Fork this repo and create a branch (not `main`).
-2. Add your `mods/<product>/<author>/<mod_name>/` folder, `git commit -s`, push.
-3. Open a pull request and fill in the checklist.
+1. Fork this repository and create a branch other than `main`.
+2. Add one `mods/<ecosystem>/<author>/<project_slug>/` entry, sign off the
+   commit, and push it.
+3. Open a pull request and complete the project checklist.
 
-`mod-lint` runs automatically (it knows hosted vs external from your `mod.yml`).
-Once it's green, a **ModHelpers** reviewer will check structure, images, license,
-and safety — plus CAD for hosted mods — then merge, and your mod shows up on
-[mods.researchanddesire.com](https://mods.researchanddesire.com). **Both hosted
-and linked mods are accepted on equal footing.**
+`mod-lint` automatically validates structure, metadata, image presence,
+licenses, and safety disclosure. Maintainers then review the project entry,
+links, license, and safety information. OSSM is treated as a shared ecosystem
+name rather than an R+D-owned trademark; names and branding clearly owned by
+Research and Desire remain reserved. Changes to the repository-wide license or
+trademark notice require owner/legal review before merge.
+
+After merge, indexed and hosted projects appear on equal footing at
+[mods.researchanddesire.com](https://mods.researchanddesire.com).

@@ -1,1 +1,1 @@
-Put your STEP file here (e.g. bracket.step). STEP is required; native CAD (F3D, etc.) optional.
+Optional: put editable CAD or exchange files here when they are part of the project.

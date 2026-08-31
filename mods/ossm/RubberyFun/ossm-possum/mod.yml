@@ -2,33 +2,31 @@ title: OSSM Possum
 author: RubberyFun
 product: ossm
 description: >-
-  A Bluetooth remote-control app for the stock Kinky Makers OSSM firmware. Runs
-  as a native iOS / Android app, a web page, or an offline PWA — touchscreen
-  control of speed, depth, and stroke with no cost or ads.
-mod_version: 1
+  An independently maintained Bluetooth controller project for OSSM builds
+  running KinkyMakers firmware. It runs as a native iOS / Android app, a web
+  page, or an offline PWA with no cost or ads.
+mod_version: 2
 compatibility:
-  - OSSM running stock Kinky Makers firmware (2026 software or newer)
+  - OSSM running KinkyMakers firmware (2026 software or newer)
   - iOS app
   - Android app
   - Web / PWA (Bluetooth-capable browser)
-# External / linked mod: the source lives in the author's own repo, so this entry
-# is an index pointer. license is REQUIRED here and DIFFERS from the repo default
-# (CERN-OHL-S hardware / MPL software).
+# Indexed project: the source lives in the author's own repository. The upstream
+# license is declared here and the Project Hub links to those maintained files.
 source_url: https://github.com/RubberyFun/OSSM-Possum
 license: CC-BY-SA-4.0
 images:
   - https://raw.githubusercontent.com/RubberyFun/OSSM-Possum/main/public/Screenshot.png
 tags:
-  - remote
+  - controller
+  - software
   - bluetooth
-  - app
   - pwa
-  - external
 safety:
   affects_restraint_release: false
   affects_applied_force: true
   affects_electrical: false
   notes: >-
     Commands OSSM motion (speed/depth/stroke) over Bluetooth. Treat as a motion
-    controller; verify e-stop and safe limits before use. Works with stock OSSM
-    firmware — no firmware changes required.
+    controller; verify e-stop and safe limits before use. Works with
+    KinkyMakers OSSM firmware — no firmware changes required.

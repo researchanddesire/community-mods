@@ -1,45 +1,81 @@
-# AGENTS.md — community-mods
+# AGENTS.md — R+D Project Hub
 
-Guidance for agents working in the RAD community mods repository.
+Guidance for agents working in the Project Hub repository.
 
-## What this repo is
+## What this repository is
 
-Community-contributed mods for RAD products, one per folder at
-`mods/<product>/<author>/<mod_name>/` where `<product>` is one of
-`lockbox`, `dtt`, `ossm`, `radr`. The gallery at mods.researchanddesire.com is
-**generated** from this tree — never hand-edit a top-level index.
+This is a directory of independently maintained OSSM variants, controllers,
+software, hardware, accessories, tools, and projects in related ecosystems.
+Research and Desire hosts the directory; inclusion is not endorsement, safety
+certification, or warranty.
+
+One project entry lives at the retained legacy path
+`mods/<ecosystem>/<author>/<project_slug>/`, where `<ecosystem>` is `lockbox`,
+`dtt`, `ossm`, or `radr`. The gallery at mods.researchanddesire.com is generated
+from this tree. Never hand-edit a generated top-level gallery.
 
 ## Hard rules
 
-- Keep exactly the `mods/<product>/<author>/<mod_name>/` depth. No spaces in
-  names. No nesting deeper than `<mod_name>/`.
-- **Hosted mod:** must have a `cad/` file (STEP), at least one `img/` image, a
-  `README.md`, and a `mod.yml`. Print files go in `print/` (LFS). License is
-  **fixed**: hardware/printable → CERN-OHL-S v2; software → MPL 2.0;
-  docs/images → CERN-OHL-S v2. The root `LICENSE` path-map governs; `mod.yml`
-  must NOT set a `license`.
-- **External / linked mod:** files live in the author's own repo. `mod.yml` sets
-  `source_url:` (upstream) and `license:` (upstream SPDX id — may differ from the
-  default). No `cad/` required; an image URL is fine. Still no per-mod `LICENSE`
-  file. `mod-lint` requires `license` iff `source_url` is set.
-- Never add a per-mod `LICENSE` file in either case.
-- Fill the `mod.yml` `safety` block — never leave it blank. Set the
-  restraint-release / applied-force / electrical flags honestly.
-- `.github/workflows/scripts/mod.schema.json` is the **canonical** mod schema
-  (this repo is its only consumer — not vendored from dev-docs). Edit it
-  deliberately when the standard changes; `mod-lint` enforces it.
+- Keep exactly the `mods/<ecosystem>/<author>/<project_slug>/` catalog depth.
+  Use no spaces in those three catalog directory names and do not add another
+  catalog level below `<project_slug>`.
+- Every project requires `mod.yml`, `README.md`, a non-empty `images` list, a
+  complete `safety` object, and a declared `license`.
+- **Indexed project:** set `source_url` to the upstream project and `license` to
+  its disclosed SPDX identifier or `LicenseRef-*`. An upstream image URL is
+  allowed. Do not add a project-local `LICENSE`.
+- **Hosted OSSM project:** omit `source_url`, set `license` to exactly
+  `CERN-OHL-S-2.0`, include at least one local image, and do not add a
+  project-local `LICENSE`.
+- **Other hosted project:** omit `source_url`, declare its SPDX identifier or
+  `LicenseRef-*`, include at least one local image, and add the matching license
+  text at the project root as `LICENSE`.
+- CAD and source code are optional. A hosted project does not need a `cad/`,
+  STEP file, or source directory to qualify. Put print files in `print/` and
+  track applicable binaries through Git LFS.
+- Any honestly disclosed license is eligible; the hub does not impose an
+  open-license-only requirement.
+- Fill every `safety` flag honestly and keep `safety.notes` non-blank. Applied
+  force, restraint-release, and electrical or charging behavior require human
+  safety review.
+- Changes to the repository-wide license or trademark notice require
+  owner/legal review before merge.
+- `.github/workflows/scripts/mod.schema.json` is the canonical metadata schema.
+  Edit it deliberately when the standard changes; `mod-lint` enforces it.
 
-## mod.yml contract
+## Retained legacy interfaces
 
-Required keys: `title`, `author`, `product` (enum), `description`,
-`mod_version` (int ≥ 1), `compatibility` (non-empty list), `images` (non-empty
-list of paths or URLs), `safety` (object with the three boolean flags + `notes`).
-Optional: `tags`. External/linked mods add `source_url` (upstream repo) and
-`license` (upstream SPDX id) — `license` is required iff `source_url` is set, and
-forbidden otherwise. Full schema: `.github/workflows/scripts/mod.schema.json`.
+Use project-first and ecosystem-first wording in UI, documentation, reviews,
+and validation output. Preserve these compatibility interfaces:
+
+- catalog path: `mods/<ecosystem>/<author>/<project_slug>/mod.yml`
+- metadata filename: `mod.yml`
+- ecosystem key: `product`
+- catalog-entry version key: `mod_version`
+- validation command and script name: `mod-lint` / `mod_lint.py`
+
+These retained names do not mean every entry is a modification or an R+D
+product.
+
+## `mod.yml` contract
+
+Required keys are `title`, `author`, `product` (legacy ecosystem enum),
+`description`, `mod_version` (integer at least 1), `compatibility` (non-empty
+list), `license`, `images` (non-empty list of paths or URLs), and `safety` (the
+three boolean flags plus non-blank `notes`). `tags` is optional and free-form.
+An indexed project also sets `source_url`; a hosted project omits it.
+
+Indexed and hosted submissions are first-class, equal contribution paths. Do
+not imply that indexed projects are warnings or lesser entries.
 
 ## Validation
 
-`mod-lint` validates every mod's `mod.yml`, folder shape, and required files on
-PR. Run it locally with `python .github/workflows/scripts/mod_lint.py`. If it
-passes, the structure is good.
+Run the legacy validator with:
+
+```bash
+python .github/workflows/scripts/mod_lint.py
+```
+
+Also run its regression tests and build the generated gallery when changing the
+catalog contract or public project metadata. A passing `mod-lint` confirms the
+structure and metadata contract; it is not a safety certification.

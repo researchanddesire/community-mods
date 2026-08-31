@@ -2,31 +2,30 @@ title: OSSM ALT Edition
 author: jollydodo
 product: ossm
 description: >-
-  A community-driven, ground-up redesign of the OSSM with a custom 28V 140W
-  USB-C PD power board (ESP32-S3 + RS485), MGN12H / MGN15H rail options, and a
-  fully open hardware design optimized for 3D printing and European sourcing.
-mod_version: 1
+  An independently maintained OSSM variant with a custom 28V 140W USB-C PD
+  power board (ESP32-S3 + RS485), MGN12H / MGN15H rail options, and a fully open
+  hardware design optimized for 3D printing and European sourcing.
+mod_version: 2
 compatibility:
   - OSSM ALT Edition Light (MGN12H, belts up to 12mm)
   - OSSM ALT Edition Heavy (MGN15H, belts up to 15mm)
   - ESP32-S3 + RS485, made for OSSM Rust (ossm-rs) firmware
-  - Step/dir control for original firmware adaptation
+  - Step/dir control for adaptation to KinkyMakers OSSM firmware
   - Compatible with Pitclamp Mini (includes alternative dowelled mount)
-# External / linked mod: the design files live in the author's own repo, so this
-# entry is an index pointer. license is REQUIRED here; it matches the repo's
-# hardware default (CERN-OHL-S-2.0) but is declared explicitly for the upstream.
+# Indexed project: the design files live in the author's own repository. The
+# upstream license is declared here and the Project Hub links to those files.
 source_url: https://github.com/jollydodo/OSSM-ALT-Edition
 license: CERN-OHL-S-2.0
 images:
   - https://raw.githubusercontent.com/jollydodo/OSSM-ALT-Edition/main/Images/cover.jpg
   - https://raw.githubusercontent.com/jollydodo/OSSM-ALT-Edition/main/Images/pcb.png
 tags:
+  - variant
   - hardware
   - pcb
   - usb-c-pd
   - esp32-s3
   - mgn-rail
-  - external
 safety:
   affects_restraint_release: false
   affects_applied_force: true

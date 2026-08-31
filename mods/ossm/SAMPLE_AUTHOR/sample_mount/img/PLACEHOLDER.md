@@ -1,1 +1,2 @@
-Put at least one render or photo here (e.g. printed.jpg) and list it in mod.yml images.
+Replace `sample-preview.svg` with at least one real render or photo and list each
+image in `mod.yml`.
