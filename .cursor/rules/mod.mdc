@@ -55,9 +55,10 @@ mods/<ecosystem>/<author>/<project_slug>/
 ## Hosting and license rules
 
 - **Indexed:** set `source_url` and the upstream project's disclosed `license`.
-  Keep project files and license upstream; do not add a local `LICENSE`.
+  Keep project files and license terms in the upstream repository.
 - **Hosted under `mods/ossm/`:** omit `source_url`, declare exactly
-  `CERN-OHL-S-2.0`, and do not add a project-local `LICENSE`.
+  `CERN-OHL-S-2.0`. These project files use the repository license, so a
+  separate project-local `LICENSE` is not needed.
 - **Hosted in another ecosystem:** omit `source_url`, enter the project's
   license name, and add matching license text as `LICENSE` at the project root.
 

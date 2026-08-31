@@ -164,6 +164,11 @@ class ProjectHubBuildTests(unittest.TestCase):
         self.assertNotIn("SPDX", self.contribution_guidance)
         self.assertNotIn("DCO", self.contribution_guidance)
         self.assertNotIn("Signed-off-by", self.contribution_guidance)
+        self.assertNotIn("forbidden", self.contribution_guidance.casefold())
+        self.assertIn(
+            "Hosted OSSM project files are already covered by the repository license.",
+            self.contribution_guidance,
+        )
 
     def test_runtime_search_tags_and_modal_keyboard_behavior(self) -> None:
         runtime_match = re.search(r"<script>\n(.*)\n</script>", self.html, re.S)

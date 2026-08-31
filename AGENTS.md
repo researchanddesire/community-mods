@@ -25,11 +25,12 @@ from this tree. Never hand-edit a generated top-level gallery.
   `GPL-3.0-only`, or `CERN-OHL-S-2.0`. If the project has its own terms, use a
   plain descriptive name such as `Community Use Terms`.
 - **Indexed project:** set `source_url` to the upstream project and `license` to
-  the same short license name used there. An upstream image URL is allowed. Do
-  not add a project-local `LICENSE`.
+  the same short license name used there. An upstream image URL is allowed. The
+  upstream repository keeps the license terms.
 - **Hosted OSSM project:** omit `source_url`, set `license` to exactly
-  `CERN-OHL-S-2.0`, include at least one local image, and do not add a
-  project-local `LICENSE`.
+  `CERN-OHL-S-2.0`, and include at least one local image. These project files
+  use the repository license, so a separate project-local `LICENSE` is not
+  needed.
 - **Other hosted project:** omit `source_url`, enter its license name,
   include at least one local image, and add the matching license text at the
   project root as `LICENSE`.

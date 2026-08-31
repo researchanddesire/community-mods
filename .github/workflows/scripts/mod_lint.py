@@ -193,8 +193,8 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
     if is_indexed:
         if license_files:
             errors.append(
-                f"{rel}: indexed projects must not include a local LICENSE "
-                f"({', '.join(license_files)}); license terms live upstream"
+                f"{rel}: remove the local LICENSE ({', '.join(license_files)}); "
+                "indexed project license terms live upstream"
             )
     elif product == "ossm":
         if declared_license not in (None, OSSM_HOSTED_LICENSE):
@@ -204,8 +204,9 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
             )
         if license_files:
             errors.append(
-                f"{rel}: hosted OSSM projects must not include a project-local "
-                f"LICENSE ({', '.join(license_files)}); use the repository copy"
+                f"{rel}: remove the project-local LICENSE "
+                f"({', '.join(license_files)}); hosted OSSM files use the "
+                "repository's CERN-OHL-S-2.0 license text"
             )
     else:
         if not license_files:

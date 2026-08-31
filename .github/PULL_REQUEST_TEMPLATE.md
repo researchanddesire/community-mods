@@ -20,12 +20,12 @@
 - [ ] `mod.yml` has `source_url` and the same license name used upstream
 - [ ] `images` contains a working upstream URL or a local image in `img/`
 - [ ] The README links to the upstream project
-- [ ] There is no project-local `LICENSE` in this repository
+- [ ] The upstream project hosts its license terms; this catalog entry does not copy them
 
 ## If hosted (files live here)
 
 - [ ] `source_url` is omitted and `images` references at least one local image
-- [ ] An OSSM project declares exactly `CERN-OHL-S-2.0` and has no project-local `LICENSE`
+- [ ] An OSSM project declares exactly `CERN-OHL-S-2.0`; its files use the repository license, so no separate project-local `LICENSE` is needed
 - [ ] A non-OSSM project enters its license name and includes matching text in a project-root `LICENSE`
 - [ ] Optional CAD, print, source, and documentation files are in the project folder; CAD or source code is not required
 

@@ -112,7 +112,7 @@ class ModLintTests(unittest.TestCase):
             self.make_project(metadata=data, image=False, license_file=True)
         )
 
-        self.assertTrue(any("must not include a local LICENSE" in e for e in errors))
+        self.assertTrue(any("license terms live upstream" in e for e in errors))
 
     def test_indexed_project_requires_complete_source_and_image_urls(self) -> None:
         malformed_source = self.metadata()
@@ -186,7 +186,7 @@ class ModLintTests(unittest.TestCase):
             self.make_project(slug="local-license", license_file=True)
         )
         self.assertTrue(
-            any("must not include a project-local LICENSE" in e for e in local_errors)
+            any("hosted OSSM files use the repository's" in e for e in local_errors)
         )
 
     def test_other_hosted_project_requires_local_license_text(self) -> None:

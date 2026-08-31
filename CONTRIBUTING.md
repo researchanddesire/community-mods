@@ -44,7 +44,7 @@ For a hosted project, the root may contain:
 | `mod.yml` | yes | Catalog metadata, license, compatibility, and safety disclosure. |
 | `README.md` | yes | Description, usage, attribution, and relevant project links. |
 | `img/` | yes | At least one local project image referenced by `images`. |
-| `LICENSE` | conditional | Required for hosted non-OSSM projects; forbidden for hosted OSSM projects. |
+| `LICENSE` | conditional | Required for hosted non-OSSM projects. Hosted OSSM project files are already covered by the repository license. |
 | `cad/` | no | Optional design files; use open formats where practical. |
 | `print/` | no | Optional `.stl` or `.3mf` files, tracked through Git LFS. |
 | `src/` | no | Optional software or firmware. |
@@ -52,7 +52,8 @@ For a hosted project, the root may contain:
 
 There is no minimum CAD or source-code requirement. An indexed project's local
 entry usually contains only `mod.yml` and `README.md`; its image may be an
-upstream URL, and it must not include a local `LICENSE` file.
+upstream URL. Its license terms stay in the upstream repository rather than
+being copied into the hub entry.
 
 A starter entry is available at
 [`mods/ossm/SAMPLE_AUTHOR/sample_mount/`](mods/ossm/SAMPLE_AUTHOR/sample_mount/).
@@ -111,8 +112,8 @@ upstream repository.
    `license`.
 3. Add at least one image to `images`; an absolute upstream image URL is
    accepted.
-4. Link the upstream source from the README. Do not add a project-local
-   `LICENSE` to this repository.
+4. Link the upstream source from the README. Keep its license terms in the
+   upstream repository rather than copying them into the hub entry.
 
 Example indexed metadata:
 
@@ -149,9 +150,9 @@ when they are part of the project.
 
 The license rule depends on ecosystem:
 
-- A hosted project under `mods/ossm/` must declare exactly
-  `CERN-OHL-S-2.0` and must not include a project-local `LICENSE`. The root
-  repository notice supplies the applicable text.
+- A hosted project under `mods/ossm/` declares exactly `CERN-OHL-S-2.0`. Its
+  files are already covered by the repository license, so a separate
+  project-local `LICENSE` is not needed.
 - A hosted project under `mods/lockbox/`, `mods/dtt/`, or `mods/radr/` may
   use any license or custom terms. Enter the license name in `license`
   and include the matching license text at

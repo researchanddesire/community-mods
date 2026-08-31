@@ -68,9 +68,10 @@ Indexed projects may use any clearly stated upstream license. Hosted projects
 follow the ecosystem rules below.
 
 - **Indexed projects:** the disclosed upstream license governs. Set
-  `source_url` and do not add a project-local `LICENSE` here.
-- **Hosted OSSM projects:** declare exactly `CERN-OHL-S-2.0`. Do not add a
-  project-local `LICENSE`; the repository's license notice governs this content.
+  `source_url`; the upstream repository keeps the license terms.
+- **Hosted OSSM projects:** declare exactly `CERN-OHL-S-2.0`. These project
+  files are already covered by the repository license, so a separate
+  project-local `LICENSE` is not needed.
 - **Other hosted projects:** enter their license name and include the
   full license terms in a `LICENSE` file at the project root.
 
