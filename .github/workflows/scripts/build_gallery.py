@@ -54,26 +54,59 @@ ECOSYSTEM_LABELS = {
 REPO_SLUG = os.environ.get("GITHUB_REPOSITORY", "researchanddesire/community-mods")
 REPO_URL = f"https://github.com/{REPO_SLUG}"
 LOGO_PATH = os.path.join(SCRIPT_DIR, "assets", "rad-logo.png")
+KINKYMAKERS_LOGO_PATH = os.path.join(
+    SCRIPT_DIR, "assets", "kinkymakers-logo.svg"
+)
 SOCIAL_IMAGE_PATH = os.path.join(SCRIPT_DIR, "assets", "project-hub-og.png")
 CANONICAL_URL = "https://mods.researchanddesire.com/"
 SOCIAL_IMAGE_URL = f"{CANONICAL_URL}project-hub-og.png"
 CONTRIBUTING_URL = f"{CANONICAL_URL}contributing/"
+SITE_DESCRIPTION = (
+    "Open-source sex tech projects and tools, maintained by the people who make them."
+)
 
 
-def logo_data_uri() -> str:
-    """The R+D logo as an inline base64 data URI (keeps the site self-contained).
+def asset_data_uri(path: str, media_type: str) -> str:
+    """Return a local brand asset as a self-contained base64 data URI.
 
     Returns '' if the file is missing or is still an unresolved Git LFS pointer
-    (e.g. a clone without LFS pulled); the gallery then falls back to a text mark.
+    (e.g. a clone without LFS pulled).
     """
     try:
-        with open(LOGO_PATH, "rb") as fh:
+        with open(path, "rb") as fh:
             data = fh.read()
     except OSError:
         return ""
     if data.startswith(b"version https://git-lfs"):
         return ""
-    return "data:image/png;base64," + base64.b64encode(data).decode("ascii")
+    return f"data:{media_type};base64," + base64.b64encode(data).decode("ascii")
+
+
+def logo_data_uri() -> str:
+    """The R+D logo as an inline data URI, with a text fallback in the UI."""
+    return asset_data_uri(LOGO_PATH, "image/png")
+
+
+def kinkymakers_logo_data_uri() -> str:
+    """The supplied KinkyMakers mark used only in the closing acknowledgment."""
+    return asset_data_uri(KINKYMAKERS_LOGO_PATH, "image/svg+xml")
+
+
+def roots_acknowledgement() -> str:
+    """Render one quiet KinkyMakers roots credit for the end of each page."""
+    logo_uri = kinkymakers_logo_data_uri()
+    mark = (
+        f'<img class="km-logo" src="{logo_uri}" alt="" width="36" height="36">'
+        if logo_uri
+        else '<span class="km-logo km-logo-fallback" aria-hidden="true">KM</span>'
+    )
+    return f'''<div class="km-ack">
+    <div class="km-ack-inner">
+      {mark}
+      <p>With thanks to <strong>KinkyMakers</strong> — the open-source sex-tech
+      community Research and Desire grew out of.</p>
+    </div>
+  </div>'''
 
 
 def render_repository_markdown(md_text: str, rel: str) -> str:
@@ -212,52 +245,66 @@ def render(mods: list[dict]) -> str:
         if code in active_ecosystems
     )
     logo_var, logo_inner, favicon = branding_fragments()
+    roots_credit = roots_acknowledgement()
+    project_count = f"{len(mods)} project{'s' if len(mods) != 1 else ''}"
     social_image_meta = ""
     if os.path.isfile(SOCIAL_IMAGE_PATH):
         social_image_meta = f'''<meta property="og:image" content="{SOCIAL_IMAGE_URL}">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="R+D Project Hub — community-built projects across R+D-adjacent ecosystems">
+<meta property="og:image:alt" content="R+D Project Hub — open-source sex tech projects and tools">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="{SOCIAL_IMAGE_URL}">
-<meta name="twitter:image:alt" content="R+D Project Hub — community-built projects across R+D-adjacent ecosystems">'''
+<meta name="twitter:image:alt" content="R+D Project Hub — open-source sex tech projects and tools">'''
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>R+D Project Hub</title>
-<meta name="description" content="Community-built OSSM variants, controllers, software, hardware, accessories, and tools across R+D-adjacent ecosystems.">
+<meta name="description" content="{SITE_DESCRIPTION}">
 <link rel="canonical" href="{CANONICAL_URL}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="R+D Project Hub">
 <meta property="og:title" content="R+D Project Hub">
-<meta property="og:description" content="Community-built OSSM variants, controllers, software, hardware, accessories, and tools across R+D-adjacent ecosystems.">
+<meta property="og:description" content="{SITE_DESCRIPTION}">
 <meta property="og:url" content="{CANONICAL_URL}">
 <meta name="twitter:title" content="R+D Project Hub">
-<meta name="twitter:description" content="Community-built OSSM variants, controllers, software, hardware, accessories, and tools across R+D-adjacent ecosystems.">
+<meta name="twitter:description" content="{SITE_DESCRIPTION}">
 {social_image_meta}
 {favicon}
 <style>
   :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; {logo_var} }}
   * {{ box-sizing:border-box; }}
-  body {{ margin:0; font:16px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--fg); }}
-  .topbar {{ position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid #2a2f3a; padding-bottom:1rem; }}
-  header {{ padding:1.5rem 1.5rem .75rem; max-width:1100px; margin:0 auto; }}
-  .brand {{ display:flex; align-items:center; gap:.75rem; }}
-  .logo {{ flex:0 0 auto; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1rem; letter-spacing:.01em; color:var(--accent); background:center/contain no-repeat; background-image:var(--logo,none); text-decoration:none; }}
-  .brand .logo:hover {{ opacity:.82; }}
-  h1 {{ margin:0 0 .15rem; line-height:1.1; }}
-  .sub {{ color:var(--muted); margin:0; }}
-  .site-nav {{ display:flex; gap:1rem; margin:.8rem 0 0 4rem; }}
-  .site-nav a {{ color:var(--muted); text-decoration:none; font-size:.92rem; }}
-  .site-nav a:hover {{ color:var(--accent); }}
+  html {{ scroll-behavior:smooth; }}
+  body {{ margin:0; font:16px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--fg); }}
+  a,button,input,select {{ font:inherit; }}
+  :focus-visible {{ outline:2px solid var(--accent); outline-offset:3px; }}
+  .topbar {{ position:sticky; top:0; z-index:20; background:rgba(15,17,21,.96); border-bottom:1px solid #2a2f3a; backdrop-filter:blur(12px); }}
+  .site-header {{ min-height:72px; max-width:1100px; margin:0 auto; padding:.75rem 1.5rem; display:flex; align-items:center; gap:1.25rem; }}
+  .site-brand {{ display:flex; align-items:center; gap:.72rem; color:var(--fg); text-decoration:none; }}
+  .logo {{ flex:0 0 auto; width:44px; height:44px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.82rem; letter-spacing:.01em; color:var(--accent); background:center/contain no-repeat; background-image:var(--logo,none); }}
+  .site-brand:hover .logo {{ opacity:.82; }}
+  .brand-copy {{ display:grid; line-height:1.08; }}
+  .brand-copy strong {{ font-size:.96rem; letter-spacing:-.015em; }}
+  .brand-copy small {{ margin-top:.25rem; color:var(--muted); font-size:.72rem; }}
+  .site-nav {{ margin-left:auto; display:flex; align-items:center; gap:1rem; }}
+  .site-nav a {{ min-height:44px; display:inline-flex; align-items:center; color:var(--muted); text-decoration:none; font-size:.9rem; }}
+  .site-nav a:hover,.site-nav a:focus-visible {{ color:var(--accent); }}
   .site-nav a[aria-current="page"] {{ color:var(--fg); font-weight:650; }}
-  .controls {{ display:flex; gap:.75rem; flex-wrap:wrap; max-width:1100px; margin:0 auto; padding:0 1.5rem; }}
+  .hero {{ max-width:1100px; margin:0 auto; padding:clamp(3.5rem,8vw,6.5rem) 1.5rem clamp(2.5rem,5vw,4rem); }}
+  .hero h1 {{ max-width:900px; margin:0; font-size:clamp(3rem,7vw,6rem); line-height:.95; letter-spacing:-.055em; }}
+  .hero p {{ max-width:650px; margin:1.1rem 0 0; color:var(--muted); font-size:clamp(1rem,2vw,1.18rem); }}
+  .projects-shell {{ scroll-margin-top:calc(var(--topbar-h,72px) + 1rem); }}
+  .projects-head {{ max-width:1100px; margin:0 auto; padding:0 1.5rem .85rem; display:flex; align-items:baseline; justify-content:space-between; gap:1rem; border-bottom:1px solid #2a2f3a; }}
+  .projects-head h2 {{ margin:0; font-size:1.35rem; letter-spacing:-.025em; }}
+  .projects-head span {{ color:var(--muted); font-size:.82rem; }}
+  .controls {{ display:flex; gap:.75rem; flex-wrap:wrap; max-width:1100px; margin:1rem auto 0; padding:0 1.5rem; }}
   input,select {{ background:var(--card); color:var(--fg); border:1px solid #2a2f3a; border-radius:8px; padding:.6rem .8rem; font:inherit; }}
   input {{ flex:1; min-width:200px; }}
-  .layout {{ display:flex; gap:1.5rem; max-width:1100px; margin:1.5rem auto; padding:0 1.5rem 3rem; align-items:flex-start; }}
+  input:focus,select:focus {{ border-color:var(--accent); }}
+  .layout {{ display:flex; gap:1.5rem; max-width:1100px; margin:1rem auto 0; padding:0 1.5rem 4.5rem; align-items:flex-start; }}
   .sidebar {{ flex:0 0 220px; position:sticky; top:calc(var(--topbar-h, 0px) + 1rem); }}
   .sidebar-head {{ display:flex; align-items:baseline; justify-content:space-between; gap:.5rem; margin:0 0 .6rem; }}
   .sidebar h2 {{ font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0; }}
@@ -274,11 +321,15 @@ def render(mods: list[dict]) -> str:
     .layout {{ flex-direction:column; }}
     .sidebar {{ position:static; flex-basis:auto; width:100%; }}
     .sidebar .tags {{ flex-direction:row; flex-wrap:wrap; }}
-    .site-nav {{ margin-left:0; }}
+    .site-header {{ align-items:flex-start; flex-wrap:wrap; }}
+    .site-nav {{ order:2; width:100%; margin-left:0; }}
+    .site-nav .repo-link {{ display:none; }}
+    .hero {{ padding:3.25rem 1.25rem 2.75rem; }}
+    .hero h1 {{ font-size:clamp(3rem,15vw,4.25rem); }}
   }}
   .card {{ background:var(--card); border:1px solid #2a2f3a; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; cursor:pointer; transition:border-color .15s, transform .15s; }}
   .card:hover {{ border-color:var(--accent); transform:translateY(-2px); }}
-  .card:focus-within {{ border-color:var(--accent); }}
+  .card:focus-within,.card:focus-visible {{ border-color:var(--accent); }}
   .card img {{ width:100%; height:170px; object-fit:cover; background:#11141a; }}
   .card .body {{ padding:.9rem 1rem 1rem; display:flex; flex-direction:column; gap:.4rem; flex:1; }}
   .chips {{ display:flex; gap:.4rem; align-items:center; flex-wrap:wrap; }}
@@ -300,9 +351,9 @@ def render(mods: list[dict]) -> str:
   footer {{ border-top:1px solid #2a2f3a; background:var(--card); }}
   .footer-inner {{ max-width:1100px; margin:0 auto; padding:2.25rem 1.5rem; display:flex; flex-wrap:wrap; gap:2rem 3.5rem; justify-content:space-between; align-items:flex-start; }}
   .footer-brand {{ max-width:680px; flex:1 1 420px; }}
-  .footer-brand .brand {{ margin-bottom:.6rem; }}
+  .footer-brandline {{ display:flex; align-items:center; gap:.7rem; margin-bottom:.6rem; }}
   .footer-brand .logo {{ width:42px; height:42px; opacity:.78; }}
-  .footer-brand .name {{ color:var(--muted); font-weight:600; font-size:.95rem; }}
+  .footer-brand .name {{ color:var(--fg); font-weight:650; font-size:.95rem; }}
   .footer-brand p {{ color:var(--muted); font-size:.92rem; margin:0; }}
   .footer-col h2 {{ font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 .6rem; }}
   .footer-links {{ display:flex; flex-direction:column; gap:.45rem; }}
@@ -310,6 +361,12 @@ def render(mods: list[dict]) -> str:
   .footer-links a:hover {{ text-decoration:underline; }}
   .footer-bottom {{ border-top:1px solid #2a2f3a; color:var(--muted); font-size:.82rem; }}
   .footer-bottom div {{ max-width:1100px; margin:0 auto; padding:1rem 1.5rem; }}
+  .km-ack {{ border-top:1px solid #2a2f3a; background:var(--bg); }}
+  .km-ack-inner {{ max-width:1100px; margin:0 auto; padding:1.2rem 1.5rem; display:flex; align-items:center; gap:.8rem; }}
+  .km-logo {{ flex:0 0 auto; width:36px; height:36px; object-fit:cover; border-radius:7px; }}
+  .km-logo-fallback {{ display:grid; place-items:center; background:#8f4584; color:white; font-size:.67rem; font-weight:800; }}
+  .km-ack p {{ max-width:760px; margin:0; color:var(--muted); font-size:.82rem; }}
+  .km-ack strong {{ color:var(--fg); }}
   /* README viewer modal */
   .modal {{ position:fixed; inset:0; z-index:50; display:flex; }}
   .modal[hidden] {{ display:none; }}
@@ -336,48 +393,60 @@ def render(mods: list[dict]) -> str:
   .readme blockquote {{ margin:.5rem 0; padding:.1rem .9rem; border-left:3px solid #2a2f3a; color:var(--muted); }}
   @media (max-width:720px) {{
     .modal-panel {{ width:100vw; height:100vh; max-height:100vh; margin:0; border:none; border-radius:0; }}
+    .km-ack-inner {{ align-items:flex-start; }}
+    .km-logo {{ width:32px; height:32px; }}
   }}
 </style>
 </head>
 <body>
 <div class="topbar">
-<header>
-  <div class="brand">
-    <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire">{logo_inner}</a>
-    <div>
-      <h1>R+D Project Hub</h1>
-      <p class="sub">Community-built OSSM variants, controllers, software, hardware,
-      accessories, and tools across R+D-adjacent ecosystems. Projects are
-      independently maintained; inclusion is not endorsement, safety certification,
-      or warranty by R+D. <a class="top" href="{REPO_URL}">Project repository →</a></p>
-    </div>
-  </div>
+<header class="site-header">
+  <a class="site-brand" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire home">
+    <span class="logo" aria-hidden="true">{logo_inner}</span>
+    <span class="brand-copy">
+      <strong>Research and Desire</strong>
+      <small>Project Hub</small>
+    </span>
+  </a>
   <nav class="site-nav" aria-label="Site">
     <a href="./" aria-current="page">Projects</a>
     <a href="contributing/">Contributing</a>
+    <a class="repo-link" href="{REPO_URL}" target="_blank" rel="noopener">GitHub ↗</a>
   </nav>
 </header>
-<div class="controls">
-  <input id="q" type="search" placeholder="Search projects…" aria-label="Search projects" autocomplete="off">
-  <select id="ecosystem" aria-label="Filter by ecosystem"><option value="">All ecosystems</option>{options}</select>
 </div>
-</div>
-<div class="layout">
-  <aside class="sidebar">
-    <div class="sidebar-head">
-      <h2>Browse by tag</h2>
-      <button class="clear" id="clear" hidden>Clear tags</button>
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <h1 id="hero-title">Open-source sex tech.</h1>
+    <p>Projects and tools, maintained by the people who make them.</p>
+  </section>
+  <section class="projects-shell" id="projects" aria-labelledby="projects-title">
+    <div class="projects-head">
+      <h2 id="projects-title">Projects</h2>
+      <span>{project_count}</span>
     </div>
-    <div class="tags" id="tags"></div>
-  </aside>
-  <main class="main"><div class="grid" id="grid"></div></main>
-</div>
+    <div class="controls">
+      <input id="q" type="search" placeholder="Search projects…" aria-label="Search projects" autocomplete="off">
+      <select id="ecosystem" aria-label="Filter by ecosystem"><option value="">All ecosystems</option>{options}</select>
+    </div>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <h2>Browse by tag</h2>
+          <button class="clear" id="clear" hidden>Clear tags</button>
+        </div>
+        <div class="tags" id="tags"></div>
+      </aside>
+      <div class="main"><div class="grid" id="grid"></div></div>
+    </div>
+  </section>
+</main>
 <footer>
   <div class="footer-inner">
     <div class="footer-brand">
-      <div class="brand">
-        <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire">{logo_inner}</a>
-        <span class="name">Hosted by Research and Desire</span>
+      <div class="footer-brandline">
+        <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire home">{logo_inner}</a>
+        <span class="name">Research and Desire · Project Hub</span>
       </div>
       <p>Each project remains independently maintained and licensed by its
       authors; inclusion is not endorsement, safety certification, or warranty
@@ -388,13 +457,13 @@ def render(mods: list[dict]) -> str:
       <div class="footer-links">
         <a href="https://researchanddesire.com" target="_blank" rel="noopener">researchanddesire.com ↗</a>
         <a href="https://docs.researchanddesire.com" target="_blank" rel="noopener">Documentation ↗</a>
-        <a href="https://discord.gg/VtZcudpxT6" target="_blank" rel="noopener">KinkyMakers Discord ↗</a>
         <a href="contributing/">Contribute a project</a>
         <a href="{REPO_URL}" target="_blank" rel="noopener">Project repository ↗</a>
       </div>
     </div>
   </div>
   <div class="footer-bottom"><div>© Research and Desire · Projects remain the work of their respective authors.</div></div>
+  {roots_credit}
 </footer>
 <div class="modal" id="modal" hidden>
   <div class="modal-backdrop" data-close></div>
@@ -418,6 +487,7 @@ const ecosystem = document.getElementById('ecosystem');
 const tagsEl = document.getElementById('tags');
 const clearBtn = document.getElementById('clear');
 const selectedTags = new Set();
+let modalTrigger = null;
 function esc(value) {{
   return String(value ?? '').replace(/[&<>"']/g, ch => ({{
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -492,7 +562,7 @@ function render() {{
 }}
 // Whole-card click opens the README in an in-page viewer. Inner links keep
 // their own behavior (they navigate to GitHub) via the closest('a') guard.
-function openModal(m) {{
+function openModal(m, trigger) {{
   if (!m) return;
   const indexed = !!m.source_url;
   const lic = m.license ? `<span class="lic">${{esc(m.license)}}</span>` : '';
@@ -506,26 +576,49 @@ function openModal(m) {{
     + `<h1 id="modal-title">${{esc(m.title)}}</h1><div class="byline">by ${{esc(m.author)}}</div>`
     + `${{projectTags(m.tags)}}</div><div class="readme">${{body}}</div>`;
   modalContent.scrollTop = 0;
+  modalTrigger = trigger || document.activeElement;
   modal.hidden = false;
   document.body.style.overflow = 'hidden';
+  const closeButton = modal.querySelector('.modal-back');
+  if (closeButton) closeButton.focus();
 }}
 function closeModal() {{
+  if (modal.hidden) return;
   modal.hidden = true;
   document.body.style.overflow = '';
+  const trigger = modalTrigger;
+  modalTrigger = null;
+  if (trigger && typeof trigger.focus === 'function') trigger.focus();
 }}
 grid.addEventListener('click', e => {{
   if (e.target.closest('a')) return;
   const card = e.target.closest('.card');
-  if (card) openModal(PROJECT_BY_ID[card.dataset.id]);
+  if (card) openModal(PROJECT_BY_ID[card.dataset.id], card);
 }});
 grid.addEventListener('keydown', e => {{
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const card = e.target.closest('.card');
   if (!card || e.target.closest('a')) return;
   e.preventDefault();
-  openModal(PROJECT_BY_ID[card.dataset.id]);
+  openModal(PROJECT_BY_ID[card.dataset.id], card);
 }});
 modal.addEventListener('click', e => {{ if (e.target.closest('[data-close]')) closeModal(); }});
+modal.addEventListener('keydown', e => {{
+  if (e.key !== 'Tab') return;
+  const focusable = [...modal.querySelectorAll(
+    'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+  )];
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) {{
+    e.preventDefault();
+    last.focus();
+  }} else if (!e.shiftKey && document.activeElement === last) {{
+    e.preventDefault();
+    first.focus();
+  }}
+}});
 document.addEventListener('keydown', e => {{ if (e.key === 'Escape' && !modal.hidden) closeModal(); }});
 tagsEl.addEventListener('click', e => {{
   const btn = e.target.closest('.tagbtn');
@@ -554,6 +647,7 @@ render();
 def render_contributing(md_text: str) -> str:
     """Render the canonical repository contribution guide as a branded page."""
     logo_var, logo_inner, favicon = branding_fragments()
+    roots_credit = roots_acknowledgement()
     guidance = render_repository_markdown(md_text, "")
     return f"""<!doctype html>
 <html lang="en">
@@ -572,29 +666,35 @@ def render_contributing(md_text: str) -> str:
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="R+D Project Hub — community-built projects across R+D-adjacent ecosystems">
+<meta property="og:image:alt" content="R+D Project Hub — open-source sex tech projects and tools">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Contributing a project · R+D Project Hub">
 <meta name="twitter:description" content="How to index or host a project in the R+D Project Hub.">
 <meta name="twitter:image" content="{SOCIAL_IMAGE_URL}">
-<meta name="twitter:image:alt" content="R+D Project Hub — community-built projects across R+D-adjacent ecosystems">
+<meta name="twitter:image:alt" content="R+D Project Hub — open-source sex tech projects and tools">
 {favicon}
 <style>
   :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; {logo_var} }}
   * {{ box-sizing:border-box; }}
-  body {{ margin:0; font:16px/1.6 system-ui,sans-serif; background:var(--bg); color:var(--fg); }}
-  .topbar {{ border-bottom:1px solid #2a2f3a; background:var(--bg); }}
-  header {{ max-width:900px; margin:0 auto; padding:1.5rem; }}
-  .brand {{ display:flex; align-items:center; gap:.75rem; }}
-  .logo {{ flex:0 0 auto; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1rem; color:var(--accent); background:center/contain no-repeat; background-image:var(--logo,none); text-decoration:none; }}
-  .logo:hover {{ opacity:.82; }}
-  h1 {{ margin:0; line-height:1.15; }}
-  .eyebrow {{ color:var(--muted); margin:0 0 .12rem; font-size:.86rem; text-transform:uppercase; letter-spacing:.06em; }}
-  .site-nav {{ display:flex; gap:1rem; margin:.8rem 0 0 4rem; }}
-  .site-nav a {{ color:var(--muted); text-decoration:none; font-size:.92rem; }}
-  .site-nav a:hover {{ color:var(--accent); }}
+  body {{ margin:0; font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--fg); }}
+  a {{ font:inherit; }}
+  :focus-visible {{ outline:2px solid var(--accent); outline-offset:3px; }}
+  .topbar {{ position:sticky; top:0; z-index:20; border-bottom:1px solid #2a2f3a; background:rgba(15,17,21,.96); backdrop-filter:blur(12px); }}
+  .site-header {{ min-height:72px; max-width:1100px; margin:0 auto; padding:.75rem 1.5rem; display:flex; align-items:center; gap:1.25rem; }}
+  .site-brand {{ display:flex; align-items:center; gap:.72rem; color:var(--fg); text-decoration:none; }}
+  .logo {{ flex:0 0 auto; width:44px; height:44px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.82rem; color:var(--accent); background:center/contain no-repeat; background-image:var(--logo,none); }}
+  .site-brand:hover .logo {{ opacity:.82; }}
+  .brand-copy {{ display:grid; line-height:1.08; }}
+  .brand-copy strong {{ font-size:.96rem; letter-spacing:-.015em; }}
+  .brand-copy small {{ margin-top:.25rem; color:var(--muted); font-size:.72rem; }}
+  .site-nav {{ margin-left:auto; display:flex; align-items:center; gap:1rem; }}
+  .site-nav a {{ min-height:44px; display:inline-flex; align-items:center; color:var(--muted); text-decoration:none; font-size:.9rem; }}
+  .site-nav a:hover,.site-nav a:focus-visible {{ color:var(--accent); }}
   .site-nav a[aria-current="page"] {{ color:var(--fg); font-weight:650; }}
-  main {{ max-width:900px; margin:1.5rem auto 3rem; padding:0 1.5rem; }}
+  main {{ max-width:900px; margin:0 auto 3rem; padding:0 1.5rem; }}
+  .page-heading {{ padding:clamp(2.75rem,6vw,4.5rem) 0 1.5rem; }}
+  .page-heading .eyebrow {{ color:var(--muted); margin:0 0 .3rem; font-size:.76rem; text-transform:uppercase; letter-spacing:.08em; }}
+  .page-heading h1 {{ margin:0; font-size:clamp(2.25rem,5vw,3.6rem); line-height:1; letter-spacing:-.04em; }}
   .document {{ background:var(--card); border:1px solid #2a2f3a; border-radius:12px; padding:1.5rem clamp(1.1rem,4vw,3rem) 2.5rem; }}
   .document h2 {{ margin-top:2rem; border-bottom:1px solid #2a2f3a; padding-bottom:.35rem; line-height:1.25; }}
   .document h3 {{ margin-top:1.6rem; line-height:1.3; }}
@@ -612,29 +712,44 @@ def render_contributing(md_text: str) -> str:
   .footer-inner {{ max-width:900px; margin:0 auto; padding:1.5rem; display:flex; flex-wrap:wrap; gap:.6rem 1.25rem; justify-content:space-between; }}
   footer a {{ color:var(--accent); text-decoration:none; }}
   footer a:hover {{ text-decoration:underline; }}
+  .km-ack {{ border-top:1px solid #2a2f3a; background:var(--bg); }}
+  .km-ack-inner {{ max-width:900px; margin:0 auto; padding:1.2rem 1.5rem; display:flex; align-items:center; gap:.8rem; }}
+  .km-logo {{ flex:0 0 auto; width:36px; height:36px; object-fit:cover; border-radius:7px; }}
+  .km-logo-fallback {{ display:grid; place-items:center; background:#8f4584; color:white; font-size:.67rem; font-weight:800; }}
+  .km-ack p {{ max-width:760px; margin:0; color:var(--muted); font-size:.82rem; }}
+  .km-ack strong {{ color:var(--fg); }}
   @media (max-width:620px) {{
-    .site-nav {{ margin-left:0; }}
+    .site-header {{ align-items:flex-start; flex-wrap:wrap; }}
+    .site-nav {{ order:2; width:100%; margin-left:0; }}
+    .site-nav .repo-link {{ display:none; }}
     .document {{ border-radius:8px; }}
+    .km-ack-inner {{ align-items:flex-start; }}
+    .km-logo {{ width:32px; height:32px; }}
   }}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <header>
-    <div class="brand">
-      <a class="logo" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire">{logo_inner}</a>
-      <div>
-        <p class="eyebrow">R+D Project Hub</p>
-        <h1>Contributing a project</h1>
-      </div>
-    </div>
+  <header class="site-header">
+    <a class="site-brand" href="https://researchanddesire.com" target="_blank" rel="noopener" aria-label="Research and Desire home">
+      <span class="logo" aria-hidden="true">{logo_inner}</span>
+      <span class="brand-copy">
+        <strong>Research and Desire</strong>
+        <small>Project Hub</small>
+      </span>
+    </a>
     <nav class="site-nav" aria-label="Site">
       <a href="../">Projects</a>
       <a href="./" aria-current="page">Contributing</a>
+      <a class="repo-link" href="{REPO_URL}" target="_blank" rel="noopener">GitHub ↗</a>
     </nav>
   </header>
 </div>
 <main>
+  <div class="page-heading">
+    <p class="eyebrow">Project Hub</p>
+    <h1>Contributing a project</h1>
+  </div>
   <article class="document">{guidance}</article>
   <p class="source-note">This page is generated from the repository's
   <a href="{REPO_URL}/blob/main/CONTRIBUTING.md">canonical contribution guide</a>
@@ -645,6 +760,7 @@ def render_contributing(md_text: str) -> str:
     <span>Hosted by Research and Desire</span>
     <span><a href="../">Browse projects</a> · <a href="{REPO_URL}">Project repository ↗</a></span>
   </div>
+  {roots_credit}
 </footer>
 </body>
 </html>
