@@ -26,10 +26,12 @@ determine the license. The following path and project-type rules do.
    and other software under `.github/` are licensed under **Mozilla Public
    License 2.0 (MPL-2.0)**. Full text:
    [`LICENSES/MPL-2.0.txt`](LICENSES/MPL-2.0.txt).
-   This grant expressly excludes the R+D-owned branding assets
+   This grant expressly excludes the branding assets
    `.github/workflows/scripts/assets/rad-logo.png` and
-   `.github/workflows/scripts/assets/project-hub-og.png`; copyright and branding
-   rights in those two files are reserved.
+   `.github/workflows/scripts/assets/project-hub-og.png`, which are owned by R+D,
+   and `.github/workflows/scripts/assets/kinkymakers-logo.svg`, which contains the
+   KinkyMakers mark. Copyright and branding rights in those files remain with
+   their respective owners.
 
 3. **Hosted OSSM projects** — project content stored under
    `mods/ossm/<author>/<project_slug>/` without a `source_url` is licensed under

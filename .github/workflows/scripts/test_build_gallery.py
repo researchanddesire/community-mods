@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import base64
+import hashlib
 import re
 import struct
 import subprocess
@@ -94,7 +96,8 @@ class ProjectHubBuildTests(unittest.TestCase):
             "Search projects…",
             "All ecosystems",
             "No projects match.",
-            "independently maintained; inclusion is not endorsement, safety certification,",
+            "independently maintained and licensed by its",
+            "inclusion is not endorsement, safety certification, or warranty",
             "Indexed",
             "Hosted",
             "Project source",
@@ -115,12 +118,68 @@ class ProjectHubBuildTests(unittest.TestCase):
         ):
             self.assertIn(behavior, self.html)
 
+    def test_real_site_uses_the_approved_brand_and_hero(self) -> None:
+        self.assertIn(
+            '<h1 id="hero-title">Open-source sex tech.</h1>', self.html
+        )
+        self.assertIn(
+            "Projects and tools, maintained by the people who make them.",
+            self.html,
+        )
+        for rendered in (self.html, self.contributing_html):
+            head = rendered.split("</head>", 1)[0]
+            header_match = re.search(r"<header[^>]*>.*?</header>", rendered, re.S)
+            self.assertIsNotNone(header_match)
+            header = header_match.group(0)
+            self.assertIn("<strong>Research and Desire</strong>", header)
+            self.assertIn("<small>Project Hub</small>", header)
+            self.assertIn('<span class="logo" aria-hidden="true">', header)
+            self.assertIn(build_gallery.logo_data_uri(), head)
+            self.assertNotIn('class="km-ack"', header)
+            self.assertNotIn('class="km-logo"', header)
+            self.assertNotIn("No ranking. No house version.", rendered)
+
+        logo_bytes = Path(build_gallery.LOGO_PATH).read_bytes()
+        self.assertEqual(b"\x89PNG\r\n\x1a\n", logo_bytes[:8])
+        self.assertEqual((1024, 1024), struct.unpack(">II", logo_bytes[16:24]))
+
+    def test_kinkymakers_acknowledgment_is_one_quiet_final_footer_row(self) -> None:
+        expected = (
+            "With thanks to <strong>KinkyMakers</strong> — the open-source sex-tech "
+            "community Research and Desire grew out of."
+        )
+        for rendered in (self.html, self.contributing_html):
+            normalized = re.sub(r"\s+", " ", rendered)
+            self.assertEqual(1, rendered.count('class="km-ack"'))
+            self.assertEqual(1, rendered.count('class="km-logo"'))
+            self.assertIn(build_gallery.kinkymakers_logo_data_uri(), rendered)
+            self.assertIn(expected, normalized)
+            self.assertGreater(rendered.index('class="km-ack"'), rendered.index("<footer>"))
+            self.assertLess(rendered.index('class="km-ack"'), rendered.index("</footer>"))
+            self.assertNotIn("KinkyMakers Discord", rendered)
+
+        svg = Path(build_gallery.KINKYMAKERS_LOGO_PATH).read_text(encoding="utf-8")
+        embedded = re.search(r"data:image/png;base64,([^\"]+)", svg)
+        self.assertIsNotNone(embedded)
+        logo_bytes = base64.b64decode(embedded.group(1))
+        self.assertEqual(b"\x89PNG\r\n\x1a\n", logo_bytes[:8])
+        self.assertEqual((199, 200), struct.unpack(">II", logo_bytes[16:24]))
+        self.assertEqual(
+            "dabe4e38e910ae2649368c11ce06f63db82c7e9c34fde7e349b78cbf656ab642",
+            hashlib.sha256(logo_bytes).hexdigest(),
+        )
+
     def test_gallery_navigation_links_to_contributing_page_relatively(self) -> None:
         # Relative navigation works at both the custom-domain root and the
         # retained GitHub Pages /community-mods/ project path.
         self.assertIn('<a href="./" aria-current="page">Projects</a>', self.html)
         self.assertIn('<a href="contributing/">Contributing</a>', self.html)
         self.assertIn('<a href="contributing/">Contribute a project</a>', self.html)
+        self.assertIn('<a href="../">Projects</a>', self.contributing_html)
+        self.assertIn(
+            '<a href="./" aria-current="page">Contributing</a>',
+            self.contributing_html,
+        )
 
     def test_contributing_page_is_generated_from_canonical_guidance(self) -> None:
         for phrase in (
@@ -145,7 +204,7 @@ class ProjectHubBuildTests(unittest.TestCase):
         )
         self.assertIn(
             '<meta name="twitter:image:alt" content="R+D Project Hub — '
-            'community-built projects across R+D-adjacent ecosystems">',
+            'open-source sex tech projects and tools">',
             self.contributing_html,
         )
         self.assertIn(
@@ -170,6 +229,20 @@ class ProjectHubBuildTests(unittest.TestCase):
             self.contribution_guidance,
         )
 
+    def test_project_card_modal_shell_remains_in_the_real_gallery(self) -> None:
+        for fragment in (
+            '<div class="modal" id="modal" hidden>',
+            'role="dialog"',
+            'id="modal-actions"',
+            'id="modal-content"',
+            'id="q"',
+            'id="ecosystem"',
+            'id="tags"',
+            'id="clear"',
+            ".modal[hidden] { display:none; }",
+        ):
+            self.assertIn(fragment, self.html)
+
     def test_runtime_search_tags_and_modal_keyboard_behavior(self) -> None:
         runtime_match = re.search(r"<script>\n(.*)\n</script>", self.html, re.S)
         self.assertIsNotNone(runtime_match)
@@ -181,11 +254,23 @@ function makeElement(initial = {}) {
     offsetHeight: 90, style: {}, handlers: Object.create(null),
     addEventListener(type, handler) {
       (this.handlers[type] ||= []).push(handler);
+    },
+    focus() {
+      document.activeElement = this;
+      this.focusCalls = (this.focusCalls || 0) + 1;
     }
   }, initial);
 }
+const modalBackButton = makeElement();
+const modalEndLink = makeElement();
 const elements = {
-  grid: makeElement(), modal: makeElement({hidden: true}),
+  grid: makeElement(), modal: makeElement({
+    hidden: true,
+    querySelector(selector) {
+      return selector === '.modal-back' ? modalBackButton : null;
+    },
+    querySelectorAll() { return [modalBackButton, modalEndLink]; }
+  }),
   'modal-content': makeElement(), 'modal-actions': makeElement(),
   q: makeElement(), ecosystem: makeElement(), tags: makeElement(),
   clear: makeElement({hidden: true})
@@ -193,6 +278,7 @@ const elements = {
 const topbarStub = makeElement({offsetHeight: 100});
 const document = {
   handlers: Object.create(null),
+  activeElement: null,
   documentElement: {style: {setProperty() {}}},
   body: {style: {}},
   getElementById(id) { return elements[id]; },
@@ -228,6 +314,8 @@ function tagClick(tag) {
         assertions = r"""
 assert(elements.grid.innerHTML.includes('KinkyMakers OSSM'), 'initial render');
 assert(elements.grid.innerHTML.includes('OSSM Possum'), 'initial peer render');
+assert(elements.grid.innerHTML.includes('class="card" data-id='), 'card identity');
+assert(elements.grid.innerHTML.includes('role="button" tabindex="0"'), 'card keyboard semantics');
 
 elements.q.value = 'possum';
 emit(elements.q, 'input', {});
@@ -260,7 +348,10 @@ assert(elements.tags.innerHTML.includes('data-tag="__proto__"'), 'prototype-like
 PROJECTS.pop();
 render();
 
-const firstCard = {dataset: {id: PROJECTS[0].id}};
+const firstCard = {
+  dataset: {id: PROJECTS[0].id},
+  focus() { document.activeElement = this; this.focusCalls = (this.focusCalls || 0) + 1; }
+};
 const cardTarget = {closest(selector) {
   if (selector === 'a') return null;
   if (selector === '.card') return firstCard;
@@ -268,9 +359,14 @@ const cardTarget = {closest(selector) {
 }};
 emit(elements.grid, 'click', {target: cardTarget});
 assert(elements.modal.hidden === false, 'card click opens modal');
+assert(document.activeElement === modalBackButton, 'opening focuses modal back button');
 assert(elements['modal-content'].innerHTML.includes('KinkyMakers OSSM'), 'modal project');
+assert(elements['modal-content'].innerHTML.includes('class="readme"'), 'modal README body');
+assert(elements['modal-actions'].innerHTML.includes('Project source'), 'modal project action');
 emit(document, 'keydown', {key: 'Escape'});
 assert(elements.modal.hidden === true, 'Escape closes modal');
+assert(document.body.style.overflow === '', 'Escape restores body scroll');
+assert(document.activeElement === firstCard, 'Escape restores card focus');
 
 let prevented = false;
 emit(elements.grid, 'keydown', {
@@ -278,6 +374,29 @@ emit(elements.grid, 'keydown', {
 });
 assert(prevented && elements.modal.hidden === false, 'Enter opens modal');
 emit(document, 'keydown', {key: 'Escape'});
+assert(document.activeElement === firstCard, 'keyboard close restores card focus');
+
+prevented = false;
+emit(elements.grid, 'keydown', {
+  key: ' ', target: cardTarget, preventDefault() { prevented = true; }
+});
+assert(prevented && elements.modal.hidden === false, 'Space opens modal');
+let tabPrevented = false;
+emit(elements.modal, 'keydown', {
+  key: 'Tab', shiftKey: true, preventDefault() { tabPrevented = true; }
+});
+assert(tabPrevented && document.activeElement === modalEndLink, 'Shift+Tab wraps to modal end');
+tabPrevented = false;
+emit(elements.modal, 'keydown', {
+  key: 'Tab', shiftKey: false, preventDefault() { tabPrevented = true; }
+});
+assert(tabPrevented && document.activeElement === modalBackButton, 'Tab wraps to modal start');
+emit(elements.modal, 'click', {target: {closest(selector) {
+  return selector === '[data-close]' ? {} : null;
+}}});
+assert(elements.modal.hidden === true, 'backdrop or back button closes modal');
+assert(document.body.style.overflow === '', 'close restores body scroll');
+assert(document.activeElement === firstCard, 'pointer close restores card focus');
 
 const linkTarget = {closest(selector) {
   if (selector === 'a') return {};
