@@ -505,6 +505,8 @@ const tagsEl = document.getElementById('tags');
 const clearBtn = document.getElementById('clear');
 const selectedTags = new Set();
 let modalTrigger = null;
+let openProjectId = null;
+let historyClosePending = false;
 function esc(value) {{
   return String(value ?? '').replace(/[&<>"']/g, ch => ({{
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -577,10 +579,26 @@ function render() {{
   grid.innerHTML = items.length ? items.map(card).join('') : '<p class="empty">No projects match.</p>';
   renderTags(base);
 }}
+function projectHash(m) {{
+  const route = String(m.id || '').replace(/^mods\\//, '');
+  return '#project=' + route.split('/').map(encodeURIComponent).join('/');
+}}
+function projectFromHash() {{
+  const prefix = '#project=';
+  if (!window.location.hash.startsWith(prefix)) return null;
+  try {{
+    const route = window.location.hash.slice(prefix.length)
+      .split('/').map(decodeURIComponent).join('/');
+    return PROJECT_BY_ID['mods/' + route] || null;
+  }} catch {{
+    return null;
+  }}
+}}
 // Whole-card click opens the README in an in-page viewer. Inner links keep
 // their own behavior (they navigate to GitHub) via the closest('a') guard.
-function openModal(m, trigger) {{
+function openModal(m, trigger, updateUrl = true) {{
   if (!m) return;
+  historyClosePending = false;
   const indexed = !!m.source_url;
   const lic = m.license ? `<span class="lic">${{esc(m.license)}}</span>` : '';
   const provenance = `<span class="provenance">${{indexed ? 'Indexed' : 'Hosted'}}</span>`;
@@ -593,19 +611,54 @@ function openModal(m, trigger) {{
     + `<h1 id="modal-title">${{esc(m.title)}}</h1><div class="byline">by ${{esc(m.author)}}</div>`
     + `${{projectTags(m.tags)}}</div><div class="readme">${{body}}</div>`;
   modalContent.scrollTop = 0;
-  modalTrigger = trigger || document.activeElement;
+  modalTrigger = trigger || (updateUrl ? document.activeElement : q);
+  openProjectId = m.id;
   modal.hidden = false;
   document.body.style.overflow = 'hidden';
+  if (updateUrl && window.location.hash !== projectHash(m)) {{
+    window.history.pushState(
+      {{projectModal: true, projectId: m.id}}, '', projectHash(m)
+    );
+  }}
   const closeButton = modal.querySelector('.modal-back');
   if (closeButton) closeButton.focus();
 }}
-function closeModal() {{
+function closeModal(updateUrl = true) {{
   if (modal.hidden) return;
+  if (historyClosePending) return;
+  if (updateUrl) {{
+    const state = window.history.state;
+    if (state && state.projectModal && state.projectId === openProjectId) {{
+      historyClosePending = true;
+      window.history.back();
+      return;
+    }}
+    window.history.replaceState(
+      null, '', window.location.pathname + window.location.search
+    );
+  }}
   modal.hidden = true;
   document.body.style.overflow = '';
   const trigger = modalTrigger;
   modalTrigger = null;
+  openProjectId = null;
   if (trigger && typeof trigger.focus === 'function') trigger.focus();
+}}
+function syncModalFromUrl() {{
+  historyClosePending = false;
+  const project = projectFromHash();
+  if (project) {{
+    if (modal.hidden || openProjectId !== project.id) {{
+      openModal(project, null, false);
+    }}
+  }} else {{
+    if (window.location.hash.startsWith('#project=')) {{
+      window.history.replaceState(
+        null, '', window.location.pathname + window.location.search
+      );
+    }}
+    if (!modal.hidden) closeModal(false);
+  }}
 }}
 grid.addEventListener('click', e => {{
   if (e.target.closest('a')) return;
@@ -620,6 +673,16 @@ grid.addEventListener('keydown', e => {{
   openModal(PROJECT_BY_ID[card.dataset.id], card);
 }});
 modal.addEventListener('click', e => {{ if (e.target.closest('[data-close]')) closeModal(); }});
+modalContent.addEventListener('click', e => {{
+  const link = e.target.closest('a[href^="#"]');
+  if (!link) return;
+  e.preventDefault();
+  let id = '';
+  try {{ id = decodeURIComponent(link.getAttribute('href').slice(1)); }} catch {{ return; }}
+  const target = [...modalContent.querySelectorAll('[id]')]
+    .find(element => element.id === id);
+  if (target) target.scrollIntoView({{block: 'start'}});
+}});
 modal.addEventListener('keydown', e => {{
   if (e.key !== 'Tab') return;
   const focusable = [...modal.querySelectorAll(
@@ -637,6 +700,8 @@ modal.addEventListener('keydown', e => {{
   }}
 }});
 document.addEventListener('keydown', e => {{ if (e.key === 'Escape' && !modal.hidden) closeModal(); }});
+window.addEventListener('popstate', syncModalFromUrl);
+window.addEventListener('hashchange', syncModalFromUrl);
 tagsEl.addEventListener('click', e => {{
   const btn = e.target.closest('.tagbtn');
   if (!btn) return;
@@ -655,6 +720,7 @@ if (window.ResizeObserver) new ResizeObserver(setTopbarH).observe(topbar);
 window.addEventListener('resize', setTopbarH);
 setTopbarH();
 render();
+syncModalFromUrl();
 </script>
 </body>
 </html>
