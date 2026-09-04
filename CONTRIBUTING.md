@@ -24,18 +24,21 @@ ownership, maintenance, or licensing to Research and Desire.
 Add one project per pull request at exactly this depth:
 
 ```text
-mods/<ecosystem>/<your-github-username>/<project_slug>/
+mods/<ecosystem>/<project_slug>/
 ```
 
 - `<ecosystem>` is one of `lockbox`, `dtt`, `ossm`, or `radr`.
-- Use no spaces in the `<ecosystem>`, `<author>`, or `<project_slug>` catalog
-  directory names.
+- Use no spaces in the `<ecosystem>` or `<project_slug>` directory names.
+- Choose a `<project_slug>` that is unique within its ecosystem and keep it
+  stable when contributors or maintainers change.
 - Do not nest the catalog entry deeper than `<project_slug>/`.
 
-Every project uses
-`mods/<ecosystem>/<author>/<project_slug>/mod.yml`. In the metadata, `product`
-identifies the ecosystem and `mod_version` tracks the catalog entry's version.
-The validation command is named `mod-lint`.
+Every project uses `mods/<ecosystem>/<project_slug>/mod.yml`. In the metadata,
+`author` gives public credit to the person, team, or community responsible for
+the project, `product` identifies the ecosystem, and `mod_version` tracks the
+catalog entry's version. Public credit can evolve by updating `author` without
+moving the project to a different directory. The validation command is named
+`mod-lint`.
 
 For a hosted project, the root may contain:
 
@@ -56,7 +59,7 @@ upstream URL. Its license terms stay in the upstream repository rather than
 being copied into the hub entry.
 
 A starter entry is available at
-[`mods/ossm/SAMPLE_AUTHOR/sample_mount/`](mods/ossm/SAMPLE_AUTHOR/sample_mount/).
+[`examples/hosted-ossm-project/`](examples/hosted-ossm-project/).
 
 ## 2. Metadata in `mod.yml`
 
@@ -64,7 +67,7 @@ This hosted OSSM example shows the required core:
 
 ```yaml
 title: Quick-release wall mount
-author: your-github-username
+author: Your name, team, or community
 product: ossm            # ecosystem: lockbox | dtt | ossm | radr
 description: A wall bracket with a quick-release dovetail.
 mod_version: 1           # bump when the catalog entry changes
@@ -89,6 +92,10 @@ must be non-empty. The `safety` object requires all three boolean flags plus
 non-blank `notes`. `tags` is optional, free-form classification used by the
 gallery. `source_url` is added only for an indexed project.
 
+Write `author` the way you want the project credit to appear in the hub. It may
+name a person, team, collective, or community; it does not need to be a GitHub
+username.
+
 For `license`, copy the license name the project already uses, such as `MIT`,
 `GPL-3.0-only`, or `CERN-OHL-S-2.0`. If the project has its own terms, use a
 plain descriptive name such as `Community Use Terms`. Indexed projects may use
@@ -106,8 +113,7 @@ The canonical schema is
 An indexed entry keeps its files, releases, issue tracking, and license in the
 upstream repository.
 
-1. Create `mods/<ecosystem>/<your-github-username>/<project_slug>/` with
-   `mod.yml` and `README.md`.
+1. Create `mods/<ecosystem>/<project_slug>/` with `mod.yml` and `README.md`.
 2. Set `source_url` to the upstream project and copy its license name into
    `license`.
 3. Add at least one image to `images`; an absolute upstream image URL is
@@ -119,7 +125,7 @@ Example indexed metadata:
 
 ```yaml
 title: Example OSSM controller
-author: your-github-username
+author: Example Controller Community
 product: ossm
 description: A separately maintained controller for OSSM-compatible machines.
 mod_version: 1
@@ -156,7 +162,7 @@ The license rule depends on ecosystem:
 - A hosted project under `mods/lockbox/`, `mods/dtt/`, or `mods/radr/` may
   use any license or custom terms. Enter the license name in `license`
   and include the matching license text at
-  `mods/<ecosystem>/<author>/<project_slug>/LICENSE`.
+  `mods/<ecosystem>/<project_slug>/LICENSE`.
 
 Hub-authored catalog summaries, metadata, and general documentation use
 `CC-BY-4.0`, while repository tooling uses `MPL-2.0`. See the repository
@@ -177,8 +183,7 @@ and its upstream documentation.
 ## 5. Open the pull request
 
 1. Fork this repository and create a branch other than `main`.
-2. Add one `mods/<ecosystem>/<author>/<project_slug>/` entry, commit it, and
-   push it.
+2. Add one `mods/<ecosystem>/<project_slug>/` entry, commit it, and push it.
 3. Open a pull request and complete the project checklist.
 
 `mod-lint` checks the catalog structure, metadata, image presence, license field

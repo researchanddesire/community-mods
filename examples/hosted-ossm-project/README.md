@@ -1,8 +1,9 @@
 # Sample quick-release mount
 
-> This is a **template**. Copy `mods/ossm/SAMPLE_AUTHOR/sample_mount/` to
-> `mods/<ecosystem>/<your-username>/<project_slug>/` and replace everything
-> below. Keep the folder layout and metadata filename shown here.
+> This is a **template**. Copy `examples/hosted-ossm-project/` to
+> `mods/<ecosystem>/<project_slug>/` and replace everything below. Choose a
+> project slug that is unique within the ecosystem, and put the public credit
+> for its person, team, or community in `mod.yml`.
 
 A one-paragraph description of what the project is and why someone would want
 to build or use it.

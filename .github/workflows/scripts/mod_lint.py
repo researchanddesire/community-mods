@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate every project entry under mods/<ecosystem>/<author>/<project_slug>/.
+"""Validate every project entry under mods/<ecosystem>/<project_slug>/.
 
 Schema source of truth: .github/workflows/scripts/mod.schema.json (canonical
 in this repo — the project standard has a single consumer, so it is not vendored
@@ -7,8 +7,8 @@ from dev-docs like schemas shared across repositories).
 See CONTRIBUTING.md and https://dev.researchanddesire.com/meta/community-mods/.
 
 Checks (structure, not taste):
-  - folder depth is exactly mods/<ecosystem>/<author>/<project_slug>/
-  - no spaces in the ecosystem, author, or project-slug path components
+  - folder depth is exactly mods/<ecosystem>/<project_slug>/
+  - no spaces in the ecosystem or project-slug path components
   - mod.yml + README.md present
   - every project declares a license
   - indexed projects (mod.yml has source_url) have no local LICENSE
@@ -16,7 +16,8 @@ Checks (structure, not taste):
   - other hosted projects include a project-root LICENSE
   - at least one declared local image, or an HTTP(S) URL for indexed projects
   - mod.yml validates against mod.schema.json (JSON Schema draft-07)
-  - mod.yml.product matches the ecosystem folder; author matches its folder
+  - mod.yml.product matches the ecosystem folder
+  - mod.yml.author names the person, team, or community responsible
   - every local (non-URL) path in mod.yml.images exists
 
 CAD and source files are optional: a hosted project may consist of documentation,
@@ -46,43 +47,47 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
 SCHEMA_PATH = os.path.join(SCRIPT_DIR, "mod.schema.json")
 MODS_ROOT = os.path.join(REPO_ROOT, "mods")
-SKIP_AUTHORS = {"SAMPLE_AUTHOR"}  # template folder, not a real submission
 IMG_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".avif"}
 OSSM_HOSTED_LICENSE = "CERN-OHL-S-2.0"
 
 
 def find_mod_dirs() -> list[str]:
-    """Find project directories using mods/<ecosystem>/<author>/<slug>/."""
-    projects: set[str] = set()
+    """Find flat project directories and any misplaced project metadata.
+
+    Direct children of an ecosystem are catalog candidates, including projects
+    that accidentally omit ``mod.yml``. Metadata found at any other depth is
+    also returned so that malformed nested paths receive a clear shape error
+    instead of silently disappearing from validation.
+    """
+    metadata_dirs: set[str] = set()
     if not os.path.isdir(MODS_ROOT):
         return []
-    for product in sorted(os.listdir(MODS_ROOT)):
-        pdir = os.path.join(MODS_ROOT, product)
-        if not os.path.isdir(pdir) or product.startswith("."):
-            continue
-        for author in sorted(os.listdir(pdir)):
-            adir = os.path.join(pdir, author)
-            if (
-                not os.path.isdir(adir)
-                or author.startswith(".")
-                or author in SKIP_AUTHORS
-            ):
-                continue
-            for project in sorted(os.listdir(adir)):
-                project_dir = os.path.join(adir, project)
-                if os.path.isdir(project_dir) and not project.startswith("."):
-                    projects.add(project_dir)
 
-    # Also discover misplaced or over-nested metadata so malformed entries fail
-    # validation instead of silently disappearing from both lint and gallery.
     for directory, child_dirs, filenames in os.walk(MODS_ROOT):
         child_dirs[:] = [name for name in child_dirs if not name.startswith(".")]
-        rel_parts = os.path.relpath(directory, MODS_ROOT).split(os.sep)
-        if len(rel_parts) >= 2 and rel_parts[1] in SKIP_AUTHORS:
-            child_dirs[:] = []
-            continue
         if "mod.yml" in filenames:
-            projects.add(directory)
+            metadata_dirs.add(directory)
+
+    projects = set(metadata_dirs)
+    for ecosystem in sorted(os.listdir(MODS_ROOT)):
+        ecosystem_dir = os.path.join(MODS_ROOT, ecosystem)
+        if not os.path.isdir(ecosystem_dir) or ecosystem.startswith("."):
+            continue
+        for project_slug in sorted(os.listdir(ecosystem_dir)):
+            project_dir = os.path.join(ecosystem_dir, project_slug)
+            if not os.path.isdir(project_dir) or project_slug.startswith("."):
+                continue
+
+            # A container with project metadata further below is not itself a
+            # project. The metadata directory will receive the precise shape
+            # error; ordinary flat directories still get checked for missing
+            # required files.
+            prefix = project_dir + os.sep
+            has_nested_metadata = any(
+                metadata_dir.startswith(prefix) for metadata_dir in metadata_dirs
+            )
+            if project_dir in metadata_dirs or not has_nested_metadata:
+                projects.add(project_dir)
     return sorted(projects)
 
 
@@ -147,12 +152,10 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
     errors: list[str] = []
 
     parts = rel.split(os.sep)
-    if len(parts) != 4:
-        errors.append(
-            f"{rel}: must be exactly mods/<ecosystem>/<author>/<project_slug>/"
-        )
+    if len(parts) != 3 or parts[0] != "mods":
+        errors.append(f"{rel}: must be exactly mods/<ecosystem>/<project_slug>/")
         return errors
-    _, product, author, _project_slug = parts
+    _, product, _project_slug = parts
 
     if any(" " in p for p in parts):
         errors.append(f"{rel}: no spaces allowed in catalog path components")
@@ -253,11 +256,6 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
         errors.append(
             f"{rel}/mod.yml: product '{data.get('product')}' != folder '{product}'"
         )
-    if data.get("author") not in (None,) and data.get("author") != author:
-        errors.append(
-            f"{rel}/mod.yml: author '{data.get('author')}' != folder '{author}'"
-        )
-
     return errors
 
 

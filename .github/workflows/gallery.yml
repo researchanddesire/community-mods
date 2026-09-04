@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'mods/**'
+      - 'examples/**'
       - 'CONTRIBUTING.md'
       - '.github/workflows/scripts/build_gallery.py'
       - '.github/workflows/scripts/assets/**'

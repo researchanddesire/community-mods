@@ -6,8 +6,8 @@ including remote variants, controllers, hardware, software, accessories, and
 tools.
 
 Index an upstream project or host one here at the catalog path
-`mods/radr/<your-github-username>/<project_slug>/`. Both contribution paths are
-equal in the hub.
+`mods/radr/<project_slug>/`. Project credit lives in the `author` metadata field,
+and both contribution paths are equal in the hub.
 
 See the [contributing guide](../../CONTRIBUTING.md) and the
-[sample entry](../ossm/SAMPLE_AUTHOR/sample_mount/).
+[sample entry](../../examples/hosted-ossm-project/).

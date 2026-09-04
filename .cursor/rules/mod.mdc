@@ -18,7 +18,7 @@ command enforces it.
 ## Catalog layout
 
 ```text
-mods/<ecosystem>/<author>/<project_slug>/
+mods/<ecosystem>/<project_slug>/
 ├── img/        # at least one local image for hosted projects
 ├── cad/        # optional
 ├── print/      # optional STL / 3MF files (Git LFS)
@@ -30,8 +30,10 @@ mods/<ecosystem>/<author>/<project_slug>/
 ```
 
 - `<ecosystem>` is `lockbox`, `dtt`, `ossm`, or `radr`.
-- Keep exactly the catalog depth shown; use no spaces in the three catalog
+- Keep exactly the catalog depth shown; use no spaces in the two catalog
   directory names.
+- Keep the project slug unique within its ecosystem and stable when its
+  contributors or maintainers change.
 - `product` identifies the project ecosystem.
 - `mod_version` tracks the catalog-entry version.
 - CAD, STEP, and source files are optional; none is a minimum requirement.
@@ -41,7 +43,7 @@ mods/<ecosystem>/<author>/<project_slug>/
 | Key | Type | Required | Notes |
 |---|---|---:|---|
 | `title` | string | yes | Project title. |
-| `author` | string | yes | Must match the author folder. |
+| `author` | string | yes | Public name of the person, team, or community responsible for the project. |
 | `product` | enum | yes | Ecosystem: `lockbox`, `dtt`, `ossm`, or `radr`. |
 | `description` | string | yes | Concise project summary. |
 | `mod_version` | integer ≥ 1 | yes | Bump when the catalog entry changes. |
