@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,6 +14,11 @@ import yaml
 from jsonschema import Draft7Validator, FormatChecker
 
 import mod_lint
+
+
+PROJECT_TEMPLATE_DIR = (
+    Path(__file__).resolve().parents[3] / "examples" / "hosted-ossm-project"
+)
 
 
 class ModLintTests(unittest.TestCase):
@@ -38,7 +44,9 @@ class ModLintTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     @staticmethod
-    def metadata(product: str = "ossm", author: str = "alice") -> dict:
+    def metadata(
+        product: str = "ossm", author: str = "Alice & OSSM Friends"
+    ) -> dict:
         return {
             "title": "Example Project",
             "author": author,
@@ -62,14 +70,14 @@ class ModLintTests(unittest.TestCase):
         self,
         *,
         product: str = "ossm",
-        author: str = "alice",
+        author: str = "Alice & OSSM Friends",
         slug: str = "example-project",
         metadata: dict | None = None,
         readme: bool = True,
         image: bool = True,
         license_file: bool = False,
     ) -> Path:
-        project_dir = self.repo_root / "mods" / product / author / slug
+        project_dir = self.repo_root / "mods" / product / slug
         project_dir.mkdir(parents=True)
         data = metadata if metadata is not None else self.metadata(product, author)
         (project_dir / "mod.yml").write_text(
@@ -241,15 +249,34 @@ class ModLintTests(unittest.TestCase):
         )
         self.assertTrue(any("does not match" in e for e in whitespace_errors))
 
-    def test_author_and_ecosystem_must_match_their_folders(self) -> None:
-        data = self.metadata(product="ossm", author="different-author")
+    def test_author_is_public_credit_not_a_path_component(self) -> None:
+        data = self.metadata(author="Alice Example & OSSM Friends")
+        project_dir = self.make_project(slug="community-project", metadata=data)
+
+        self.assertEqual(
+            self.repo_root / "mods" / "ossm" / "community-project", project_dir
+        )
+        self.assertEqual([], self.lint(project_dir))
+
+    def test_author_must_be_nonblank_and_reasonably_short(self) -> None:
+        blank_data = self.metadata(author="   \n")
+        blank_errors = self.lint(
+            self.make_project(slug="blank-author", metadata=blank_data)
+        )
+        self.assertTrue(any("/mod.yml: author:" in e for e in blank_errors))
+
+        long_data = self.metadata(author="A" * 121)
+        long_errors = self.lint(
+            self.make_project(slug="long-author", metadata=long_data)
+        )
+        self.assertTrue(any("/mod.yml: author:" in e for e in long_errors))
+
+    def test_ecosystem_must_match_its_folder(self) -> None:
+        data = self.metadata(product="ossm")
         data["product"] = "dtt"
         errors = self.lint(self.make_project(metadata=data))
 
         self.assertTrue(any("product 'dtt' != folder 'ossm'" in e for e in errors))
-        self.assertTrue(
-            any("author 'different-author' != folder 'alice'" in e for e in errors)
-        )
 
     def test_ecosystem_enum_and_folder_shape_remain_enforced(self) -> None:
         data = self.metadata(product="unknown")
@@ -260,26 +287,27 @@ class ModLintTests(unittest.TestCase):
         ecosystem_errors = self.lint(invalid_project)
         self.assertTrue(any("is not one of" in e for e in ecosystem_errors))
 
-        shallow_dir = self.repo_root / "mods" / "ossm" / "alice"
+        shallow_dir = self.repo_root / "mods" / "ossm"
         shape_errors = self.lint(shallow_dir)
         self.assertTrue(any("must be exactly mods/" in e for e in shape_errors))
 
         whitespace_errors = self.lint(
-            self.make_project(author="alice smith", slug="whitespace")
+            self.make_project(slug="project with spaces")
         )
         self.assertTrue(any("no spaces allowed" in e for e in whitespace_errors))
 
-    def test_discovery_includes_malformed_shallow_metadata(self) -> None:
-        shallow_dir = self.repo_root / "mods" / "ossm" / "alice"
-        shallow_dir.mkdir(parents=True)
-        (shallow_dir / "mod.yml").write_text(
-            yaml.safe_dump(self.metadata(), sort_keys=False), encoding="utf-8"
-        )
+    def test_discovery_checks_flat_directory_without_metadata(self) -> None:
+        project_dir = self.repo_root / "mods" / "ossm" / "missing-metadata"
+        project_dir.mkdir(parents=True)
 
-        self.assertIn(str(shallow_dir), mod_lint.find_mod_dirs())
-        self.assertTrue(
-            any("must be exactly mods/" in error for error in self.lint(shallow_dir))
-        )
+        self.assertIn(str(project_dir), mod_lint.find_mod_dirs())
+        self.assertTrue(any("missing mod.yml" in e for e in self.lint(project_dir)))
+
+    def test_hosted_project_template_conforms_when_copied_into_catalog(self) -> None:
+        project_dir = self.repo_root / "mods" / "ossm" / "sample-project"
+        shutil.copytree(PROJECT_TEMPLATE_DIR, project_dir)
+
+        self.assertEqual([], self.lint(project_dir))
 
 
 if __name__ == "__main__":

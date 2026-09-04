@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Generate the static R+D Project Hub site from the established mods/ tree.
+"""Generate the static R+D Project Hub site from the mods/ catalog.
 
-Scans mods/<ecosystem>/<author>/<project_slug>/mod.yml and emits the gallery
+Scans mods/<ecosystem>/<project_slug>/mod.yml and emits the gallery
 plus a branded contribution guide generated from the repository's canonical
 CONTRIBUTING.md. Deployed to mods.researchanddesire.com by gallery.yml. The
-established directory and metadata names remain stable for contributor and URL
-compatibility.
+project author is read from ``mod.yml`` rather than inferred from the folder
+structure.
 """
 
 from __future__ import annotations
@@ -44,7 +44,6 @@ MODS_ROOT = os.path.join(REPO_ROOT, "mods")
 CONTRIBUTING_PATH = os.path.join(REPO_ROOT, "CONTRIBUTING.md")
 OUT_DIR = os.path.join(REPO_ROOT, "site")
 ECOSYSTEMS = {"lockbox", "dtt", "ossm", "radr"}
-SKIP_AUTHORS = {"SAMPLE_AUTHOR"}
 ECOSYSTEM_LABELS = {
     "lockbox": "Chastity Lockbox",
     "dtt": "Deep Throat Trainer",
@@ -54,13 +53,11 @@ ECOSYSTEM_LABELS = {
 REPO_SLUG = os.environ.get("GITHUB_REPOSITORY", "researchanddesire/community-mods")
 REPO_URL = f"https://github.com/{REPO_SLUG}"
 LOGO_PATH = os.path.join(SCRIPT_DIR, "assets", "rad-logo.png")
-KINKYMAKERS_LOGO_PATH = os.path.join(
-    SCRIPT_DIR, "assets", "kinkymakers-logo.svg"
-)
 SOCIAL_IMAGE_PATH = os.path.join(SCRIPT_DIR, "assets", "project-hub-og.png")
 CANONICAL_URL = "https://mods.researchanddesire.com/"
 SOCIAL_IMAGE_URL = f"{CANONICAL_URL}project-hub-og.png"
 CONTRIBUTING_URL = f"{CANONICAL_URL}contributing/"
+DISCORD_URL = "https://discord.gg/9byY45KtcU"
 SITE_DESCRIPTION = (
     "Open-source sex tech projects and tools, maintained by the people who make them."
 )
@@ -87,34 +84,26 @@ def logo_data_uri() -> str:
     return asset_data_uri(LOGO_PATH, "image/png")
 
 
-def kinkymakers_logo_data_uri() -> str:
-    """The supplied KinkyMakers mark used only in the closing acknowledgment."""
-    return asset_data_uri(KINKYMAKERS_LOGO_PATH, "image/svg+xml")
-
-
 def roots_acknowledgement() -> str:
     """Render one quiet KinkyMakers roots credit for the end of each page."""
-    logo_uri = kinkymakers_logo_data_uri()
-    mark = (
-        f'<img class="km-logo" src="{logo_uri}" alt="" width="36" height="36">'
-        if logo_uri
-        else '<span class="km-logo km-logo-fallback" aria-hidden="true">KM</span>'
-    )
-    return f'''<div class="km-ack">
+    return '''<div class="km-ack">
     <div class="km-ack-inner">
-      {mark}
       <p>With thanks to <strong>KinkyMakers</strong> — the open-source sex-tech
       community Research and Desire grew out of.</p>
     </div>
   </div>'''
 
 
-def render_repository_markdown(md_text: str, rel: str) -> str:
-    """Markdown -> sanitized HTML, with relative img/links rewritten to GitHub.
+def render_repository_markdown(
+    md_text: str, rel: str, local_image_targets: set[str] | None = None
+) -> str:
+    """Render safe Markdown with repository links and optional local images.
 
     Repository Markdown can contain contributor-controlled content, so output
     is always sanitized (or falls back to escaped text if optional libraries
     are unavailable). ``rel`` is the source document's repository directory.
+    Declared project images in ``local_image_targets`` resolve inside the Pages
+    artifact; other relative sources and links resolve against GitHub.
     """
     if _markdown is not None and _nh3 is not None:
         rendered = _markdown.markdown(
@@ -142,7 +131,9 @@ def render_repository_markdown(md_text: str, rel: str) -> str:
             target = ""
         if target == ".." or target.startswith("../"):
             return f"{attr}={quote}#{quote}"
-        if attr == "src":
+        if attr == "src" and local_image_targets and target in local_image_targets:
+            base = ""
+        elif attr == "src":
             base = f"https://raw.githubusercontent.com/{REPO_SLUG}/main/"
         elif parsed.path.endswith("/"):
             base = f"{REPO_URL}/tree/main/"
@@ -161,9 +152,29 @@ def render_repository_markdown(md_text: str, rel: str) -> str:
     return re.sub(r"""(src|href)=(["'])([^"']*)\2""", rewrite, rendered)
 
 
-def render_readme(md_text: str, rel: str) -> str:
+def render_readme(
+    md_text: str, rel: str, local_image_targets: set[str] | None = None
+) -> str:
     """Render a project README for the gallery modal."""
-    return render_repository_markdown(md_text, rel)
+    return render_repository_markdown(md_text, rel, local_image_targets)
+
+
+def declared_local_image_targets(rel: str, images: list) -> list[str]:
+    """Return safe artifact-relative targets for declared local images."""
+    prefix = rel.rstrip("/") + "/"
+    targets: list[str] = []
+    for image in images:
+        if not isinstance(image, str) or image.startswith(
+            ("http://", "https://", "//", "data:")
+        ):
+            continue
+        parsed = urlsplit(image)
+        if parsed.scheme or parsed.path.startswith("/"):
+            continue
+        target = posixpath.normpath(posixpath.join(rel, parsed.path))
+        if target.startswith(prefix) and target not in targets:
+            targets.append(target)
+    return targets
 
 
 def branding_fragments() -> tuple[str, str, str]:
@@ -185,59 +196,68 @@ def collect_mods() -> list[dict]:
         pdir = os.path.join(MODS_ROOT, product)
         if not os.path.isdir(pdir) or product not in ECOSYSTEMS:
             continue
-        for author in sorted(os.listdir(pdir)):
-            adir = os.path.join(pdir, author)
-            if not os.path.isdir(adir) or author.startswith(".") or author in SKIP_AUTHORS:
+        for project_slug in sorted(os.listdir(pdir)):
+            mdir = os.path.join(pdir, project_slug)
+            if not os.path.isdir(mdir) or project_slug.startswith("."):
                 continue
-            for mod in sorted(os.listdir(adir)):
-                mdir = os.path.join(adir, mod)
-                mod_yml = os.path.join(mdir, "mod.yml")
-                if not os.path.isfile(mod_yml):
-                    continue
-                try:
-                    with open(mod_yml, encoding="utf-8") as fh:
-                        data = yaml.safe_load(fh) or {}
-                except yaml.YAMLError:
-                    continue
-                rel = os.path.relpath(mdir, REPO_ROOT).replace(os.sep, "/")
-                readme_path = os.path.join(mdir, "README.md")
-                readme_html = ""
-                if os.path.isfile(readme_path):
-                    with open(readme_path, encoding="utf-8") as rfh:
-                        readme_html = render_readme(rfh.read(), rel)
-                images = data.get("images") or []
-                first = images[0] if images else ""
-                if isinstance(first, str) and first.startswith(("http://", "https://")):
-                    thumb = first
-                elif first:
-                    thumb = f"{rel}/{first}"
-                else:
-                    thumb = ""
-                mods.append(
-                    {
-                        "id": rel,
-                        "title": str(data.get("title", mod)),
-                        "author": str(data.get("author", author)),
-                        "product": product,
-                        "ecosystem_label": ECOSYSTEM_LABELS[product],
-                        "description": str(data.get("description", "")),
-                        "compatibility": data.get("compatibility") or [],
-                        "tags": [str(t) for t in (data.get("tags") or [])],
-                        "thumb": thumb,
-                        "source_url": str(data.get("source_url") or ""),
-                        "license": str(data.get("license") or ""),
-                        "folder": f"{REPO_URL}/tree/main/{rel}",
-                        "readme": f"{REPO_URL}/blob/main/{rel}/README.md",
-                        "readme_html": readme_html,
-                    }
+            mod_yml = os.path.join(mdir, "mod.yml")
+            if not os.path.isfile(mod_yml):
+                continue
+            try:
+                with open(mod_yml, encoding="utf-8") as fh:
+                    data = yaml.safe_load(fh) or {}
+            except yaml.YAMLError:
+                continue
+            rel = os.path.relpath(mdir, REPO_ROOT).replace(os.sep, "/")
+            images = data.get("images") or []
+            local_images = declared_local_image_targets(rel, images)
+            readme_path = os.path.join(mdir, "README.md")
+            readme_html = ""
+            if os.path.isfile(readme_path):
+                with open(readme_path, encoding="utf-8") as rfh:
+                    readme_html = render_readme(
+                        rfh.read(), rel, set(local_images)
+                    )
+            first = images[0] if images else ""
+            if isinstance(first, str) and first.startswith(("http://", "https://")):
+                thumb = first
+            elif isinstance(first, str):
+                first_target = posixpath.normpath(
+                    posixpath.join(rel, urlsplit(first).path)
                 )
+                thumb = first_target if first_target in local_images else ""
+            else:
+                thumb = ""
+            mods.append(
+                {
+                    "id": rel,
+                    "title": str(data.get("title", project_slug)),
+                    "author": str(data.get("author", "")),
+                    "product": product,
+                    "ecosystem_label": ECOSYSTEM_LABELS[product],
+                    "description": str(data.get("description", "")),
+                    "compatibility": data.get("compatibility") or [],
+                    "tags": [str(t) for t in (data.get("tags") or [])],
+                    "thumb": thumb,
+                    "source_url": str(data.get("source_url") or ""),
+                    "license": str(data.get("license") or ""),
+                    "folder": f"{REPO_URL}/tree/main/{rel}",
+                    "readme": f"{REPO_URL}/blob/main/{rel}/README.md",
+                    "readme_html": readme_html,
+                    "_local_images": local_images,
+                }
+            )
     mods.sort(key=lambda project: (project["title"].casefold(), project["author"].casefold()))
     return mods
 
 
 def render(mods: list[dict]) -> str:
     # Avoid allowing contributor-controlled strings to terminate the script tag.
-    payload = json.dumps(mods).replace("</", "<\\/")
+    public_projects = [
+        {key: value for key, value in project.items() if not key.startswith("_")}
+        for project in mods
+    ]
+    payload = json.dumps(public_projects).replace("</", "<\\/")
     active_ecosystems = {project["product"] for project in mods}
     options = "".join(
         f'<option value="{code}">{html.escape(label)}</option>'
@@ -362,9 +382,7 @@ def render(mods: list[dict]) -> str:
   .footer-bottom {{ border-top:1px solid #2a2f3a; color:var(--muted); font-size:.82rem; }}
   .footer-bottom div {{ max-width:1100px; margin:0 auto; padding:1rem 1.5rem; }}
   .km-ack {{ border-top:1px solid #2a2f3a; background:var(--bg); }}
-  .km-ack-inner {{ max-width:1100px; margin:0 auto; padding:1.2rem 1.5rem; display:flex; align-items:center; gap:.8rem; }}
-  .km-logo {{ flex:0 0 auto; width:36px; height:36px; object-fit:cover; border-radius:7px; }}
-  .km-logo-fallback {{ display:grid; place-items:center; background:#8f4584; color:white; font-size:.67rem; font-weight:800; }}
+  .km-ack-inner {{ max-width:1100px; margin:0 auto; padding:1.2rem 1.5rem; }}
   .km-ack p {{ max-width:760px; margin:0; color:var(--muted); font-size:.82rem; }}
   .km-ack strong {{ color:var(--fg); }}
   /* README viewer modal */
@@ -393,8 +411,6 @@ def render(mods: list[dict]) -> str:
   .readme blockquote {{ margin:.5rem 0; padding:.1rem .9rem; border-left:3px solid #2a2f3a; color:var(--muted); }}
   @media (max-width:720px) {{
     .modal-panel {{ width:100vw; height:100vh; max-height:100vh; margin:0; border:none; border-radius:0; }}
-    .km-ack-inner {{ align-items:flex-start; }}
-    .km-logo {{ width:32px; height:32px; }}
   }}
 </style>
 </head>
@@ -457,6 +473,7 @@ def render(mods: list[dict]) -> str:
       <div class="footer-links">
         <a href="https://researchanddesire.com" target="_blank" rel="noopener">researchanddesire.com ↗</a>
         <a href="https://docs.researchanddesire.com" target="_blank" rel="noopener">Documentation ↗</a>
+        <a href="{DISCORD_URL}" target="_blank" rel="noopener">R+D Discord ↗</a>
         <a href="contributing/">Contribute a project</a>
         <a href="{REPO_URL}" target="_blank" rel="noopener">Project repository ↗</a>
       </div>
@@ -713,9 +730,7 @@ def render_contributing(md_text: str) -> str:
   footer a {{ color:var(--accent); text-decoration:none; }}
   footer a:hover {{ text-decoration:underline; }}
   .km-ack {{ border-top:1px solid #2a2f3a; background:var(--bg); }}
-  .km-ack-inner {{ max-width:900px; margin:0 auto; padding:1.2rem 1.5rem; display:flex; align-items:center; gap:.8rem; }}
-  .km-logo {{ flex:0 0 auto; width:36px; height:36px; object-fit:cover; border-radius:7px; }}
-  .km-logo-fallback {{ display:grid; place-items:center; background:#8f4584; color:white; font-size:.67rem; font-weight:800; }}
+  .km-ack-inner {{ max-width:900px; margin:0 auto; padding:1.2rem 1.5rem; }}
   .km-ack p {{ max-width:760px; margin:0; color:var(--muted); font-size:.82rem; }}
   .km-ack strong {{ color:var(--fg); }}
   @media (max-width:620px) {{
@@ -723,8 +738,6 @@ def render_contributing(md_text: str) -> str:
     .site-nav {{ order:2; width:100%; margin-left:0; }}
     .site-nav .repo-link {{ display:none; }}
     .document {{ border-radius:8px; }}
-    .km-ack-inner {{ align-items:flex-start; }}
-    .km-logo {{ width:32px; height:32px; }}
   }}
 </style>
 </head>
@@ -758,7 +771,7 @@ def render_contributing(md_text: str) -> str:
 <footer>
   <div class="footer-inner">
     <span>Hosted by Research and Desire</span>
-    <span><a href="../">Browse projects</a> · <a href="{REPO_URL}">Project repository ↗</a></span>
+    <span><a href="../">Browse projects</a> · <a href="{DISCORD_URL}" target="_blank" rel="noopener">R+D Discord ↗</a> · <a href="{REPO_URL}">Project repository ↗</a></span>
   </div>
   {roots_credit}
 </footer>
@@ -775,18 +788,32 @@ def main() -> int:
         shutil.copyfile(SOCIAL_IMAGE_PATH, social_image_out)
     elif os.path.exists(social_image_out):
         os.remove(social_image_out)
-    # Copy thumbnails into the site output, preserving their relative path so the
-    # generated index.html resolves them.
+    # Copy declared local images into the site output, preserving their catalog
+    # paths so cards and modal README content resolve identically in previews and
+    # on GitHub Pages.
     for m in mods:
-        thumb = m.get("thumb")
-        if not thumb or thumb.startswith(("http://", "https://")):
-            continue  # nothing to copy (no thumb, or an external URL)
-        src = os.path.join(REPO_ROOT, thumb)
-        dst = os.path.join(OUT_DIR, thumb)
-        if os.path.isfile(src):
+        copied: set[str] = set()
+        project_root = os.path.realpath(os.path.join(REPO_ROOT, m["id"]))
+        for asset in m.get("_local_images", []):
+            if not asset.startswith(m["id"].rstrip("/") + "/"):
+                continue
+            src = os.path.realpath(os.path.join(REPO_ROOT, asset))
+            try:
+                if os.path.commonpath([project_root, src]) != project_root:
+                    continue
+            except ValueError:
+                continue
+            if not os.path.isfile(src):
+                continue
+            dst = os.path.join(OUT_DIR, *asset.split("/"))
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copyfile(src, dst)
-        else:
+            copied.add(asset)
+
+        thumb = m.get("thumb")
+        if not thumb or thumb.startswith(("http://", "https://")):
+            continue
+        if thumb not in copied:
             m["thumb"] = ""  # missing image → render without a thumbnail
     out_html = os.path.join(OUT_DIR, "index.html")
     with open(out_html, "w", encoding="utf-8") as fh:

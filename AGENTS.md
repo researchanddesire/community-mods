@@ -10,15 +10,18 @@ Research and Desire hosts the directory; inclusion is not endorsement, safety
 certification, or warranty.
 
 Each project entry uses the catalog path
-`mods/<ecosystem>/<author>/<project_slug>/`, where `<ecosystem>` is `lockbox`,
-`dtt`, `ossm`, or `radr`. The gallery at mods.researchanddesire.com is generated
-from this tree. Never hand-edit a generated top-level gallery.
+`mods/<ecosystem>/<project_slug>/`, where `<ecosystem>` is `lockbox`, `dtt`,
+`ossm`, or `radr`. The gallery at mods.researchanddesire.com is generated from
+this tree. Never hand-edit a generated top-level gallery.
 
 ## Hard rules
 
-- Keep exactly the `mods/<ecosystem>/<author>/<project_slug>/` catalog depth.
-  Use no spaces in those three catalog directory names and do not add another
-  catalog level below `<project_slug>`.
+- Keep exactly the `mods/<ecosystem>/<project_slug>/` catalog depth. Use no
+  spaces in those two catalog directory names and do not add another catalog
+  level below `<project_slug>`.
+- Keep each project slug unique within its ecosystem and stable when its
+  contributors or maintainers change. Record public responsibility and credit
+  in the `author` metadata field, not in the path.
 - Every project requires `mod.yml`, `README.md`, a non-empty `images` list, a
   complete `safety` object, and a declared `license`.
 - In `license`, copy the license name used by the project, such as `MIT`,
@@ -50,7 +53,7 @@ from this tree. Never hand-edit a generated top-level gallery.
 Use project-first and ecosystem-first wording in UI, documentation, reviews,
 and validation output. Preserve these stable technical interfaces:
 
-- catalog path: `mods/<ecosystem>/<author>/<project_slug>/mod.yml`
+- catalog path: `mods/<ecosystem>/<project_slug>/mod.yml`
 - metadata filename: `mod.yml`
 - ecosystem key: `product`
 - catalog-entry version key: `mod_version`
@@ -65,7 +68,9 @@ Required keys are `title`, `author`, `product` (ecosystem enum),
 `description`, `mod_version` (integer at least 1), `compatibility` (non-empty
 list), `license`, `images` (non-empty list of paths or URLs), and `safety` (the
 three boolean flags plus non-blank `notes`). `tags` is optional and free-form.
-An indexed project also sets `source_url`; a hosted project omits it.
+`author` is the public name of the person, team, or community responsible for
+the project; it is not tied to a directory name. An indexed project also sets
+`source_url`; a hosted project omits it.
 
 Indexed and hosted submissions are first-class, equal contribution paths. Do
 not imply that indexed projects are warnings or lesser entries.

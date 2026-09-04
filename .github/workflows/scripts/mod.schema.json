@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://mods.researchanddesire.com/mod.schema.json",
   "title": "R+D Community Project",
-  "description": "Canonical contract for project entries at mods/<ecosystem>/<author>/<project_slug>/mod.yml. The product key identifies the project ecosystem, and mod_version tracks the catalog-entry version. Enforced by mod-lint.",
+  "description": "Canonical contract for project entries at mods/<ecosystem>/<project_slug>/mod.yml. The product key identifies the project ecosystem, author provides public credit, and mod_version tracks the catalog-entry version. Enforced by mod-lint.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -37,8 +37,9 @@
     "author": {
       "type": "string",
       "minLength": 1,
-      "pattern": "^[A-Za-z0-9-_.]+$",
-      "description": "GitHub username; must match the author folder name."
+      "maxLength": 120,
+      "pattern": "\\S",
+      "description": "Name of the person, team, or community responsible for the project, shown in the hub."
     },
     "product": {
       "type": "string",

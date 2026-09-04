@@ -23,7 +23,7 @@ from the optional `tags:` field in each project's metadata.
 Every project uses the same established file and validation interfaces:
 
 ```text
-mods/<ecosystem>/<author>/<project_slug>/
+mods/<ecosystem>/<project_slug>/
 ├── img/        # at least one local image for a hosted project
 ├── cad/        # optional design files
 ├── print/      # optional STL / 3MF files (Git LFS)
@@ -34,11 +34,14 @@ mods/<ecosystem>/<author>/<project_slug>/
 └── README.md   # required project description
 ```
 
-The catalog path is `mods/<ecosystem>/<author>/<project_slug>/mod.yml`. Within
-`mod.yml`, `product` identifies the ecosystem and `mod_version` tracks the
-catalog-entry version. Run the validator with `mod-lint`. These stable technical
-names support projects of every kind, including complete variants, controllers,
-software, hardware, accessories, and mods.
+The catalog path is `mods/<ecosystem>/<project_slug>/mod.yml`. A project slug
+must be unique within its ecosystem and should stay the same when contributors
+or maintainers change. The required `author` field gives public credit to the
+person, team, or community responsible for the project. Within `mod.yml`,
+`product` identifies the ecosystem and `mod_version` tracks the catalog-entry
+version. Run the validator with `mod-lint`. These stable technical names support
+projects of every kind, including complete variants, controllers, software,
+hardware, accessories, and mods.
 
 ## Submit a project
 

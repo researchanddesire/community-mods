@@ -3,13 +3,15 @@
 ## Project
 
 - **Ecosystem:** <!-- lockbox | dtt | ossm | radr; stored in `product` -->
-- **Folder:** `mods/<ecosystem>/<your-username>/<project_slug>/`
+- **Folder:** `mods/<ecosystem>/<project_slug>/`
+- **Project credit:** <!-- person, team, or community named in `author` -->
 - **Contribution path:** <!-- indexed (maintained upstream) | hosted (files live here) -->
 - **What it does:**
 
 ## Submission checklist — every project
 
-- [ ] One project at exactly `mods/<ecosystem>/<author>/<project_slug>/`, with no spaces in those catalog directory names
+- [ ] One project at exactly `mods/<ecosystem>/<project_slug>/`, with no spaces in those catalog directory names
+- [ ] The project slug is unique within its ecosystem, and `author` gives the public credit you want shown in the hub
 - [ ] `mod.yml` and `README.md` are present
 - [ ] `mod.yml` declares a non-empty compatibility list, a license, at least one image, and a complete safety block
 - [ ] `product` identifies the ecosystem and `mod_version` identifies the catalog-entry version

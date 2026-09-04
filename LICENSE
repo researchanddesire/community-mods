@@ -2,8 +2,8 @@
 
 The R+D Project Hub catalogs independently maintained OSSM variants,
 controllers, software, hardware, accessories, and related projects. Copyright
-in each contribution remains with its respective author unless stated
-otherwise. Inclusion in this catalog is not an endorsement, safety
+in contributed material remains with its respective rights holders unless
+stated otherwise. Inclusion in this catalog is not an endorsement, safety
 certification, or warranty by Research and Desire (R+D).
 
 The technical paths and keys `mods/`, `mod.yml`, and `mod_version` do not
@@ -19,7 +19,7 @@ determine the license. The following path and project-type rules do.
    [`LICENSES/CC-BY-4.0.txt`](LICENSES/CC-BY-4.0.txt).
    This catalog-layer rule follows that material wherever it appears, including
    catalog-only `mod.yml` metadata and hub-authored editorial summaries inside a
-   project directory. It does not relicense author-supplied project files,
+   project directory. It does not relicense contributor-supplied project files,
    project documentation, or quoted or linked upstream material.
 
 2. **Repository tooling** — workflows, schemas, lint and gallery scripts, tests,
@@ -28,13 +28,11 @@ determine the license. The following path and project-type rules do.
    [`LICENSES/MPL-2.0.txt`](LICENSES/MPL-2.0.txt).
    This grant expressly excludes the branding assets
    `.github/workflows/scripts/assets/rad-logo.png` and
-   `.github/workflows/scripts/assets/project-hub-og.png`, which are owned by R+D,
-   and `.github/workflows/scripts/assets/kinkymakers-logo.svg`, which contains the
-   KinkyMakers mark. Copyright and branding rights in those files remain with
-   their respective owners.
+   `.github/workflows/scripts/assets/project-hub-og.png`, which are owned by R+D.
+   Copyright and branding rights in those files remain with R+D.
 
 3. **Hosted OSSM projects** — project content stored under
-   `mods/ossm/<author>/<project_slug>/` without a `source_url` is licensed under
+   `mods/ossm/<project_slug>/` without a `source_url` is licensed under
    **CERN Open Hardware Licence Version 2 — Strongly Reciprocal
    (CERN-OHL-S-2.0)**. Subject to the catalog-layer exception in item 1, this
    includes that hosted project's hardware, software, printable files,
@@ -47,7 +45,7 @@ determine the license. The following path and project-type rules do.
    without a `source_url` is governed by the license name entered in its
    `mod.yml` and the matching license text included at that project's root.
    Subject to the catalog-layer exception in item 1, that project-specific
-   license governs the author-supplied files and documentation inside the
+   license governs the contributor-supplied files and documentation inside the
    hosted project directory.
 
 5. **Indexed projects** — when `mod.yml` contains `source_url`, this repository
