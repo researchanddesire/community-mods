@@ -303,6 +303,10 @@ function makeElement(initial = {}) {
 }
 const modalBackButton = makeElement();
 const modalEndLink = makeElement();
+const modalAnchorTarget = {
+  id: 'details',
+  scrollIntoView(options) { this.scrollCalls = (this.scrollCalls || 0) + 1; }
+};
 const elements = {
   grid: makeElement(), modal: makeElement({
     hidden: true,
@@ -311,7 +315,12 @@ const elements = {
     },
     querySelectorAll() { return [modalBackButton, modalEndLink]; }
   }),
-  'modal-content': makeElement(), 'modal-actions': makeElement(),
+  'modal-content': makeElement({
+    querySelectorAll(selector) {
+      return selector === '[id]' ? [modalAnchorTarget] : [];
+    }
+  }),
+  'modal-actions': makeElement(),
   q: makeElement(), ecosystem: makeElement(), tags: makeElement(),
   clear: makeElement({hidden: true})
 };
@@ -331,9 +340,39 @@ const document = {
   }
 };
 const window = {
-  location: {href: 'https://mods.researchanddesire.com/'},
+  handlers: Object.create(null),
+  location: {
+    href: 'https://mods.researchanddesire.com/',
+    hash: '', pathname: '/', search: ''
+  },
+  history: {
+    state: null, pushCalls: [], replaceCalls: [], backCalls: 0,
+    deferBack: false,
+    pushState(state, title, url) {
+      this.state = state;
+      this.pushCalls.push(url);
+      window.location.hash = String(url).startsWith('#') ? String(url) : '';
+    },
+    replaceState(state, title, url) {
+      this.state = state;
+      this.replaceCalls.push(url);
+      const parsed = new URL(String(url), window.location.href);
+      window.location.pathname = parsed.pathname;
+      window.location.search = parsed.search;
+      window.location.hash = parsed.hash;
+    },
+    back() {
+      this.backCalls += 1;
+      if (this.deferBack) return;
+      this.state = null;
+      window.location.hash = '';
+      emit(window, 'popstate', {});
+    }
+  },
   ResizeObserver: undefined,
-  addEventListener() {}
+  addEventListener(type, handler) {
+    (this.handlers[type] ||= []).push(handler);
+  }
 };
 globalThis.document = document;
 globalThis.window = window;
@@ -399,12 +438,25 @@ const cardTarget = {closest(selector) {
 }};
 emit(elements.grid, 'click', {target: cardTarget});
 assert(elements.modal.hidden === false, 'card click opens modal');
+assert(window.location.hash === '#project=ossm/ossm-hardware', 'card updates URL');
+assert(window.history.state.projectModal === true, 'card marks modal history');
+assert(window.history.state.projectId === PROJECTS[0].id, 'card records history state');
 assert(document.activeElement === modalBackButton, 'opening focuses modal back button');
 assert(elements['modal-content'].innerHTML.includes('KinkyMakers OSSM'), 'modal project');
 assert(elements['modal-content'].innerHTML.includes('class="readme"'), 'modal README body');
 assert(elements['modal-actions'].innerHTML.includes('Project source'), 'modal project action');
+let anchorPrevented = false;
+const modalAnchorLink = {getAttribute(name) { return name === 'href' ? '#details' : null; }};
+emit(elements['modal-content'], 'click', {
+  preventDefault() { anchorPrevented = true; },
+  target: {closest(selector) { return selector === 'a[href^="#"]' ? modalAnchorLink : null; }}
+});
+assert(anchorPrevented, 'README anchor navigation is intercepted');
+assert(modalAnchorTarget.scrollCalls === 1, 'README anchor scrolls inside modal');
+assert(window.location.hash === '#project=ossm/ossm-hardware', 'README anchor preserves project URL');
 emit(document, 'keydown', {key: 'Escape'});
 assert(elements.modal.hidden === true, 'Escape closes modal');
+assert(window.location.hash === '', 'Escape restores gallery URL');
 assert(document.body.style.overflow === '', 'Escape restores body scroll');
 assert(document.activeElement === firstCard, 'Escape restores card focus');
 
@@ -445,6 +497,63 @@ const linkTarget = {closest(selector) {
 }};
 emit(elements.grid, 'click', {target: linkTarget});
 assert(elements.modal.hidden === true, 'inner link does not open modal');
+
+elements.q.value = 'possum';
+emit(elements.q, 'input', {});
+window.location.hash = '#project=ossm/ossm-2x';
+window.history.state = null;
+emit(window, 'hashchange', {});
+assert(elements.modal.hidden === false, 'shared project URL opens modal');
+assert(elements['modal-content'].innerHTML.includes('OSSM 2X'), 'shared URL selects project');
+assert(document.activeElement === modalBackButton, 'shared URL focuses modal');
+emit(elements.modal, 'click', {target: {closest(selector) {
+  return selector === '[data-close]' ? {} : null;
+}}});
+assert(elements.modal.hidden === true, 'direct-link modal closes');
+assert(window.location.hash === '', 'direct-link close removes project hash');
+assert(window.history.replaceCalls.length > 0, 'direct-link close replaces URL');
+assert(document.activeElement === elements.q, 'direct-link close focuses search');
+elements.q.value = '';
+emit(elements.q, 'input', {});
+
+window.location.hash = '#project=ossm/not-a-project';
+emit(window, 'hashchange', {});
+assert(elements.modal.hidden === true, 'unknown project hash stays closed');
+assert(window.location.hash === '', 'unknown project hash is removed');
+
+window.location.hash = '#project=ossm/%ZZ';
+emit(window, 'hashchange', {});
+assert(elements.modal.hidden === true, 'malformed project hash stays closed');
+assert(window.location.hash === '', 'malformed project hash is removed');
+
+window.location.hash = '#projects';
+emit(window, 'hashchange', {});
+assert(window.location.hash === '#projects', 'unrelated hash is preserved');
+assert(projectHash({id: 'mods/ossm/a b'}) === '#project=ossm/a%20b', 'hash segments encode');
+
+window.location.hash = '#project=ossm/ossm-possum';
+window.history.state = {projectModal: true, projectId: 'mods/ossm/ossm-possum'};
+emit(window, 'popstate', {});
+assert(elements.modal.hidden === false, 'forward navigation reopens modal');
+assert(elements['modal-content'].innerHTML.includes('OSSM Possum'), 'forward URL selects project');
+emit(document, 'keydown', {key: 'Escape'});
+assert(elements.modal.hidden === true, 'history-backed modal closes');
+assert(window.history.backCalls >= 1, 'modal close uses browser history');
+
+emit(elements.grid, 'click', {target: cardTarget});
+window.history.deferBack = true;
+const backCallsBeforeRapidClose = window.history.backCalls;
+emit(document, 'keydown', {key: 'Escape'});
+emit(document, 'keydown', {key: 'Escape'});
+assert(
+  window.history.backCalls === backCallsBeforeRapidClose + 1,
+  'rapid close requests navigate back only once'
+);
+window.history.deferBack = false;
+window.history.state = null;
+window.location.hash = '';
+emit(window, 'popstate', {});
+assert(elements.modal.hidden === true, 'deferred history close completes');
 """
         result = subprocess.run(
             ["node", "-"],
