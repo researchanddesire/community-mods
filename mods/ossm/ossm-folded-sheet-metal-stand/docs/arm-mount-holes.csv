@@ -1,0 +1,3 @@
+from_tail_mm,from_free_end_mm,face_centerline_mm,diameter_mm,tolerance_plus_mm,tolerance_minus_mm,depth_mm
+360,90,0,8.75,0.08,0,2
+430,20,0,8.75,0.08,0,2

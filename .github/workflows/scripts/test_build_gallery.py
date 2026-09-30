@@ -26,12 +26,13 @@ class ProjectHubBuildTests(unittest.TestCase):
             cls.contribution_guidance
         )
 
-    def test_catalog_contains_the_five_expected_projects_in_peer_order(self) -> None:
+    def test_catalog_contains_the_six_expected_projects_in_peer_order(self) -> None:
         self.assertEqual(
             [
                 "KinkyMakers OSSM",
                 "OSSM 2X",
                 "OSSM ALT Edition",
+                "OSSM Folded Sheet Metal Stand",
                 "OSSM M5 Remote",
                 "OSSM Possum",
             ],
