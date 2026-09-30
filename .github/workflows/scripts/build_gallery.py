@@ -3,7 +3,7 @@
 
 Scans mods/<ecosystem>/<project_slug>/mod.yml and emits the gallery
 plus a branded contribution guide generated from the repository's canonical
-CONTRIBUTING.md. Deployed to mods.researchanddesire.com by gallery.yml. The
+CONTRIBUTING.md. Deployed to GitHub Pages by gallery.yml. The
 project author is read from ``mod.yml`` rather than inferred from the folder
 structure.
 """
@@ -18,7 +18,7 @@ import posixpath
 import re
 import shutil
 import sys
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 try:
     import yaml
@@ -54,7 +54,9 @@ REPO_SLUG = os.environ.get("GITHUB_REPOSITORY", "researchanddesire/community-mod
 REPO_URL = f"https://github.com/{REPO_SLUG}"
 LOGO_PATH = os.path.join(SCRIPT_DIR, "assets", "rad-logo.png")
 SOCIAL_IMAGE_PATH = os.path.join(SCRIPT_DIR, "assets", "project-hub-og.png")
-CANONICAL_URL = "https://mods.researchanddesire.com/"
+CANONICAL_URL = os.environ.get(
+    "SITE_URL", "https://researchanddesire.github.io/community-mods/"
+).rstrip("/") + "/"
 SOCIAL_IMAGE_URL = f"{CANONICAL_URL}project-hub-og.png"
 CONTRIBUTING_URL = f"{CANONICAL_URL}contributing/"
 DISCORD_URL = "https://discord.gg/9byY45KtcU"
@@ -251,7 +253,44 @@ def collect_mods() -> list[dict]:
     return mods
 
 
-def render(mods: list[dict]) -> str:
+def project_page_path(project: dict) -> str:
+    """Stable, crawler-readable URL independent of the project's maintainer."""
+    return "projects/" + quote(project["id"].removeprefix("mods/"), safe="/") + "/"
+
+
+def social_metadata(title: str, description: str, url: str, image: str = "") -> str:
+    """Emit preview metadata in the initial HTML, without requiring JavaScript."""
+    image = image or SOCIAL_IMAGE_URL
+    title, description, url, image = (
+        html.escape(value, quote=True) for value in (title, description, url, image)
+    )
+    # Only the shared brand card has known dimensions; project images vary.
+    dimensions = ""
+    image_alt = title
+    if image == html.escape(SOCIAL_IMAGE_URL, quote=True):
+        image_alt = "R+D Project Hub — open-source sex tech projects and tools"
+        dimensions = '''<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">'''
+    return f'''<title>{title}</title>
+<meta name="description" content="{description}">
+<link rel="canonical" href="{url}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="R+D Project Hub">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{description}">
+<meta property="og:url" content="{url}">
+<meta property="og:image" content="{image}">
+{dimensions}
+<meta property="og:image:alt" content="{image_alt}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{description}">
+<meta name="twitter:image" content="{image}">
+<meta name="twitter:image:alt" content="{image_alt}">'''
+
+
+def render(mods: list[dict], project: dict | None = None) -> str:
     # Avoid allowing contributor-controlled strings to terminate the script tag.
     public_projects = [
         {key: value for key, value in project.items() if not key.startswith("_")}
@@ -267,32 +306,24 @@ def render(mods: list[dict]) -> str:
     logo_var, logo_inner, favicon = branding_fragments()
     roots_credit = roots_acknowledgement()
     project_count = f"{len(mods)} project{'s' if len(mods) != 1 else ''}"
-    social_image_meta = ""
-    if os.path.isfile(SOCIAL_IMAGE_PATH):
-        social_image_meta = f'''<meta property="og:image" content="{SOCIAL_IMAGE_URL}">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="R+D Project Hub — open-source sex tech projects and tools">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="{SOCIAL_IMAGE_URL}">
-<meta name="twitter:image:alt" content="R+D Project Hub — open-source sex tech projects and tools">'''
+    base_path = html.escape(urlsplit(CANONICAL_URL).path, quote=True)
+    if project:
+        image = project.get("thumb", "")
+        if image and not image.startswith(("http://", "https://")):
+            image = CANONICAL_URL + quote(image, safe="/")
+        metadata = social_metadata(
+            project["title"], project["description"],
+            CANONICAL_URL + project_page_path(project), image,
+        )
+    else:
+        metadata = social_metadata("R+D Project Hub", SITE_DESCRIPTION, CANONICAL_URL)
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>R+D Project Hub</title>
-<meta name="description" content="{SITE_DESCRIPTION}">
-<link rel="canonical" href="{CANONICAL_URL}">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="R+D Project Hub">
-<meta property="og:title" content="R+D Project Hub">
-<meta property="og:description" content="{SITE_DESCRIPTION}">
-<meta property="og:url" content="{CANONICAL_URL}">
-<meta name="twitter:title" content="R+D Project Hub">
-<meta name="twitter:description" content="{SITE_DESCRIPTION}">
-{social_image_meta}
+<base href="{base_path}">
+{metadata}
 {favicon}
 <style>
   :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; {logo_var} }}
@@ -495,6 +526,7 @@ def render(mods: list[dict]) -> str:
 <script>
 const PROJECTS = {payload};
 const PROJECT_BY_ID = Object.fromEntries(PROJECTS.map(project => [project.id, project]));
+const GALLERY_PATH = new URL(document.baseURI).pathname;
 const grid = document.getElementById('grid');
 const modal = document.getElementById('modal');
 const modalContent = document.getElementById('modal-content');
@@ -514,7 +546,7 @@ function esc(value) {{
 }}
 function safeUrl(value) {{
   try {{
-    const parsed = new URL(String(value || ''), window.location.href);
+    const parsed = new URL(String(value || ''), document.baseURI);
     return ['http:', 'https:'].includes(parsed.protocol) ? esc(parsed.href) : '#';
   }} catch {{
     return '#';
@@ -579,16 +611,23 @@ function render() {{
   grid.innerHTML = items.length ? items.map(card).join('') : '<p class="empty">No projects match.</p>';
   renderTags(base);
 }}
-function projectHash(m) {{
+function projectPath(m) {{
   const route = String(m.id || '').replace(/^mods\\//, '');
-  return '#project=' + route.split('/').map(encodeURIComponent).join('/');
+  return GALLERY_PATH + 'projects/' + route.split('/').map(encodeURIComponent).join('/') + '/';
 }}
-function projectFromHash() {{
-  const prefix = '#project=';
-  if (!window.location.hash.startsWith(prefix)) return null;
+function projectFromUrl() {{
+  const legacyPrefix = '#project=';
+  const pathPrefix = GALLERY_PATH + 'projects/';
+  let route;
+  if (window.location.hash.startsWith(legacyPrefix)) {{
+    route = window.location.hash.slice(legacyPrefix.length);
+  }} else if (window.location.pathname.startsWith(pathPrefix)) {{
+    route = window.location.pathname.slice(pathPrefix.length).replace(/\\/$/, '');
+  }} else {{
+    return null;
+  }}
   try {{
-    const route = window.location.hash.slice(prefix.length)
-      .split('/').map(decodeURIComponent).join('/');
+    route = route.split('/').map(decodeURIComponent).join('/');
     return PROJECT_BY_ID['mods/' + route] || null;
   }} catch {{
     return null;
@@ -615,9 +654,10 @@ function openModal(m, trigger, updateUrl = true) {{
   openProjectId = m.id;
   modal.hidden = false;
   document.body.style.overflow = 'hidden';
-  if (updateUrl && window.location.hash !== projectHash(m)) {{
+  document.title = m.title + ' · R+D Project Hub';
+  if (updateUrl && window.location.pathname !== projectPath(m)) {{
     window.history.pushState(
-      {{projectModal: true, projectId: m.id}}, '', projectHash(m)
+      {{projectModal: true, projectId: m.id}}, '', projectPath(m)
     );
   }}
   const closeButton = modal.querySelector('.modal-back');
@@ -634,10 +674,11 @@ function closeModal(updateUrl = true) {{
       return;
     }}
     window.history.replaceState(
-      null, '', window.location.pathname + window.location.search
+      null, '', GALLERY_PATH + window.location.search
     );
   }}
   modal.hidden = true;
+  document.title = 'R+D Project Hub';
   document.body.style.overflow = '';
   const trigger = modalTrigger;
   modalTrigger = null;
@@ -646,15 +687,20 @@ function closeModal(updateUrl = true) {{
 }}
 function syncModalFromUrl() {{
   historyClosePending = false;
-  const project = projectFromHash();
+  const project = projectFromUrl();
   if (project) {{
+    // Upgrade existing shared hash links so copying the address shares a page
+    // whose preview can be read by chat apps without running JavaScript.
+    if (window.location.hash.startsWith('#project=')) {{
+      window.history.replaceState(window.history.state, '', projectPath(project));
+    }}
     if (modal.hidden || openProjectId !== project.id) {{
       openModal(project, null, false);
     }}
   }} else {{
     if (window.location.hash.startsWith('#project=')) {{
       window.history.replaceState(
-        null, '', window.location.pathname + window.location.search
+        null, '', GALLERY_PATH + window.location.search
       );
     }}
     if (!modal.hidden) closeModal(false);
@@ -737,24 +783,10 @@ def render_contributing(md_text: str) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Contributing a project · R+D Project Hub</title>
-<meta name="description" content="How to index or host a project in the R+D Project Hub.">
-<link rel="canonical" href="{CONTRIBUTING_URL}">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="R+D Project Hub">
-<meta property="og:title" content="Contributing a project · R+D Project Hub">
-<meta property="og:description" content="How to index or host a project in the R+D Project Hub.">
-<meta property="og:url" content="{CONTRIBUTING_URL}">
-<meta property="og:image" content="{SOCIAL_IMAGE_URL}">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="R+D Project Hub — open-source sex tech projects and tools">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Contributing a project · R+D Project Hub">
-<meta name="twitter:description" content="How to index or host a project in the R+D Project Hub.">
-<meta name="twitter:image" content="{SOCIAL_IMAGE_URL}">
-<meta name="twitter:image:alt" content="R+D Project Hub — open-source sex tech projects and tools">
+{social_metadata(
+    "Contributing a project · R+D Project Hub",
+    "How to index or host a project in the R+D Project Hub.", CONTRIBUTING_URL,
+)}
 {favicon}
 <style>
   :root {{ --bg:#0f1115; --card:#181b22; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#21c7c7; {logo_var} }}
@@ -884,6 +916,13 @@ def main() -> int:
     out_html = os.path.join(OUT_DIR, "index.html")
     with open(out_html, "w", encoding="utf-8") as fh:
         fh.write(render(mods))
+    for project in mods:
+        project_dir = os.path.join(
+            OUT_DIR, "projects", *project["id"].removeprefix("mods/").split("/")
+        )
+        os.makedirs(project_dir, exist_ok=True)
+        with open(os.path.join(project_dir, "index.html"), "w", encoding="utf-8") as fh:
+            fh.write(render(mods, project))
     with open(CONTRIBUTING_PATH, encoding="utf-8") as fh:
         contribution_guidance = fh.read()
     contributing_dir = os.path.join(OUT_DIR, "contributing")

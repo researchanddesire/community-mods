@@ -37,10 +37,13 @@ jobs:
         run: python .github/workflows/scripts/mod_lint.py
       - name: Run catalog regression tests
         run: python -m unittest discover -s .github/workflows/scripts -p 'test_*.py'
+      - name: Read Pages URL
+        id: pages
+        uses: actions/configure-pages@v5
       - name: Build project gallery
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
         run: python .github/workflows/scripts/build_gallery.py
-      - name: Add CNAME
-        run: echo 'mods.researchanddesire.com' > site/CNAME
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
