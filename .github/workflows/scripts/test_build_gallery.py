@@ -233,11 +233,11 @@ class ProjectHubBuildTests(unittest.TestCase):
             self.assertIn(phrase, self.contributing_html)
 
         self.assertIn(
-            '<link rel="canonical" href="https://mods.researchanddesire.com/contributing/">',
+            '<link rel="canonical" href="https://researchanddesire.github.io/community-mods/contributing/">',
             self.contributing_html,
         )
         self.assertIn(
-            '<meta property="og:url" content="https://mods.researchanddesire.com/contributing/">',
+            '<meta property="og:url" content="https://researchanddesire.github.io/community-mods/contributing/">',
             self.contributing_html,
         )
         self.assertIn(
@@ -327,6 +327,7 @@ const elements = {
 };
 const topbarStub = makeElement({offsetHeight: 100});
 const document = {
+  baseURI: 'https://researchanddesire.github.io/community-mods/',
   handlers: Object.create(null),
   activeElement: null,
   documentElement: {style: {setProperty() {}}},
@@ -343,8 +344,8 @@ const document = {
 const window = {
   handlers: Object.create(null),
   location: {
-    href: 'https://mods.researchanddesire.com/',
-    hash: '', pathname: '/', search: ''
+    href: 'https://researchanddesire.github.io/community-mods/',
+    hash: '', pathname: '/community-mods/', search: ''
   },
   history: {
     state: null, pushCalls: [], replaceCalls: [], backCalls: 0,
@@ -352,12 +353,17 @@ const window = {
     pushState(state, title, url) {
       this.state = state;
       this.pushCalls.push(url);
-      window.location.hash = String(url).startsWith('#') ? String(url) : '';
+      const parsed = new URL(String(url), window.location.href);
+      window.location.href = parsed.href;
+      window.location.pathname = parsed.pathname;
+      window.location.search = parsed.search;
+      window.location.hash = parsed.hash;
     },
     replaceState(state, title, url) {
       this.state = state;
       this.replaceCalls.push(url);
       const parsed = new URL(String(url), window.location.href);
+      window.location.href = parsed.href;
       window.location.pathname = parsed.pathname;
       window.location.search = parsed.search;
       window.location.hash = parsed.hash;
@@ -367,6 +373,7 @@ const window = {
       if (this.deferBack) return;
       this.state = null;
       window.location.hash = '';
+      window.location.pathname = '/community-mods/';
       emit(window, 'popstate', {});
     }
   },
@@ -439,7 +446,7 @@ const cardTarget = {closest(selector) {
 }};
 emit(elements.grid, 'click', {target: cardTarget});
 assert(elements.modal.hidden === false, 'card click opens modal');
-assert(window.location.hash === '#project=ossm/ossm-hardware', 'card updates URL');
+assert(window.location.pathname === '/community-mods/projects/ossm/ossm-hardware/', 'card updates URL');
 assert(window.history.state.projectModal === true, 'card marks modal history');
 assert(window.history.state.projectId === PROJECTS[0].id, 'card records history state');
 assert(document.activeElement === modalBackButton, 'opening focuses modal back button');
@@ -454,7 +461,7 @@ emit(elements['modal-content'], 'click', {
 });
 assert(anchorPrevented, 'README anchor navigation is intercepted');
 assert(modalAnchorTarget.scrollCalls === 1, 'README anchor scrolls inside modal');
-assert(window.location.hash === '#project=ossm/ossm-hardware', 'README anchor preserves project URL');
+assert(window.location.pathname === '/community-mods/projects/ossm/ossm-hardware/', 'README anchor preserves project URL');
 emit(document, 'keydown', {key: 'Escape'});
 assert(elements.modal.hidden === true, 'Escape closes modal');
 assert(window.location.hash === '', 'Escape restores gallery URL');
@@ -506,16 +513,28 @@ window.history.state = null;
 emit(window, 'hashchange', {});
 assert(elements.modal.hidden === false, 'shared project URL opens modal');
 assert(elements['modal-content'].innerHTML.includes('OSSM 2X'), 'shared URL selects project');
+assert(window.location.pathname === '/community-mods/projects/ossm/ossm-2x/', 'legacy share URL upgraded');
+assert(window.location.hash === '', 'upgraded URL no longer uses fragment');
+assert(safeUrl('mods/ossm/ossm-2x/img/ossm-2x-built.png') === 'https://researchanddesire.github.io/community-mods/mods/ossm/ossm-2x/img/ossm-2x-built.png', 'nested thumbnail resolves from site root');
 assert(document.activeElement === modalBackButton, 'shared URL focuses modal');
 emit(elements.modal, 'click', {target: {closest(selector) {
   return selector === '[data-close]' ? {} : null;
 }}});
 assert(elements.modal.hidden === true, 'direct-link modal closes');
-assert(window.location.hash === '', 'direct-link close removes project hash');
+assert(window.location.hash === '' && window.location.pathname === '/community-mods/', 'direct-link close restores gallery path');
 assert(window.history.replaceCalls.length > 0, 'direct-link close replaces URL');
 assert(document.activeElement === elements.q, 'direct-link close focuses search');
 elements.q.value = '';
 emit(elements.q, 'input', {});
+
+for (const project of PROJECTS) {
+  window.history.replaceState(null, '', '/community-mods/#project=' + project.id.replace(/^mods\//, ''));
+  syncModalFromUrl();
+  assert(elements.modal.hidden === false && openProjectId === project.id, 'every legacy project link opens');
+  assert(window.location.pathname === projectPath(project), 'every legacy link upgrades to its static page');
+  closeModal();
+  assert(elements.modal.hidden === true && window.location.pathname === '/community-mods/', 'every legacy modal closes');
+}
 
 window.location.hash = '#project=ossm/not-a-project';
 emit(window, 'hashchange', {});
@@ -530,7 +549,7 @@ assert(window.location.hash === '', 'malformed project hash is removed');
 window.location.hash = '#projects';
 emit(window, 'hashchange', {});
 assert(window.location.hash === '#projects', 'unrelated hash is preserved');
-assert(projectHash({id: 'mods/ossm/a b'}) === '#project=ossm/a%20b', 'hash segments encode');
+assert(projectPath({id: 'mods/ossm/a b'}) === '/community-mods/projects/ossm/a%20b/', 'path segments encode');
 
 window.location.hash = '#project=ossm/ossm-possum';
 window.history.state = {projectModal: true, projectId: 'mods/ossm/ossm-possum'};
@@ -553,8 +572,19 @@ assert(
 window.history.deferBack = false;
 window.history.state = null;
 window.location.hash = '';
+window.location.pathname = '/community-mods/';
 emit(window, 'popstate', {});
 assert(elements.modal.hidden === true, 'deferred history close completes');
+
+window.history.replaceState(null, '', '/community-mods/projects/ossm/ossm-folded-sheet-metal-stand/');
+syncModalFromUrl();
+assert(elements.modal.hidden === false, 'static project page opens modal without hash');
+assert(elements['modal-content'].innerHTML.includes('OSSM Folded Sheet Metal Stand'), 'static page selects stand');
+assert(document.title.includes('OSSM Folded Sheet Metal Stand'), 'project document title');
+emit(document, 'keydown', {key: 'Escape'});
+assert(elements.modal.hidden === true, 'static page closes modal');
+assert(window.location.pathname === '/community-mods/', 'static page close returns to gallery');
+assert(document.title === 'R+D Project Hub', 'closing restores title');
 """
         result = subprocess.run(
             ["node", "-"],
@@ -576,11 +606,11 @@ assert(elements.modal.hidden === true, 'deferred history close completes');
 
     def test_canonical_and_social_metadata_are_current(self) -> None:
         self.assertIn(
-            '<link rel="canonical" href="https://mods.researchanddesire.com/">',
+            '<link rel="canonical" href="https://researchanddesire.github.io/community-mods/">',
             self.html,
         )
         self.assertIn(
-            '<meta property="og:image" content="https://mods.researchanddesire.com/project-hub-og.png">',
+            '<meta property="og:image" content="https://researchanddesire.github.io/community-mods/project-hub-og.png">',
             self.html,
         )
         self.assertIn(
