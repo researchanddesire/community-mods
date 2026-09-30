@@ -1,6 +1,6 @@
-# PitClamp sheet-metal stand
+# OSSM Folded Sheet Metal Stand
 
-![PitClamp Mini stand CAD prototype](img/stand-preview.png)
+![OSSM Folded Sheet Metal Stand CAD prototype](img/stand-preview.png)
 
 A freestanding OSSM stand prototype built around a **single bent sheet-metal
 frame**, two rectangular-tube braces, a square-tube arm and four small
@@ -33,8 +33,8 @@ changing their dimension properties does not automatically rebuild every detail.
 
 | Path | Contents |
 |---|---|
-| [cad/ossm-pitclamp-stand.FCStd](cad/ossm-pitclamp-stand.FCStd) | Editable stand; no unrelated actuator assembly or alternate mount. |
-| [cad/ossm-pitclamp-stand.step](cad/ossm-pitclamp-stand.step) | Open-format assembly reference with named components. |
+| [cad/ossm-folded-sheet-metal-stand.FCStd](cad/ossm-folded-sheet-metal-stand.FCStd) | Editable stand; no unrelated actuator assembly or alternate mount. |
+| [cad/ossm-folded-sheet-metal-stand.step](cad/ossm-folded-sheet-metal-stand.step) | Open-format assembly reference with named components. |
 | [cad/frame-formed.step](cad/frame-formed.step) | Current formed sheet-metal frame. |
 | [cad/frame-flat-reference.step](cad/frame-flat-reference.step) | Current unfolded blank, for review; bend allowance is provisional. |
 | `cad/arm-30x30x2.step`, `cad/brace-*.step`, `cad/pivot-sleeve.step` | Individual metal components. |

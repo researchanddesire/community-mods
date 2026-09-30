@@ -32,9 +32,9 @@ class ProjectHubBuildTests(unittest.TestCase):
                 "KinkyMakers OSSM",
                 "OSSM 2X",
                 "OSSM ALT Edition",
+                "OSSM Folded Sheet Metal Stand",
                 "OSSM M5 Remote",
                 "OSSM Possum",
-                "PitClamp sheet-metal stand",
             ],
             [project["title"] for project in self.projects],
         )
