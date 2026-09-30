@@ -26,7 +26,7 @@ class ProjectHubBuildTests(unittest.TestCase):
             cls.contribution_guidance
         )
 
-    def test_catalog_contains_the_six_expected_projects_in_peer_order(self) -> None:
+    def test_catalog_contains_the_expected_projects_in_peer_order(self) -> None:
         self.assertEqual(
             [
                 "KinkyMakers OSSM",
@@ -34,6 +34,7 @@ class ProjectHubBuildTests(unittest.TestCase):
                 "OSSM ALT Edition",
                 "OSSM Folded Sheet Metal Stand",
                 "OSSM M5 Remote",
+                "OSSM Motion Synth",
                 "OSSM Possum",
             ],
             [project["title"] for project in self.projects],
@@ -41,6 +42,7 @@ class ProjectHubBuildTests(unittest.TestCase):
 
         sources = {project["source_url"] for project in self.projects}
         self.assertIn("https://github.com/KinkyMakers/OSSM-hardware", sources)
+        self.assertIn("https://github.com/lucy-chapar/ossm-motion-synth", sources)
         # Add the R+D fork only after it becomes an independently distinct variant.
         self.assertNotIn("https://github.com/researchanddesire/OSSM", sources)
         kinky_makers = self.projects[0]
