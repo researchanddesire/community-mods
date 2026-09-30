@@ -5,7 +5,7 @@ description: >-
   A patchable browser instrument for OSSM motion. Shape waves, connect virtual
   modulation cables, hear the signal, and control a motor directly through
   USB–RS485 with Web Serial.
-mod_version: 1
+mod_version: 2
 compatibility:
   - Browser runtime and simulated RS-485 rail tested; physical OSSM validation is pending.
 source_url: https://github.com/lucy-chapar/ossm-motion-synth
