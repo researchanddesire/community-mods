@@ -7,6 +7,8 @@ signal with the optional audio preview.
 **[Try it in your browser](https://lucychapar.com/ossm-motion-synth/)** ·
 **[Source and setup](https://github.com/lucy-chapar/ossm-motion-synth)**
 
+![OSSM Motion Synth showing its waveform and virtual modulation cables](https://raw.githubusercontent.com/lucy-chapar/ossm-motion-synth/main/docs/images/motion-synth.png)
+
 Use desktop Chrome or Edge for direct USB–RS485 control through Web Serial.
 Wave shaping and audio also work without an adapter. No Raspberry Pi, firmware
 flash or local app is required for the website edition; an optional Python
