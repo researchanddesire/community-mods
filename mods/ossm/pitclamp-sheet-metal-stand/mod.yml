@@ -1,0 +1,21 @@
+title: PitClamp sheet-metal stand
+author: Lucy Chapar
+product: ossm
+description: A freestanding stand prototype with a one-piece bent-steel frame, tube braces, wraparound feet, and a rigid PitClamp Mini mount.
+mod_version: 1
+compatibility:
+  - "PitClamp Mini Lower V1.1 STEP at OSSM-hardware b7f01bf (70 mm mounting pitch): nominal CAD fit checked; physical build untested"
+  - "FreeCAD 1.1.4 with Sheet Metal 0.8.23: native model recompute and save/reopen checked on Linux"
+license: CERN-OHL-S-2.0
+images:
+  - img/stand-preview.png
+tags:
+  - stand
+  - sheet-metal
+  - pitclamp
+  - prototype
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: "Supports the actuator and carries its reaction forces. Prototype only: loaded stiffness, tipping, angle-clamp retention, fatigue and fabrication have not been validated. The slotted angle clamp is represented by a guide pin and is not a completed locking mechanism. The bare-arm hinge has nominal 180-degree travel; complete actuator folding clearance is unverified. No load or tightening-torque rating is provided."
