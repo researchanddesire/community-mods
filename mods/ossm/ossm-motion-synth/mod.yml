@@ -1,0 +1,29 @@
+title: OSSM Motion Synth
+author: Lucy Chapar
+product: ossm
+description: >-
+  A patchable browser instrument for OSSM motion. Shape waves, connect virtual
+  modulation cables, hear the signal, and control a motor directly through
+  USB–RS485 with Web Serial.
+mod_version: 1
+compatibility:
+  - Browser runtime and simulated RS-485 rail tested; physical OSSM validation is pending.
+source_url: https://github.com/lucy-chapar/ossm-motion-synth
+license: MPL-2.0
+images:
+  - https://raw.githubusercontent.com/lucy-chapar/ossm-motion-synth/main/docs/images/motion-synth.png
+tags:
+  - controller
+  - software
+  - web-serial
+  - rs485
+  - synthesis
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: true
+  notes: >-
+    Controls motor motion and sensorless homing. With power off, disconnect the
+    4-pin signal cable to the OSSM motherboard; use 24 V power and USB–RS485
+    wired directly to the motor. Software Stop is separate from physical power
+    isolation. Physical motor validation is pending.
