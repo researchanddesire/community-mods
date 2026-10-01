@@ -30,11 +30,9 @@ Pitclamp latch. Keep these settings when adapting the project to your printer.
 - **2 × 18 mm steel washers** for the passive pivot.
 - All other Pitclamp parts are standard.
 
-## Compatibility and assembly
+## Compatibility
 
-The lower clamp is the **V1.1 Reinforced SideMount 3030** variant from the
-OSSM Stand pivot configuration. Use the source CAD to check the mating parts,
-fasteners, and clearances. Physical fit and load testing are pending.
+For OSSM stands using 3030 extrusion. All other Pitclamp parts are standard.
 
 ## Safety
 

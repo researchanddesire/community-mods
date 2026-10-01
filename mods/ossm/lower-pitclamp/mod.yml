@@ -7,7 +7,7 @@ description: >-
 mod_version: 1
 license: CERN-OHL-S-2.0
 compatibility:
-  - OSSM Stand pivot / Clamp Mini with Reinforced SideMount 3030 (CAD configuration; physical fit testing pending)
+  - OSSM stands using 3030 extrusion
 images:
   - img/lower-pitclamp.png
   - img/passive-pivot.png
