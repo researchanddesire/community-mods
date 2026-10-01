@@ -30,6 +30,7 @@ class ProjectHubBuildTests(unittest.TestCase):
         self.assertEqual(
             [
                 "KinkyMakers OSSM",
+                "Lower Pitclamp with Passive Pivot",
                 "OSSM 2X",
                 "OSSM ALT Edition",
                 "OSSM Folded Sheet Metal Stand",
@@ -53,7 +54,7 @@ class ProjectHubBuildTests(unittest.TestCase):
             "assets/readme/ossm-banner.webp",
             kinky_makers["thumb"],
         )
-        ossm_2x = self.projects[1]
+        ossm_2x = next(project for project in self.projects if project["id"] == "mods/ossm/ossm-2x")
         self.assertEqual("Research and Desire", ossm_2x["author"])
         self.assertEqual("CERN-OHL-S-2.0", ossm_2x["license"])
         self.assertEqual("", ossm_2x["source_url"])
