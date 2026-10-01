@@ -3,8 +3,8 @@
 ![Reinforced lower Pitclamp with 3030 side mount](img/lower-pitclamp.png)
 
 A reinforced lower Pitclamp for an OSSM stand, with a 3030 side mount,
-matching clamp handle, and passive pivot. Maintained by
-[Lucy Chapar](https://github.com/lucy-chapar).
+matching clamp handle, and passive pivot. Designed by **Alex - R+D**.
+Contributed by [Lucy Chapar](https://github.com/lucy-chapar).
 
 ![Passive pivot](img/passive-pivot.png)
 
