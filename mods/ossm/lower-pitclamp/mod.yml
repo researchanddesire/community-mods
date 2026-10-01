@@ -1,0 +1,25 @@
+title: Lower Pitclamp with Passive Pivot
+author: Alex - R+D
+product: ossm
+description: >-
+  A reinforced lower Pitclamp with a 3030 side mount and passive pivot
+  for an OSSM stand. All other Pitclamp parts are standard.
+mod_version: 1
+license: CERN-OHL-S-2.0
+compatibility:
+  - OSSM stands using 3030 extrusion
+images:
+  - img/lower-pitclamp.png
+  - img/passive-pivot.png
+tags:
+  - pitclamp
+  - stand
+  - pivot
+  - "3030"
+  - printed-parts
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: >-
+    Changes the stand mount and pivot. Check that both are secure before use.
