@@ -432,6 +432,7 @@ def render(mods: list[dict], project: dict | None = None) -> str:
   .modal-hero .project-tags {{ margin-top:.7rem; }}
   .readme {{ margin-top:1.25rem; }}
   .readme img {{ max-width:100%; height:auto; border-radius:8px; }}
+  .readme img[src*="mods/ossm/lower-pitclamp/"] {{ display:block; width:auto; max-height:min(360px,45vh); margin:1rem auto; object-fit:contain; }}
   .readme a {{ color:var(--accent); }}
   .readme pre {{ background:var(--bg); border:1px solid #2a2f3a; border-radius:8px; padding:.8rem; overflow:auto; }}
   .readme code {{ background:var(--bg); border-radius:4px; padding:.1rem .35rem; font-size:.9em; }}
