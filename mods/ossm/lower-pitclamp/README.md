@@ -4,27 +4,26 @@
 
 A reinforced lower Pitclamp for an OSSM stand, with a 3030 side mount
 and passive pivot. All other Pitclamp parts are standard. Designed by **Alex - R+D**.
-Contributed by [Lucy Chapar](https://github.com/lucy-chapar).
 
 ![Passive pivot](img/passive-pivot.png)
 
 ## Files
 
 - [Lower Pitclamp V1.1 STEP](cad/lower-pitclamp-v1.1.step)
-- [Lower Pitclamp V1.1 STL](print/lower-pitclamp-v1.1.stl)
 - [Passive pivot STEP](cad/passive-pivot.step)
-- [Passive pivot STL](print/passive-pivot.stl)
+- [Bambu Studio print project](print/lower-pitclamp-stand.3mf)
 
-The files were exported from the **Stand pivot** folder of the OSSM Onshape
+The STEP files were exported from the **Stand pivot** folder of the OSSM Onshape
 model on October 1, 2026. The source tabs are:
 
 - [OSSM - Base - Clamp Mini - Lower V1.1 - Reinforced SideMount 3030](https://cad.onshape.com/documents/d520ea9a8cadb4ae8681f59b/w/00b211a6fa3b76c59ef28f4e/e/facd97e414bd438a27104ec4)
 - [Pitclamp Passive Pivot](https://cad.onshape.com/documents/d520ea9a8cadb4ae8681f59b/w/00b211a6fa3b76c59ef28f4e/e/e885dcfa6b4a80b87f5c0b15)
 
-STLs are binary exports in **millimetres**, using Onshape's **Fine** resolution.
-The passive pivot export includes the visible bodies from its Part Studio.
-These are geometry files; print material, print orientation, and a validated
-print profile are not specified here.
+## Printing
+
+Use the supplied **3MF** to preserve the print settings, including **8 shells
+(wall loops)** and solid-infill reinforcement near the end of the Lower
+Pitclamp latch. Keep these settings when adapting the project to your printer.
 
 ## Required hardware
 
@@ -39,11 +38,7 @@ fasteners, and clearances. Physical fit and load testing are pending.
 
 ## Safety
 
-This mod changes the load-bearing mount and pivot, which can change how
-actuator force is directed and transmitted. Verify secure clamp engagement,
-fastener retention, pivot clearance, and stand stability before powered use.
-Test unloaded with conservative motion settings, keep clear of pinch points,
-and stop if a printed part cracks or the mounting loosens.
+Check that the clamp and pivot are secure before use.
 
 ## License
 
