@@ -23,8 +23,13 @@ model on October 1, 2026. The source tabs are:
 
 STLs are binary exports in **millimetres**, using Onshape's **Fine** resolution.
 The passive pivot export includes the visible bodies from its Part Studio.
-These are geometry files; material, print orientation, hardware quantities,
-and a validated print profile are not specified here.
+These are geometry files; print material, print orientation, and a validated
+print profile are not specified here.
+
+## Required hardware
+
+- **2 × 18 mm steel washers** for the passive pivot.
+- All other Pitclamp parts are standard.
 
 ## Compatibility and assembly
 
