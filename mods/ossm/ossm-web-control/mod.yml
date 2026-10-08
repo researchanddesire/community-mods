@@ -1,0 +1,30 @@
+title: OSSM Web Control
+author: ReadieFur
+product: ossm
+description: >-
+  Control your OSSM over Bluetooth from a desktop or mobile browser, with
+  speed and range adjustments, custom patterns, and an installable offline app.
+mod_version: 1
+compatibility:
+  - OSSM running firmware v1.0.50 or newer
+  - Desktop Chromium browsers (Chrome, Edge, Brave) with Bluetooth support
+  - Android with Google Chrome
+  - iPhone with Bluefy Browser
+source_url: https://github.com/ReadieFur/OSSM-Web-Control
+license: GPL-3.0-only
+images:
+  - https://raw.githubusercontent.com/ReadieFur/OSSM-Web-Control/main/docs/iPhone_Landscape.gif
+tags:
+  - software
+  - controller
+  - bluetooth
+  - web-app
+  - patterns
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: >-
+    Controls OSSM motion over Bluetooth. Use BLE controls at your own risk;
+    verify stop behavior and motion limits before use, and keep a physical
+    way to stop the machine within reach. No wiring or charging changes.
