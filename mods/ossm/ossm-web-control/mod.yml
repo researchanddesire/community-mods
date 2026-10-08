@@ -2,10 +2,8 @@ title: OSSM Web Control
 author: ReadieFur
 product: ossm
 description: >-
-  Control your OSSM over Bluetooth from a desktop or mobile browser, with
-  stroke-range controls, adjustable patterns and sensation, portrait/landscape
-  layouts, and an installable offline app.
-mod_version: 2
+  A web app for controlling your OSSM over Bluetooth from mobile & desktop devices!
+mod_version: 3
 compatibility:
   - OSSM running firmware v1.0.50 or newer
   - Desktop Chromium browsers (Chrome, Edge, Brave) with Bluetooth support
