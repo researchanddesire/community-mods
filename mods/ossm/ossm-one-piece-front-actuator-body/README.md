@@ -4,7 +4,7 @@
 
 A curved, one-piece OSSM front housing that combines the cover and middle body. It removes one printed part, two M3 bolts, and their side-loaded nuts. Flush OSSM.TECH and R+D inlays give you four color groups, including separate R+D lettering and border. The stepped counterbore bridges are designed for printing the branded face down.
 
-[3MF](https://media.githubusercontent.com/media/researchanddesire/community-mods/main/mods/ossm/ossm-one-piece-front-actuator-body/print/ossm-one-piece-front-actuator-body.3mf) · [FreeCAD](https://media.githubusercontent.com/media/researchanddesire/community-mods/main/mods/ossm/ossm-one-piece-front-actuator-body/cad/ossm-one-piece-front-actuator-body.FCStd) · [STEP](https://media.githubusercontent.com/media/researchanddesire/community-mods/main/mods/ossm/ossm-one-piece-front-actuator-body/cad/ossm-one-piece-front-actuator-body.step)
+[3MF](https://media.githubusercontent.com/media/researchanddesire/community-mods/eebca8498d0ced21e86e0920814a83e84cd6a492/mods/ossm/ossm-one-piece-front-actuator-body/print/ossm-one-piece-front-actuator-body.3mf) · [FreeCAD](https://media.githubusercontent.com/media/researchanddesire/community-mods/eebca8498d0ced21e86e0920814a83e84cd6a492/mods/ossm/ossm-one-piece-front-actuator-body/cad/ossm-one-piece-front-actuator-body.FCStd) · [STEP](https://media.githubusercontent.com/media/researchanddesire/community-mods/eebca8498d0ced21e86e0920814a83e84cd6a492/mods/ossm/ossm-one-piece-front-actuator-body/cad/ossm-one-piece-front-actuator-body.step)
 
 - Import the 3MF as one assembled object and keep all four parts aligned.
 - Assign colors to the housing, branding, R+D lettering, and border.
