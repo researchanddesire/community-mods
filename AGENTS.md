@@ -67,13 +67,58 @@ hardware, accessories, tools, and mods.
 Required keys are `title`, `author`, `product` (ecosystem enum),
 `description`, `mod_version` (integer at least 1), `compatibility` (non-empty
 list), `license`, `images` (non-empty list of paths or URLs), and `safety` (the
-three boolean flags plus non-blank `notes`). `tags` is optional and free-form.
+three boolean flags plus non-blank `notes`). `tags` is optional and free-form;
+keep the selection brief and specific, following the listing style guide below.
 `author` is the public name of the person, team, or community responsible for
 the project; it is not tied to a directory name. An indexed project also sets
 `source_url`; a hosted project omits it.
 
 Indexed and hosted submissions are first-class, equal contribution paths. Do
 not imply that indexed projects are warnings or lesser entries.
+
+## Listing style guide
+
+Write concise, practical listings. Lead with what the project does and why
+someone would want it. Use plain language, short sentences, and concrete
+benefits. Preserve the contributor's title and factual claims; use the upstream
+README as the starting point for indexed projects.
+
+Aim for 100–150 words, excluding download links. Use this structure when it fits
+the project:
+
+- One compact preview image, about 360 px wide, preserving its proportions and
+  fitting smaller screens. An HTML `img` with `width="360"` works in the gallery.
+- One short description.
+- Download or upstream source links on one line.
+- A few essential printing, installation, or usage bullets.
+- Brief credit and license information where needed.
+
+Include information needed to download, customize, print, install, or use the
+project. Omit CAD reconstruction history, design-process explanations, and
+detailed measurements unless they affect use. Avoid standalone validation or
+status sections, generic disclaimers, repeated caveats, and promotional language.
+
+Link directly to useful files, such as 3MF, FreeCAD, STEP, or software releases.
+Link supporting diagrams rather than displaying multiple large images. Do not
+add validation reports, color guides, or other documentation files unless the
+contributor requests them or they are needed to use the project.
+
+### Tags
+
+Choose a small set of short, specific tags, usually two to four. Use terms that
+identify a distinct feature, use case, fabrication method, or tool, such as
+`multicolor`, `freecad`, or `rs485`. Avoid generic labels such as `project` or
+`mod`, redundant synonyms, and repeating the ecosystem already stored in
+`product`. Do not pad the list to reach a count. Respect a contributor's explicit
+tag selection.
+
+Keep required metadata complete and factual. Safety notes should briefly
+describe the actual mechanical or electrical effects. Never invent
+compatibility, testing, or performance claims. The safety disclosure and human
+review requirements above still apply.
+
+Return ready-to-use listing copy and metadata without an explanation of writing
+choices unless requested.
 
 ## Validation
 
