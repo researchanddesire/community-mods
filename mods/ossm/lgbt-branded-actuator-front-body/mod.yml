@@ -23,6 +23,3 @@ safety:
   notes: >-
     Replaces the actuator housing and changes printed load-bearing geometry
     and fastening features. Motor control and drive ratio are unchanged.
-    CAD-validated prototype; the revised flush inlays and 0.20 mm bridge
-    steps await a new print. Fit, strength, belt clearance, and assembled
-    operation have not been tested.
