@@ -1,0 +1,358 @@
+{
+  "parts": [
+    {
+      "name": "HousingBlack",
+      "label": "01 Housing \u2014 black",
+      "color": "#202329",
+      "filament": 4,
+      "volume_mm3": 122864.21060971689,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 3780,
+        "triangles": 7572,
+        "non_manifold_edges": 0,
+        "stitched_seams": [
+          {
+            "area_mm2": 0.0006066207561161718,
+            "max_vertex_move_mm": 0.0009345896892048195,
+            "z": 25.0
+          },
+          {
+            "area_mm2": 0.002936124988082156,
+            "max_vertex_move_mm": 0.005000924017417297,
+            "z": 25.0
+          }
+        ],
+        "volume_mm3": 122870.3515625,
+        "brep_volume_difference_mm3": 6.14095278311288
+      }
+    },
+    {
+      "name": "FlagBand1",
+      "label": "02 Flag band 1 \u2014 blue",
+      "color": "#5BCEFA",
+      "filament": 1,
+      "volume_mm3": 531.9748678104609,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 194,
+        "triangles": 388,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 531.9879760742188,
+        "brep_volume_difference_mm3": 0.013108263757885652
+      }
+    },
+    {
+      "name": "FlagBand2",
+      "label": "03 Flag band 2 \u2014 pink",
+      "color": "#F5A9B8",
+      "filament": 2,
+      "volume_mm3": 1605.3141665606972,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 236,
+        "triangles": 472,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 1605.1761474609375,
+        "brep_volume_difference_mm3": -0.13801909975973103
+      }
+    },
+    {
+      "name": "FlagBand3",
+      "label": "04 Flag band 3 \u2014 white",
+      "color": "#FFFFFF",
+      "filament": 3,
+      "volume_mm3": 1478.163049135387,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 3443,
+        "triangles": 6882,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 1478.2830810546875,
+        "brep_volume_difference_mm3": 0.12003191930057255
+      }
+    },
+    {
+      "name": "FlagBand4",
+      "label": "05 Flag band 4 \u2014 pink",
+      "color": "#F5A9B8",
+      "filament": 2,
+      "volume_mm3": 1308.7768749428258,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 458,
+        "triangles": 916,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 1308.7530517578125,
+        "brep_volume_difference_mm3": -0.02382318501327063
+      }
+    },
+    {
+      "name": "FlagBand5",
+      "label": "06 Flag band 5 \u2014 blue",
+      "color": "#5BCEFA",
+      "filament": 1,
+      "volume_mm3": 709.2857271336115,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 146,
+        "triangles": 288,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 709.1414184570312,
+        "brep_volume_difference_mm3": -0.14430867658029456
+      }
+    },
+    {
+      "name": "OSSMTechLettering",
+      "label": "07 OSSM.TECH engraving \u2014 black",
+      "color": "#202329",
+      "filament": 4,
+      "volume_mm3": 308.07098109551566,
+      "solids": 9,
+      "mesh": {
+        "closed": true,
+        "vertices": 2155,
+        "triangles": 4278,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 307.9284973144531,
+        "brep_volume_difference_mm3": -0.14248378106253767
+      }
+    },
+    {
+      "name": "RDNeg1Band4",
+      "label": "08 R+D Upper background / pink band",
+      "color": "#FFFFFF",
+      "filament": 3,
+      "volume_mm3": 71.89484962223072,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 180,
+        "triangles": 356,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 71.89458465576172,
+        "brep_volume_difference_mm3": -0.0002649664690039799
+      }
+    },
+    {
+      "name": "RDNeg1Band5",
+      "label": "09 R+D Upper background / blue band",
+      "color": "#FFFFFF",
+      "filament": 3,
+      "volume_mm3": 1.870384638971006,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 42,
+        "triangles": 80,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 1.8703079223632812,
+        "brep_volume_difference_mm3": -7.671660772468059e-05
+      }
+    },
+    {
+      "name": "RDNeg2Band4",
+      "label": "10 R+D R enclosed space / pink band",
+      "color": "#FFFFFF",
+      "filament": 3,
+      "volume_mm3": 11.122017406368828,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 38,
+        "triangles": 72,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 11.12200927734375,
+        "brep_volume_difference_mm3": -8.129025077963092e-06
+      }
+    },
+    {
+      "name": "RDNeg3Band4",
+      "label": "11 R+D D enclosed space / pink band",
+      "color": "#FFFFFF",
+      "filament": 3,
+      "volume_mm3": 12.882457610940419,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 26,
+        "triangles": 48,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 12.882404327392578,
+        "brep_volume_difference_mm3": -5.328354784062128e-05
+      }
+    },
+    {
+      "name": "RDNeg3Band5",
+      "label": "12 R+D D enclosed space / blue band",
+      "color": "#FFFFFF",
+      "filament": 3,
+      "volume_mm3": 11.015564267602018,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 24,
+        "triangles": 44,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 11.01549243927002,
+        "brep_volume_difference_mm3": -7.182833199870231e-05
+      }
+    },
+    {
+      "name": "RDNeg4Band4",
+      "label": "13 R+D Lower background / pink band",
+      "color": "#FFFFFF",
+      "filament": 3,
+      "volume_mm3": 65.62072697006242,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 230,
+        "triangles": 460,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 65.62174224853516,
+        "brep_volume_difference_mm3": 0.0010152784727353037
+      }
+    },
+    {
+      "name": "RDNeg4Band5",
+      "label": "14 R+D Lower background / blue band",
+      "color": "#FFFFFF",
+      "filament": 3,
+      "volume_mm3": 18.944832383458127,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 70,
+        "triangles": 136,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 18.94634437561035,
+        "brep_volume_difference_mm3": 0.0015119921522241953
+      }
+    },
+    {
+      "name": "RDPos1Band4",
+      "label": "15 R+D lettermark / pink band",
+      "color": "#202329",
+      "filament": 4,
+      "volume_mm3": 57.90253497556656,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 194,
+        "triangles": 388,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 57.90175247192383,
+        "brep_volume_difference_mm3": -0.0007825036427320242
+      }
+    },
+    {
+      "name": "RDPos1Band5",
+      "label": "16 R+D lettermark / blue band",
+      "color": "#202329",
+      "filament": 4,
+      "volume_mm3": 17.847652018962506,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 72,
+        "triangles": 140,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 17.847801208496094,
+        "brep_volume_difference_mm3": 0.00014918953358744602
+      }
+    },
+    {
+      "name": "RDPos2Band4",
+      "label": "17 R+D Plus sign / pink band",
+      "color": "#202329",
+      "filament": 4,
+      "volume_mm3": 5.118363402502929,
+      "solids": 1,
+      "mesh": {
+        "closed": true,
+        "vertices": 102,
+        "triangles": 200,
+        "non_manifold_edges": 0,
+        "stitched_seams": [],
+        "volume_mm3": 5.118885040283203,
+        "brep_volume_difference_mm3": 0.0005216377802739203
+      }
+    }
+  ],
+  "source_volume_mm3": 129080.0156596922,
+  "print_parts": 17,
+  "stripe_angle_deg": 35,
+  "top_color_depth_mm": 0.8,
+  "engraving_depth_mm": 0.1,
+  "layout": {
+    "scale": 0.7269532139559781,
+    "along_band_shift_mm": 7.0,
+    "minimum_bore_clearance_mm": 1.0,
+    "stripe_angle_deg": 35,
+    "white_band_normal_bounds_mm": [
+      -25.752711252061147,
+      -2.321053148187353
+    ],
+    "text_normal_bounds_mm": [
+      -24.25271125206115,
+      -3.821053148187352
+    ],
+    "minimum_margin_mm": 1.4999999999999964,
+    "full_text_profile_area_mm2": 513.451635159192,
+    "actual_engraved_text_area_mm2": 513.4516351591923,
+    "no_hole_or_edge_clipping": true,
+    "source_valid": true,
+    "source_solids": 1,
+    "source_volume_mm3": 129080.0156596922,
+    "feature_errors": []
+  },
+  "outline_method": "Convex perimeter of exact segmented R+D source engraving vertices; includes letter openings at the tile perimeter.",
+  "union": {
+    "valid": true,
+    "solids": 1,
+    "volume_mm3": 129080.01565969206,
+    "source_volume_difference_mm3": -1.4551915228366852e-10,
+    "part_sum_difference_mm3": -1.6007106751203537e-10
+  },
+  "feature_errors": [],
+  "validation_complete": true,
+  "saved_files": {
+    "native_parts": 17,
+    "native_parts_valid": true,
+    "native_volume_mm3": 129080.01565969204,
+    "native_tree_errors": [],
+    "step_solids": 25,
+    "step_valid": true,
+    "step_volume_mm3": 129080.015659695,
+    "changes_confined_to_engraving": true
+  },
+  "bambu_import": {
+    "assembled_objects": 1,
+    "selectable_parts": 17,
+    "manifold": true,
+    "mesh_repairs": 0,
+    "filament_assignment": "Manual, by component order in the color guide"
+  }
+}

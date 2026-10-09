@@ -1,0 +1,30 @@
+title: LGBT Branded Actuator Front Body
+author: Lucy Chapar
+product: ossm
+description: >-
+  A one-piece OSSM actuator front body with trans flag stripes, OSSM.TECH
+  and R+D engraving, and 17 independently colorable material regions.
+mod_version: 1
+license: CERN-OHL-S-2.0
+compatibility:
+  - OSSM Body - Middle and RD branded Body - Cover reference geometry (CAD checked; physical fit untested)
+images:
+  - img/front-body-preview.png
+tags:
+  - actuator
+  - housing
+  - pride
+  - lgbt
+  - trans-flag
+  - multicolor
+  - freecad
+  - prototype
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: >-
+    Replaces the actuator housing and changes printed load-bearing geometry
+    and fastening features. Motor control and drive ratio are unchanged.
+    CAD-validated prototype; printed fit, strength, belt clearance, and
+    assembled operation have not been tested.
