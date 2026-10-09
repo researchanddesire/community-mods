@@ -13,14 +13,9 @@ images:
   - img/front-body-preview.png
   - img/bridge-detail.png
 tags:
-  - actuator
-  - housing
-  - pride
   - lgbt
-  - trans-flag
   - multicolor
   - freecad
-  - prototype
 safety:
   affects_restraint_release: false
   affects_applied_force: true
