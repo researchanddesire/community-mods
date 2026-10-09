@@ -8,7 +8,7 @@ A one-piece cover and middle body with trans flag stripes and flush **OSSM.TECH*
 
 ## Downloads
 
-[3MF](print/lgbt-branded-actuator-front-body.3mf) · [FreeCAD](cad/lgbt-branded-actuator-front-body.FCStd) · [STEP](cad/lgbt-branded-actuator-front-body.step) · [Color guide](docs/color-guide.txt)
+[3MF](print/lgbt-branded-actuator-front-body.3mf) · [FreeCAD](cad/lgbt-branded-actuator-front-body.FCStd) · [STEP](cad/lgbt-branded-actuator-front-body.step)
 
 On GitHub, use **Download raw file**.
 
@@ -16,9 +16,9 @@ On GitHub, use **Download raw file**.
 
 - Import as **one object with 17 parts** and keep them together.
 - Print **branded face down at fixed 0.20 mm layers**; avoid adaptive layers at the counterbore bridges.
-- Assign blue, pink, white, and your preferred logo color. Bambu may number the parts and require manual color assignment; see the color guide.
+- Assign blue, pink, white, and your preferred logo color. Bambu may number the parts and require manual color assignment.
 
-No tuned printer profile is included. [Bridge detail](img/bridge-detail.png) · [CAD checks](docs/cad-validation.json)
+No tuned printer profile is included. [Bridge detail](img/bridge-detail.png)
 
 ## Status
 
