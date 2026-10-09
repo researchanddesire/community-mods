@@ -30,6 +30,7 @@ class ProjectHubBuildTests(unittest.TestCase):
         self.assertEqual(
             [
                 "KinkyMakers OSSM",
+                "LGBT Branded Actuator Front Body",
                 "Lower Pitclamp with Passive Pivot",
                 "OSSM 2X",
                 "OSSM ALT Edition",
