@@ -1,18 +1,16 @@
-OSSM — ALIGNED BRANDING / COLOR GUIDE
+LGBT BRANDED ACTUATOR FRONT BODY — FLUSH INLAYS
 
-Open lgbt-branded-actuator-front-body.3mf as one assembled object, keeping its parts
-together at their original positions. Bambu Studio imports 17 selectable
-parts; its generic 3MF importer may use numbered names and requires manual
-filament assignments. The following list gives the exact component order.
+Import the 3MF as one assembled object with 17 parts. It is oriented branded
+face down. Assign AMS filaments by the part order below; keep all parts in place.
 
-Part | Color region | Initial color
-01 | Housing — black | #202329
+Part | Color region | Starting color
+01 | Housing — black / refined bridge transitions | #202329
 02 | Flag band 1 — blue | #5BCEFA
 03 | Flag band 2 — pink | #F5A9B8
 04 | Flag band 3 — white | #FFFFFF
 05 | Flag band 4 — pink | #F5A9B8
 06 | Flag band 5 — blue | #5BCEFA
-07 | OSSM.TECH engraving — black | #202329
+07 | OSSM.TECH inlay — black | #202329
 08 | R+D Upper background / pink band | #FFFFFF
 09 | R+D Upper background / blue band | #FFFFFF
 10 | R+D R enclosed space / pink band | #FFFFFF
@@ -24,25 +22,23 @@ Part | Color region | Initial color
 16 | R+D lettermark / blue band | #202329
 17 | R+D Plus sign / pink band | #202329
 
-OSSM.TECH is uniformly scaled to 72.695% of the earlier size and shifted
-7 mm along the stripe. The entire text is centered within the white band
-with 1.5 mm margin on both edges and at least 1 mm motor-bore clearance.
-The supplied R+D artwork is unchanged; this variant uses a white background
-and black lettermark/plus to follow the left-hand visual preference.
+All flag colors, OSSM.TECH lettering, R+D lettermark, plus sign, background,
+and enclosed spaces meet the same plane. There is no recessed or raised branding.
+OSSM.TECH stays within the white stripe; R+D regions remain independently colorable.
 
-Customize any part independently. The R and D form one connected lettermark.
-The plus sign, enclosed R and D spaces, and two recessed background areas
-are separate. Regions crossing the pink/blue boundary have a separate part
-on each side. Set those parts to the adjacent flag colors to make the logo
-blend into the flag, or choose contrasting colors to invert the appearance.
+Print branded face down with fixed 0.20 mm layers through the counterbore
+transitions. Each of the two M5 motor seats and two M3 cover-extension seats
+uses one layer of slot opening, then one square layer, then the round shaft bore.
+Do not use adaptive layer heights at those transitions. The shaft path stays
+open; no sacrificial membrane needs to be punched out. Bearing seats have the
+shallow bridge relief while nominal bolt centers and head clearance stay fixed.
 
-The FCStd has named output parts grouped under ColorParts, with native
-profiles and construction operations grouped separately. The source Refine
-feature, mechanical housing geometry, and 0.1 mm engraving depth are preserved.
-The STEP contains the same named material regions as separate CAD objects.
+The FreeCAD file retains editable profiles, original Refine, and refined final
+housing cuts. PrintParameters.LayerHeight controls the bridge steps. The generic
+3MF contains geometry and material regions, not a tuned printer profile. Bambu
+Studio may number parts and require manual filament color assignments.
 
-Verified: valid saved CAD and STEP, no native tree errors, and one assembled
-object with 17 selectable parts in Bambu Studio. Every mesh is closed, with
-no slicer repairs. The CAD regions unite into the original single solid with
-volume equal to the revised engraved source. Changes to the original housing
-are confined to the engraving surface layer. Printing has not been tested.
+Saved CAD and STEP reopened successfully. All 17 parts are valid, all graphics
+reach the same face plane, and twelve CAD bridge cross-sections were checked.
+Bambu Studio imports one object with 17 parts and no mesh repairs. This revision
+still needs a new physical print and assembly check.

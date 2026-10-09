@@ -3,13 +3,15 @@ author: Lucy Chapar
 product: ossm
 description: >-
   A one-piece OSSM actuator front body with trans flag stripes, OSSM.TECH
-  and R+D engraving, and 17 independently colorable material regions.
+  and R+D flush inlays, 17 independently colorable material regions, and
+  stepped counterbore bridges for face-down printing at 0.20 mm layers.
 mod_version: 1
 license: CERN-OHL-S-2.0
 compatibility:
   - OSSM Body - Middle and RD branded Body - Cover reference geometry (CAD checked; physical fit untested)
 images:
   - img/front-body-preview.png
+  - img/bridge-detail.png
 tags:
   - actuator
   - housing
@@ -26,5 +28,6 @@ safety:
   notes: >-
     Replaces the actuator housing and changes printed load-bearing geometry
     and fastening features. Motor control and drive ratio are unchanged.
-    CAD-validated prototype; printed fit, strength, belt clearance, and
-    assembled operation have not been tested.
+    CAD-validated prototype; the revised flush inlays and 0.20 mm bridge
+    steps await a new print. Fit, strength, belt clearance, and assembled
+    operation have not been tested.

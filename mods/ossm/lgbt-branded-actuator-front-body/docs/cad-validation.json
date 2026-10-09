@@ -1,16 +1,29 @@
 {
+  "print_parts": 17,
+  "material_colors": 4,
+  "stripe_angle_deg": 35,
+  "top_color_depth_mm": 0.8,
+  "engraving_depth_mm": 0,
+  "flush_fill_height_mm": 0.1,
+  "bridge_layer_height_mm": 0.2,
+  "bridge_steps_mm": [
+    0.2,
+    0.2
+  ],
+  "bridge_seats": 4,
+  "print_orientation": "branded face down",
   "parts": [
     {
-      "name": "HousingBlack",
-      "label": "01 Housing \u2014 black",
+      "name": "BridgedHousing",
+      "label": "01 Housing \u2014 black / refined bridge transitions",
       "color": "#202329",
       "filament": 4,
-      "volume_mm3": 122864.21060971689,
+      "volume_mm3": 122848.11972825935,
       "solids": 1,
       "mesh": {
         "closed": true,
-        "vertices": 3780,
-        "triangles": 7572,
+        "vertices": 3840,
+        "triangles": 7692,
         "non_manifold_edges": 0,
         "stitched_seams": [
           {
@@ -24,9 +37,10 @@
             "z": 25.0
           }
         ],
-        "volume_mm3": 122870.3515625,
-        "brep_volume_difference_mm3": 6.14095278311288
-      }
+        "volume_mm3": 122854.5078125,
+        "brep_volume_difference_mm3": 6.388084240650642
+      },
+      "top_z_mm": 37.0
     },
     {
       "name": "FlagBand1",
@@ -43,7 +57,8 @@
         "stitched_seams": [],
         "volume_mm3": 531.9879760742188,
         "brep_volume_difference_mm3": 0.013108263757885652
-      }
+      },
+      "top_z_mm": 37.800000000000004
     },
     {
       "name": "FlagBand2",
@@ -60,14 +75,15 @@
         "stitched_seams": [],
         "volume_mm3": 1605.1761474609375,
         "brep_volume_difference_mm3": -0.13801909975973103
-      }
+      },
+      "top_z_mm": 37.800000000000004
     },
     {
       "name": "FlagBand3",
       "label": "04 Flag band 3 \u2014 white",
       "color": "#FFFFFF",
       "filament": 3,
-      "volume_mm3": 1478.163049135387,
+      "volume_mm3": 1478.1630491353883,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -75,9 +91,10 @@
         "triangles": 6882,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 1478.2830810546875,
-        "brep_volume_difference_mm3": 0.12003191930057255
-      }
+        "volume_mm3": 1478.2821044921875,
+        "brep_volume_difference_mm3": 0.11905535679920831
+      },
+      "top_z_mm": 37.80000000000001
     },
     {
       "name": "FlagBand4",
@@ -92,16 +109,17 @@
         "triangles": 916,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 1308.7530517578125,
-        "brep_volume_difference_mm3": -0.02382318501327063
-      }
+        "volume_mm3": 1308.75048828125,
+        "brep_volume_difference_mm3": -0.02638666157577063
+      },
+      "top_z_mm": 37.80000000000001
     },
     {
       "name": "FlagBand5",
       "label": "06 Flag band 5 \u2014 blue",
       "color": "#5BCEFA",
       "filament": 1,
-      "volume_mm3": 709.2857271336115,
+      "volume_mm3": 709.2857271336114,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -109,33 +127,35 @@
         "triangles": 288,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 709.1414184570312,
-        "brep_volume_difference_mm3": -0.14430867658029456
-      }
+        "volume_mm3": 709.142578125,
+        "brep_volume_difference_mm3": -0.14314900861143087
+      },
+      "top_z_mm": 37.800000000000004
     },
     {
       "name": "OSSMTechLettering",
-      "label": "07 OSSM.TECH engraving \u2014 black",
+      "label": "07 OSSM.TECH inlay \u2014 black",
       "color": "#202329",
       "filament": 4,
-      "volume_mm3": 308.07098109551566,
+      "volume_mm3": 359.41614461143485,
       "solids": 9,
       "mesh": {
         "closed": true,
-        "vertices": 2155,
-        "triangles": 4278,
+        "vertices": 2176,
+        "triangles": 4320,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 307.9284973144531,
-        "brep_volume_difference_mm3": -0.14248378106253767
-      }
+        "volume_mm3": 359.2414245605469,
+        "brep_volume_difference_mm3": -0.17472005088797005
+      },
+      "top_z_mm": 37.800000000000004
     },
     {
       "name": "RDNeg1Band4",
       "label": "08 R+D Upper background / pink band",
       "color": "#FFFFFF",
       "filament": 3,
-      "volume_mm3": 71.89484962223072,
+      "volume_mm3": 82.16554242540697,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -143,16 +163,17 @@
         "triangles": 356,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 71.89458465576172,
-        "brep_volume_difference_mm3": -0.0002649664690039799
-      }
+        "volume_mm3": 82.16541290283203,
+        "brep_volume_difference_mm3": -0.00012952257493736852
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDNeg1Band5",
       "label": "09 R+D Upper background / blue band",
       "color": "#FFFFFF",
       "filament": 3,
-      "volume_mm3": 1.870384638971006,
+      "volume_mm3": 2.1375824445383635,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -160,16 +181,17 @@
         "triangles": 80,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 1.8703079223632812,
-        "brep_volume_difference_mm3": -7.671660772468059e-05
-      }
+        "volume_mm3": 2.1374588012695312,
+        "brep_volume_difference_mm3": -0.00012364326883229637
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDNeg2Band4",
       "label": "10 R+D R enclosed space / pink band",
       "color": "#FFFFFF",
       "filament": 3,
-      "volume_mm3": 11.122017406368828,
+      "volume_mm3": 12.710877035850098,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -177,16 +199,17 @@
         "triangles": 72,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 11.12200927734375,
-        "brep_volume_difference_mm3": -8.129025077963092e-06
-      }
+        "volume_mm3": 12.710693359375,
+        "brep_volume_difference_mm3": -0.00018367647509798246
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDNeg3Band4",
       "label": "11 R+D D enclosed space / pink band",
       "color": "#FFFFFF",
       "filament": 3,
-      "volume_mm3": 12.882457610940419,
+      "volume_mm3": 14.722808698217737,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -194,16 +217,17 @@
         "triangles": 48,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 12.882404327392578,
-        "brep_volume_difference_mm3": -5.328354784062128e-05
-      }
+        "volume_mm3": 14.723010063171387,
+        "brep_volume_difference_mm3": 0.000201364953650085
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDNeg3Band5",
       "label": "12 R+D D enclosed space / blue band",
       "color": "#FFFFFF",
       "filament": 3,
-      "volume_mm3": 11.015564267602018,
+      "volume_mm3": 12.589216305831053,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -211,16 +235,17 @@
         "triangles": 44,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 11.01549243927002,
-        "brep_volume_difference_mm3": -7.182833199870231e-05
-      }
+        "volume_mm3": 12.58893871307373,
+        "brep_volume_difference_mm3": -0.00027759275732286426
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDNeg4Band4",
       "label": "13 R+D Lower background / pink band",
       "color": "#FFFFFF",
       "filament": 3,
-      "volume_mm3": 65.62072697006242,
+      "volume_mm3": 74.99511653721446,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -228,16 +253,17 @@
         "triangles": 460,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 65.62174224853516,
-        "brep_volume_difference_mm3": 0.0010152784727353037
-      }
+        "volume_mm3": 74.99494171142578,
+        "brep_volume_difference_mm3": -0.00017482578867600296
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDNeg4Band5",
       "label": "14 R+D Lower background / blue band",
       "color": "#FFFFFF",
       "filament": 3,
-      "volume_mm3": 18.944832383458127,
+      "volume_mm3": 21.65123700966662,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -245,16 +271,17 @@
         "triangles": 136,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 18.94634437561035,
-        "brep_volume_difference_mm3": 0.0015119921522241953
-      }
+        "volume_mm3": 21.652612686157227,
+        "brep_volume_difference_mm3": 0.0013756764906069918
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDPos1Band4",
       "label": "15 R+D lettermark / pink band",
       "color": "#202329",
       "filament": 4,
-      "volume_mm3": 57.90253497556656,
+      "volume_mm3": 57.90253497556659,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -262,16 +289,17 @@
         "triangles": 388,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 57.90175247192383,
-        "brep_volume_difference_mm3": -0.0007825036427320242
-      }
+        "volume_mm3": 57.90224075317383,
+        "brep_volume_difference_mm3": -0.00029422239276044593
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDPos1Band5",
       "label": "16 R+D lettermark / blue band",
       "color": "#202329",
       "filament": 4,
-      "volume_mm3": 17.847652018962506,
+      "volume_mm3": 17.8476520189625,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -279,16 +307,17 @@
         "triangles": 140,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 17.847801208496094,
-        "brep_volume_difference_mm3": 0.00014918953358744602
-      }
+        "volume_mm3": 17.848127365112305,
+        "brep_volume_difference_mm3": 0.00047534614980548895
+      },
+      "top_z_mm": 37.8
     },
     {
       "name": "RDPos2Band4",
       "label": "17 R+D Plus sign / pink band",
       "color": "#202329",
       "filament": 4,
-      "volume_mm3": 5.118363402502929,
+      "volume_mm3": 5.11836340250293,
       "solids": 1,
       "mesh": {
         "closed": true,
@@ -296,16 +325,12 @@
         "triangles": 200,
         "non_manifold_edges": 0,
         "stitched_seams": [],
-        "volume_mm3": 5.118885040283203,
-        "brep_volume_difference_mm3": 0.0005216377802739203
-      }
+        "volume_mm3": 5.118415832519531,
+        "brep_volume_difference_mm3": 5.243001660115709e-05
+      },
+      "top_z_mm": 37.8
     }
   ],
-  "source_volume_mm3": 129080.0156596922,
-  "print_parts": 17,
-  "stripe_angle_deg": 35,
-  "top_color_depth_mm": 0.8,
-  "engraving_depth_mm": 0.1,
   "layout": {
     "scale": 0.7269532139559781,
     "along_band_shift_mm": 7.0,
@@ -328,31 +353,131 @@
     "source_volume_mm3": 129080.0156596922,
     "feature_errors": []
   },
-  "outline_method": "Convex perimeter of exact segmented R+D source engraving vertices; includes letter openings at the tile perimeter.",
   "union": {
     "valid": true,
     "solids": 1,
-    "volume_mm3": 129080.01565969206,
-    "source_volume_difference_mm3": -1.4551915228366852e-10,
-    "part_sum_difference_mm3": -1.6007106751203537e-10
+    "volume_mm3": 129142.89148930763,
+    "part_sum_difference_mm3": -1.0186340659856796e-10,
+    "target_difference_mm3": 0.0
   },
+  "bridge_removed_volume_mm3": 16.09088145752321,
+  "flush_added_volume_mm3": 78.96671107309521,
   "feature_errors": [],
   "validation_complete": true,
   "saved_files": {
     "native_parts": 17,
     "native_parts_valid": true,
-    "native_volume_mm3": 129080.01565969204,
     "native_tree_errors": [],
-    "step_solids": 25,
     "step_valid": true,
-    "step_volume_mm3": 129080.015659695,
-    "changes_confined_to_engraving": true
+    "step_solids": 25,
+    "step_volume_mm3": 129142.89148931035,
+    "native_volume_mm3": 129142.89148930753
   },
+  "section_checks": [
+    {
+      "seat": "M5 left",
+      "stages": [
+        {
+          "stage": "slot",
+          "world_z_mm": 11.4,
+          "void_area_mm2": 44.77807168859199,
+          "expected_area_mm2": 44.778071688591986
+        },
+        {
+          "stage": "square",
+          "world_z_mm": 11.2,
+          "void_area_mm2": 28.089999999999947,
+          "expected_area_mm2": 28.09
+        },
+        {
+          "stage": "round shaft",
+          "world_z_mm": 11.0,
+          "void_area_mm2": 22.06183440983433,
+          "expected_area_mm2": 22.06183440983432
+        }
+      ],
+      "head_clearance_interference_mm3": 0.0
+    },
+    {
+      "seat": "M5 right",
+      "stages": [
+        {
+          "stage": "slot",
+          "world_z_mm": 11.4,
+          "void_area_mm2": 44.778071688591986,
+          "expected_area_mm2": 44.778071688591986
+        },
+        {
+          "stage": "square",
+          "world_z_mm": 11.2,
+          "void_area_mm2": 28.089999999999954,
+          "expected_area_mm2": 28.09
+        },
+        {
+          "stage": "round shaft",
+          "world_z_mm": 11.0,
+          "void_area_mm2": 22.06183440983433,
+          "expected_area_mm2": 22.06183440983432
+        }
+      ],
+      "head_clearance_interference_mm3": 0.0
+    },
+    {
+      "seat": "M3 left",
+      "stages": [
+        {
+          "stage": "slot",
+          "world_z_mm": 35.699999999999996,
+          "void_area_mm2": 17.698772773722133,
+          "expected_area_mm2": 17.698772773722133
+        },
+        {
+          "stage": "square",
+          "world_z_mm": 35.5,
+          "void_area_mm2": 10.889999999999981,
+          "expected_area_mm2": 10.889999999999999
+        },
+        {
+          "stage": "round shaft",
+          "world_z_mm": 35.3,
+          "void_area_mm2": 8.552985999398215,
+          "expected_area_mm2": 8.552985999398212
+        }
+      ],
+      "head_clearance_interference_mm3": 0.0
+    },
+    {
+      "seat": "M3 right",
+      "stages": [
+        {
+          "stage": "slot",
+          "world_z_mm": 35.699999999999996,
+          "void_area_mm2": 17.698772773722133,
+          "expected_area_mm2": 17.698772773722133
+        },
+        {
+          "stage": "square",
+          "world_z_mm": 35.5,
+          "void_area_mm2": 10.889999999999981,
+          "expected_area_mm2": 10.889999999999999
+        },
+        {
+          "stage": "round shaft",
+          "world_z_mm": 35.3,
+          "void_area_mm2": 8.552985999398215,
+          "expected_area_mm2": 8.552985999398212
+        }
+      ],
+      "head_clearance_interference_mm3": 0.0
+    }
+  ],
+  "all_graphics_flush": true,
+  "native_reopen_verified": true,
   "bambu_import": {
     "assembled_objects": 1,
     "selectable_parts": 17,
     "manifold": true,
     "mesh_repairs": 0,
-    "filament_assignment": "Manual, by component order in the color guide"
+    "filament_assignment": "Manual by component order; generic 3MF retains geometry, not a tuned printer profile."
   }
 }

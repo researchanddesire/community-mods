@@ -3,7 +3,7 @@
 ![LGBT branded OSSM actuator front body with trans flag stripes and black-on-white branding](img/front-body-preview.png)
 
 A one-piece OSSM actuator front body with a trans flag across the top and
-engraved **OSSM.TECH** and **R+D** branding. The cover and middle body print
+flush **OSSM.TECH** and **R+D** color inlays. The cover and middle body print
 together, removing two M3 bolts, their side-loaded nuts, and one separate
 printed part.
 
@@ -20,7 +20,10 @@ Maintained by [Lucy Chapar](https://github.com/lucy-chapar).
 - OSSM.TECH is scaled to about **73%** of the original size and sits entirely
   inside the white stripe, with **1.5 mm** of margin on both sides and at least
   **1 mm** of clearance from the motor access holes.
-- Engraving remains **0.1 mm** deep. Color regions occupy the top **0.8 mm**.
+- All branding, logo backgrounds, enclosed spaces, and stripes meet one flat
+  surface. Color regions occupy the top **0.8 mm**, with no recessed engraving.
+- Two M5 motor counterbores and two M3 cover-extension counterbores have
+  editable **0.20 mm** slot-to-square bridge steps for face-down printing.
 - R+D regions that cross the pink–blue boundary are split at that boundary,
   giving you control over both the positive and negative space on either side.
 - The native FreeCAD model keeps the editable sketches, a final Refine feature,
@@ -51,9 +54,18 @@ may replace their names with numbered labels and does not retain the supplied
 color assignments. The [color guide](docs/color-guide.txt) lists the exact part
 order so you can assign colors and try your own combinations.
 
+The 3MF is oriented **branded face down**. Use **fixed 0.20 mm layers** through
+the counterbore transitions; avoid adaptive layer heights there. Each shoulder
+progresses from a one-layer slot opening to a one-layer square opening, then
+back to the round shaft bore. The shaft path remains open, with no sacrificial
+membrane to punch out. Nominal bolt centers and head-clearance volumes are
+retained; the bearing surface has shallow relief for these bridge steps.
+
+![Verified CAD cross-sections of the two-layer counterbore transitions](img/bridge-detail.png)
+
 The file contains geometry, not a tuned printer profile. Choose your own
-printer, material, layer height, supports, and orientation. Print settings and
-physical print results have not yet been validated.
+printer, material, and remaining settings. The revised flush-inlay and bridge
+geometry still needs a new physical print and assembly check.
 
 ## Fit and assembly
 
@@ -75,7 +87,10 @@ Confirm that components can be installed with the cover and middle joined.
 
 **Prototype — CAD validated; print and assembly testing still needed.**
 
-The saved FreeCAD and STEP geometry are valid. All 17 material-part meshes are
+The saved FreeCAD and STEP files reopen with valid geometry and no feature
+errors. All 16 surface color parts reach the same face plane. Twelve CAD
+cross-sections verify the slot, square, and round opening at all four shoulders.
+All 17 material-part meshes are
 closed, and Bambu Studio imports them as one assembled object without mesh
 repairs. The material regions reconstruct the revised housing as one solid.
 
