@@ -36,6 +36,7 @@ class ProjectHubBuildTests(unittest.TestCase):
                 "OSSM Folded Sheet Metal Stand",
                 "OSSM M5 Remote",
                 "OSSM Motion Synth",
+                "OSSM One-Piece Front Actuator Body",
                 "OSSM Possum",
                 "OSSM Web Control",
             ],
