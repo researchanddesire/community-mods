@@ -40,9 +40,8 @@ jobs:
   mod-lint:
     runs-on: ubuntu-latest
     steps:
+      # Gallery images are in Git; CAD/print LFS objects are not needed to build.
       - uses: actions/checkout@v4
-        with:
-          lfs: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'

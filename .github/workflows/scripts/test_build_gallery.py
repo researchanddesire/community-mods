@@ -39,6 +39,7 @@ class ProjectHubBuildTests(unittest.TestCase):
                 "OSSM Motion Synth",
                 "OSSM One-Piece Front Actuator Body",
                 "OSSM Possum",
+                "OSSM Remote Clip",
                 "OSSM Web Control",
             ],
             [project["title"] for project in self.projects],
