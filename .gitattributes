@@ -14,3 +14,11 @@
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 *.gif filter=lfs diff=lfs merge=lfs -text
 *.pdf filter=lfs diff=lfs merge=lfs -text
+
+# Keep the gallery build independent of LFS availability.
+.github/workflows/scripts/assets/** -filter -diff -merge -text
+mods/**/img/** -filter -diff -merge -text
+
+# Small Remote Clip downloads are stored directly in Git (maintainer exception).
+mods/ossm/ossm-remote-clip/cad/*.step -filter -diff -merge -text
+mods/ossm/ossm-remote-clip/print/*.stl -filter -diff -merge -text
