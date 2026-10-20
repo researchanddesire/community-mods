@@ -29,6 +29,7 @@ class ProjectHubBuildTests(unittest.TestCase):
     def test_catalog_contains_the_expected_projects_in_peer_order(self) -> None:
         self.assertEqual(
             [
+                "Bedframe PitClamp Adapter",
                 "KinkyMakers OSSM",
                 "LGBT Branded Actuator Front Body",
                 "Lower Pitclamp with Passive Pivot",
@@ -50,7 +51,10 @@ class ProjectHubBuildTests(unittest.TestCase):
         self.assertIn("https://github.com/lucy-chapar/ossm-motion-synth", sources)
         # Add the R+D fork only after it becomes an independently distinct variant.
         self.assertNotIn("https://github.com/researchanddesire/OSSM", sources)
-        kinky_makers = self.projects[0]
+        kinky_makers = next(
+            project for project in self.projects
+            if project["id"] == "mods/ossm/ossm-hardware"
+        )
         self.assertEqual("CERN-OHL-S-2.0", kinky_makers["license"])
         self.assertEqual(
             "https://raw.githubusercontent.com/KinkyMakers/OSSM-hardware/"
@@ -442,8 +446,10 @@ assert(elements.tags.innerHTML.includes('data-tag="__proto__"'), 'prototype-like
 PROJECTS.pop();
 render();
 
+const modalProject = PROJECTS.find(project => project.id === 'mods/ossm/ossm-hardware');
+assert(modalProject, 'KinkyMakers fixture project exists');
 const firstCard = {
-  dataset: {id: PROJECTS[0].id},
+  dataset: {id: modalProject.id},
   focus() { document.activeElement = this; this.focusCalls = (this.focusCalls || 0) + 1; }
 };
 const cardTarget = {closest(selector) {
@@ -455,7 +461,7 @@ emit(elements.grid, 'click', {target: cardTarget});
 assert(elements.modal.hidden === false, 'card click opens modal');
 assert(window.location.pathname === '/community-mods/projects/ossm/ossm-hardware/', 'card updates URL');
 assert(window.history.state.projectModal === true, 'card marks modal history');
-assert(window.history.state.projectId === PROJECTS[0].id, 'card records history state');
+assert(window.history.state.projectId === modalProject.id, 'card records history state');
 assert(document.activeElement === modalBackButton, 'opening focuses modal back button');
 assert(elements['modal-content'].innerHTML.includes('KinkyMakers OSSM'), 'modal project');
 assert(elements['modal-content'].innerHTML.includes('class="readme"'), 'modal README body');
