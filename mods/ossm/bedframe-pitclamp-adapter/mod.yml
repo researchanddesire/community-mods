@@ -4,7 +4,7 @@ product: ossm
 description: >-
   Unprinted parametric bedframe PitClamp adapter with two identical main halves,
   separate keystone inserts, and M5 hardware for nominal one-inch square tube.
-mod_version: 1
+mod_version: 2
 compatibility:
   - Unprinted prototype; no physical compatibility testing completed
 license: CERN-OHL-S-2.0
@@ -21,5 +21,5 @@ safety:
   affects_electrical: false
   notes: >-
     Changes the load-bearing bedframe mount, printed keys and bolt connections.
-    Requires through-drilling the rail and custom metal compression sleeves.
+    Uses through-bolts in holes drilled through the rail, with the assembled print as the drill guide.
     ABS prototype is unprinted; physical fit and load capacity are untested.

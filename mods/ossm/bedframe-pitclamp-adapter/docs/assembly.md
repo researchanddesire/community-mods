@@ -1,9 +1,7 @@
 # Printing and assembly
 
 This is an unprinted ABS prototype for a nominal 25.4 × 25.4 mm closed metal tube.
-The provisional wall thickness is 2.4 mm. Measure the actual tube, corners,
-coating and available tool space before adapting or drilling it. Physical fit,
-assembly feel, tightening torque and load capacity have not been established.
+Physical fit and load capacity have not been tested.
 
 [Assembly diagram](../img/separate-keys.png) · [Print orientation](../img/print-orientation.png)
 
@@ -36,14 +34,9 @@ All dimensions are millimetres.
 | 4 | Locator cap screws | ISO 4762 M5 × 45 |
 | 6 | Nuts | DIN 934 M5, 8 across flats × 4 high |
 | 8 | Locator washers | M5 clearance, outside Ø10 × 1 thick |
-| 4 | Custom metal compression limiters | Outside Ø8 / inside Ø5.5; barrel 36.1; integral flange Ø11 × 1 |
 
-The [limiter STEP](../cad/One-Custom-Metal-Limiter.step) shows one custom part,
-not a printable spacer. Its overall length is 37.1. The nominal outside-pad grip
-is 35.8; the 36.1 barrel leaves 0.15 stand-off at each end so locator preload
-passes through the metal limiter rather than crushing ABS or tube walls.
-Fit its length to the measured grip. A thicker ISO 4032 nut does not fit the
-selected 4 mm DIN 934 envelope without changing the model.
+Use the bolts, washers and nuts directly; metal sleeves are not required.
+The primary nut pockets take 4 mm-high DIN 934 M5 nuts.
 
 ## Assembly order
 
@@ -55,15 +48,11 @@ selected 4 mm DIN 934 envelope without changing the model.
 3. Load the two primary nuts through their axial ports, then fit the opposed
    M5 × 40 screws, one from above and one below. Their axes clear the rail;
    the shafts retain the keys. Keep key insertion ahead of all locator hardware.
-4. Check the locator pattern against the actual frame: four holes at X=±32,
-   Z=±6.5, a 64 × 13 rectangle. Remove the printed parts before drilling. Drill
-   both tube walls coaxially Ø8.2 with a suitable fixture; deburr and remove swarf.
-   The [marking reference](locator-marking-reference.svg) is not a drill guide;
-   check both 100 mm scale bars before using its dimensions.
-5. Refit the adapter. Insert the four metal limiters from outside through both
-   pads and tube walls, then fit the M5 × 45 locators with two washers and a nut
-   each. The flange stays outside the bore. Hand-fit aligned parts; do not pull
-   a binding limiter into place with a bolt.
+4. Position the assembled adapter on the frame and use its printed mounting
+   holes as the drill guide through both tube walls.
+5. Remove the adapter, deburr the holes and clear the chips. Refit it and run
+   the four M5 × 45 bolts straight through, with a washer under each head and
+   nut. Snug the side bolts without crushing the tube.
 6. Fit the matching PitClamp last and check its complete latch/removal motion.
 
 For removal, take off the PitClamp and locator hardware, withdraw the primary
@@ -77,7 +66,7 @@ Open its FreeCAD file, then execute the adjacent `Open-Adapter.FCMacro` to load
 its Python dependencies. Edit `SourceHalf` rail dimensions and fit allowances,
 recompute, and export the updated source half and key separately. Print two of
 each. Preserve the fixed round PitClamp interface. Resizing may change the
-required bolt lengths and limiter stack; use the regenerated values.
+required bolt lengths; use the regenerated values.
 
 ## Credits
 
