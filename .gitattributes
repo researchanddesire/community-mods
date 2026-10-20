@@ -22,3 +22,6 @@ mods/**/img/** -filter -diff -merge -text
 # Small Remote Clip downloads are stored directly in Git (maintainer exception).
 mods/ossm/ossm-remote-clip/cad/*.step -filter -diff -merge -text
 mods/ossm/ossm-remote-clip/print/*.stl -filter -diff -merge -text
+
+# Keep the portable bedframe CAD source archive with its design binaries.
+mods/ossm/bedframe-pitclamp-adapter/cad/*.zip filter=lfs diff=lfs merge=lfs -text

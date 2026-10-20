@@ -1,0 +1,25 @@
+title: Bedframe PitClamp Adapter
+author: Yous34 (original concept), Lucy Chapar (adapter design)
+product: ossm
+description: >-
+  Unprinted parametric bedframe PitClamp adapter with two identical main halves,
+  separate keystone inserts, and M5 hardware for nominal one-inch square tube.
+mod_version: 1
+compatibility:
+  - Unprinted prototype; no physical compatibility testing completed
+license: CERN-OHL-S-2.0
+images:
+  - img/assembled-cad.png
+tags:
+  - pitclamp
+  - bedframe
+  - freecad
+  - keystone
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: >-
+    Changes the load-bearing bedframe mount, printed keys and bolt connections.
+    Requires through-drilling the rail and custom metal compression sleeves.
+    ABS prototype is unprinted; physical fit and load capacity are untested.

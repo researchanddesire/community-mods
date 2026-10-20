@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="297mm" height="210mm" viewBox="0 0 297 210">
+  <title>Bedframe adapter: nominal one-inch locator marking reference, 1:1</title>
+  <desc>A4 landscape reference. Four locator centres form a 64 by 13.0 millimetre pattern on a nominal 25.4 millimetre-high rail. Installed main-half axial extent is 98 millimetres. Register both halves in place; separate keys enter from +X. Verify local key, nut, driver and -X pusher access. This is not a validated drill guide. Check both 100 millimetre calibration bars at actual print size.</desc>
+  <metadata>Default source parameters: RailWidth=25.4; RailHeight=25.4; LocatorBoltX=32; LocatorBoltZ=6.5; SleeveHoleDiameter=8.2; SleeveBarrelDiameter=8.0; installed main-half X=-49..49; two separate keystones enter from +X after main halves register in place. Model SHA256 807e757c072a347f9ef6e0055835504915d9843f1c53c0a5f7f0dfef49138b8e; key model SHA256 1d7e445dcaad9f9240d9191dffcf0073cc6e178709a0d227d30da3d927fe262a. Marking/reference only; physical frame fit, full assembly motion and drilling process are unverified.</metadata>
+  <defs>
+    <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse" markerUnits="strokeWidth">
+      <path d="M6,0 L0,3 L6,6" fill="none" stroke="#111827" stroke-width="0.9"/>
+    </marker>
+    <g id="hole">
+      <circle r="4.1" fill="white" stroke="#111827" stroke-width="0.25"/>
+      <path d="M-4.6,0 H4.6 M0,-4.6 V4.6" fill="none" stroke="#111827" stroke-width="0.15"/>
+      <circle r="0.25" fill="#111827"/>
+    </g>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill:#111827; }
+      .title { font-size:5.8px; font-weight:700; }
+      .section { font-size:3.5px; font-weight:700; }
+      .body { font-size:3.05px; }
+      .small { font-size:2.65px; }
+      .dimtext { font-size:3px; text-anchor:middle; }
+      .dim { fill:none; stroke:#111827; stroke-width:0.22; marker-start:url(#arrow); marker-end:url(#arrow); }
+      .extension { fill:none; stroke:#6b7280; stroke-width:0.15; }
+      .centreline { fill:none; stroke:#6b7280; stroke-width:0.18; stroke-dasharray:2 1 0.3 1; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="297" height="210" fill="white"/>
+  <text x="12" y="15" class="title">BEDFRAME ADAPTER · LOCATOR REFERENCE</text>
+  <text x="12" y="22" class="body">Nominal 25.4 × 25.4 mm rail · four M5 locator axes · dimensions in mm · 1:1 at actual size</text>
+  <text x="12" y="29" class="section" fill="#9a3412">MARKING REFERENCE — NOT A VALIDATED DRILL GUIDE</text>
+
+  <!-- These bars show axial extents only, not a silhouette or vertical clearance. -->
+  <text x="80" y="37" class="dimtext">Register halves in place; insert separate keys from +X</text>
+  <text x="80" y="46" class="dimtext">98.00 installed extent · X=±49</text>
+  <rect x="31" y="49" width="98" height="2" fill="#cffafe" stroke="#0891b2" stroke-width="0.2"/>
+  <path d="M31,51 V62.3 M129,51 V62.3" class="extension" stroke-dasharray="1 1"/>
+  <text x="12" y="57" class="small">Main axial extent only; check local key, nut, driver and -X pusher access.</text>
+
+  <!-- Origin is (80,76). SVG downwards is negative rail Z. -->
+  <rect x="20" y="63.3" width="154" height="25.4" fill="#f3f4f6" stroke="#374151" stroke-width="0.25"/>
+  <path d="M20,76 H174 M80,60 V91.7" class="centreline"/>
+  <use href="#hole" x="48" y="69.5"/>
+  <use href="#hole" x="112" y="69.5"/>
+  <use href="#hole" x="48" y="82.5"/>
+  <use href="#hole" x="112" y="82.5"/>
+  <text x="80" y="94" class="small" text-anchor="middle">Collar centre X=0 · rail mid-height Z=0</text>
+  <path d="M48,87.2 V104 M112,87.2 V104" class="extension"/>
+  <path d="M48,101 H112" class="dim"/>
+  <text x="80" y="98.5" class="dimtext">64.00</text>
+  <path d="M116.7,69.5 H146 M116.7,82.5 H146" class="extension"/>
+  <path d="M142,69.5 V82.5" class="dim"/>
+  <text x="150" y="76" class="dimtext" transform="rotate(-90 150 76)">13.00</text>
+  <path d="M175,63.3 H185 M175,88.7 H185" class="extension"/>
+  <path d="M181,63.3 V88.7" class="dim"/>
+  <text x="188" y="76" class="dimtext" transform="rotate(-90 188 76)">25.40 nominal rail height</text>
+  <text x="20" y="110" class="small">Centres: X=±32.00; Z=±6.50. Circles show nominal Ø8.20 through bores.</text>
+
+  <text x="201" y="39" class="section">Before transferring centres</text>
+  <text x="201" y="46" class="body">Measure actual rail and fitted prints.</text>
+  <text x="201" y="52" class="body">Locate the measured rail mid-height.</text>
+  <text x="201" y="58" class="body">Set the chosen collar centre X=0.</text>
+  <text x="201" y="64" class="body">Check legs, slats and both rail faces.</text>
+  <text x="201" y="73" class="section">Actual frame differs?</text>
+  <text x="201" y="80" class="body">Regenerate centres from its fitted model.</text>
+  <text x="201" y="86" class="body">Do not scale this sheet to change tube size.</text>
+  <text x="201" y="95" class="section">Key access</text>
+  <text x="201" y="102" class="body">Remove both primary M5 shafts</text>
+  <text x="201" y="108" class="body">before pulling the keys toward +X.</text>
+
+  <text x="12" y="122" class="section">Transfer → fixture → drill → deburr → hand-fit</text>
+  <text x="12" y="129" class="body">1. Seat/register the adapter; calibrated fitted pads may transfer centres. Remove ABS parts before metal drilling.</text>
+  <text x="12" y="136" class="body">2. With a proper guide/fixture normal to the rail face, pilot and enlarge BOTH walls in the SAME setup.</text>
+  <text x="12" y="143" class="body">3. Deburr inside and outside faces of both walls from outside; remove swarf. Confirm an accessible method first.</text>
+  <text x="12" y="150" class="body">4. Refit/register the adapter. Each complete Ø8.00 limiter must pass both pads and both walls by hand.</text>
+  <text x="12" y="157" class="body">5. Never use the bolt to pull a binding limiter into place. Fit all adapter/locator hardware before the PitClamp.</text>
+  <text x="12" y="166" class="small">Ø8.20 bore minus Ø8.00 body leaves 0.100 mm nominal radial clearance before errors.</text>
+  <text x="12" y="172" class="small">Paper marks and ABS pad holes do not ensure coaxiality or that clearance. Actual tooling, alignment and fit need verification.</text>
+
+  <text x="12" y="182" class="section">Check scale before using any centre marks</text>
+  <path d="M12,191 H112 M12,188 V194 M112,188 V194" fill="none" stroke="#111827" stroke-width="0.3"/>
+  <text x="62" y="188" class="dimtext">100.00 mm calibration bar</text>
+  <path d="M286,80 V180 M283,80 H289 M283,180 H289" fill="none" stroke="#111827" stroke-width="0.3"/>
+  <text x="281" y="130" class="dimtext" transform="rotate(-90 281 130)">100.00 mm vertical calibration</text>
+  <text x="124" y="190" class="small">Print at actual size; disable fit-to-page.</text>
+  <text x="124" y="196" class="small">Confirm both calibration bars on the physical print.</text>
+  <text x="12" y="204" class="small">Prototype reference · 2026-10-19 · actual tube wall/corners, printed fit and drilling process remain unverified.</text>
+</svg>
