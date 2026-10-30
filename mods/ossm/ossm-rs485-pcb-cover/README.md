@@ -8,7 +8,9 @@ A two-piece cover that makes room for the RS-485 breakout adapter while keeping 
 
 - The 3MF contains three plates: main cover, cap and clear insert, with colors assigned.
 - Keep the supplied 0.6 mm nozzle / 0.3 mm layer profile and supports off. Print the main cover front-down and cap roof-down; retain the cap’s Arachne walls.
-- Slide the cap diagonally into the tab seats, then reuse the original corner M3 screw.
+- Slide both cap tabs diagonally into their seats, as shown below, then reuse the original corner M3 screw.
 - Updating an earlier print? Reprint **plate 1 only**; reuse the cap and clear insert. The new inward stops still need a physical fit check.
+
+<a href="img/cap-interlock.png"><img src="img/cap-interlock.png" width="720" alt="Underside assembly views show both cap tabs sliding diagonally into the main cover's seats. A joint section labels the upper catch, cap tab and lower seat that stops inward flex."></a>
 
 By [Lucy Chapar](https://github.com/lucy-chapar), based on the [OSSM PCB enclosure](https://github.com/researchanddesire/OSSM/tree/main/hardware/cad/stand). [CERN-OHL-S-2.0](../../../LICENSES/CERN-OHL-S-2.0.txt).
