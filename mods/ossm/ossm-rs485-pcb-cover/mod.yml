@@ -6,7 +6,7 @@ description: >-
   with a stepper cable opening. Underside skirts hide the board. Face colors
   occupy the first 0.6 mm; the remaining structure is black. Includes a
   separate clear light-pipe insert.
-mod_version: 6
+mod_version: 7
 compatibility:
   - OSSM PCB-mount-base enclosure and the measured 24.6 × 23 mm RS-485 breakout adapter
   - Adapter PCB top 3.5 mm and terminal top 11 mm above the cover seating rim
