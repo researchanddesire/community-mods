@@ -1,0 +1,26 @@
+title: OSSM RS-485 PCB Cover
+author: Lucy Chapar
+product: ossm
+description: >-
+  A multicolor PCB cover with a removable RS-485 corner cap, marked controls,
+  and a separate clear light-pipe insert. Hidden tab seats support the cap
+  against inward movement.
+mod_version: 1
+compatibility:
+  - OSSM PCB-mount-base enclosure and the measured 24.6 × 23 mm RS-485 breakout adapter
+  - Adapter PCB top 3.5 mm and terminal top 11 mm above the cover seating rim; latest tab seats await a physical fit check
+license: CERN-OHL-S-2.0
+images:
+  - img/cover-preview.png
+tags:
+  - rs485
+  - multicolor
+  - freecad
+safety:
+  affects_restraint_release: false
+  affects_applied_force: false
+  affects_electrical: false
+  notes: >-
+    Replaces the PCB cover, button strikers and cap retention; circuit and wiring
+    are unchanged. Check free button travel, terminal clearance and the new tab
+    seats during assembly.
