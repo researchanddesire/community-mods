@@ -5,15 +5,13 @@ description: >-
   A multicolor PCB cover with a removable RS-485 corner cap, marked controls,
   and a separate clear light-pipe insert. Hidden tab seats support the cap
   against inward movement.
-mod_version: 3
+mod_version: 4
 compatibility:
   - OSSM PCB-mount-base enclosure and the measured 24.6 × 23 mm RS-485 breakout adapter
   - Adapter PCB top 3.5 mm and terminal top 11 mm above the cover seating rim
 license: CERN-OHL-S-2.0
 images:
-  - img/cover-preview.png
-  - img/cap-interlock.png
-  - img/board-in-place.png
+  - img/cover-assembled.png
   - img/assembly-motion.gif
 tags:
   - rs485
