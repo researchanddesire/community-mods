@@ -41,6 +41,7 @@ class ProjectHubBuildTests(unittest.TestCase):
                 "OSSM One-Piece Front Actuator Body",
                 "OSSM Possum",
                 "OSSM Remote Clip",
+                "OSSM RS-485 PCB Cover",
                 "OSSM Web Control",
             ],
             [project["title"] for project in self.projects],
