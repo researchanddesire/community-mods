@@ -2,12 +2,12 @@
 
 <img src="img/cover-assembled.png" width="600" alt="New OSSM cover fitted over the motherboard and installed RS-485 adapter in the lower enclosure, with the adapter wires exiting the corner cap.">
 
-Choose a raised RS-485 cap or a flat accessories panel. The flat version restores the stepper motor cable opening and adds a breakout icon. Both use hidden tabs and the original corner M3 screw.
+Choose a raised RS-485 cap or a flat accessories panel with a stepper cable opening and breakout icon. Underside skirts hide the board while keeping the ports accessible.
 
 | Version | Print | Edit | Export |
 | --- | --- | --- | --- |
-| RS-485 cap | [3MF](https://media.githubusercontent.com/media/researchanddesire/community-mods/3101c68f7979d17cc160c9918694e73e14336006/mods/ossm/ossm-rs485-pcb-cover/print/OSSM-RS485-Complete.3mf) | [FreeCAD](https://media.githubusercontent.com/media/researchanddesire/community-mods/3101c68f7979d17cc160c9918694e73e14336006/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-RS485.FCStd) | [STEP](https://media.githubusercontent.com/media/researchanddesire/community-mods/3101c68f7979d17cc160c9918694e73e14336006/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-RS485.step) |
-| Flat accessories panel | [3MF](https://media.githubusercontent.com/media/researchanddesire/community-mods/3101c68f7979d17cc160c9918694e73e14336006/mods/ossm/ossm-rs485-pcb-cover/print/OSSM-Accessories-Complete.3mf) | [FreeCAD](https://media.githubusercontent.com/media/researchanddesire/community-mods/3101c68f7979d17cc160c9918694e73e14336006/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-Accessories.FCStd) | [STEP](https://media.githubusercontent.com/media/researchanddesire/community-mods/3101c68f7979d17cc160c9918694e73e14336006/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-Accessories.step) |
+| RS-485 cap | [3MF](https://media.githubusercontent.com/media/researchanddesire/community-mods/31d04954517b81fb304fc1247063aa4abff8b842/mods/ossm/ossm-rs485-pcb-cover/print/OSSM-RS485-Complete.3mf) | [FreeCAD](https://media.githubusercontent.com/media/researchanddesire/community-mods/31d04954517b81fb304fc1247063aa4abff8b842/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-RS485.FCStd) | [STEP](https://media.githubusercontent.com/media/researchanddesire/community-mods/31d04954517b81fb304fc1247063aa4abff8b842/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-RS485.step) |
+| Flat accessories panel | [3MF](https://media.githubusercontent.com/media/researchanddesire/community-mods/31d04954517b81fb304fc1247063aa4abff8b842/mods/ossm/ossm-rs485-pcb-cover/print/OSSM-Accessories-Complete.3mf) | [FreeCAD](https://media.githubusercontent.com/media/researchanddesire/community-mods/31d04954517b81fb304fc1247063aa4abff8b842/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-Accessories.FCStd) | [STEP](https://media.githubusercontent.com/media/researchanddesire/community-mods/31d04954517b81fb304fc1247063aa4abff8b842/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-Accessories.step) |
 
 Colors occupy only the first 0.6 mm; the remaining cover structure is black. The separate light-pipe insert stays clear.
 
