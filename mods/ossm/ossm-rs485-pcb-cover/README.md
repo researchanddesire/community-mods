@@ -4,7 +4,7 @@
 
 A two-piece cover that makes room for the RS-485 breakout adapter while keeping the main cover flat to print. Marked ports, cyan buttons and a pink heart identify the controls. The clear light-pipe insert installs after printing.
 
-[3MF](print/OSSM-RS485-Complete.3mf) · [FreeCAD](cad/OSSM-Cover-RS485.FCStd) · [STEP](cad/OSSM-Cover-RS485.step) · [Tab-seat cutaway](img/inward-stop-section.png)
+[3MF](https://media.githubusercontent.com/media/researchanddesire/community-mods/632be5da6842f702ed88f2975f30b3ce9d390fee/mods/ossm/ossm-rs485-pcb-cover/print/OSSM-RS485-Complete.3mf) · [FreeCAD](https://media.githubusercontent.com/media/researchanddesire/community-mods/632be5da6842f702ed88f2975f30b3ce9d390fee/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-RS485.FCStd) · [STEP](https://media.githubusercontent.com/media/researchanddesire/community-mods/632be5da6842f702ed88f2975f30b3ce9d390fee/mods/ossm/ossm-rs485-pcb-cover/cad/OSSM-Cover-RS485.step) · [Tab-seat cutaway](img/inward-stop-section.png)
 
 - The 3MF contains three plates: main cover, cap and clear insert, with colors assigned.
 - Keep the supplied 0.6 mm nozzle / 0.3 mm layer profile and supports off. Print the main cover front-down and cap roof-down; retain the cap’s Arachne walls.
