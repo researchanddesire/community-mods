@@ -2,16 +2,18 @@ title: OSSM RS-485 PCB Cover
 author: Lucy Chapar
 product: ossm
 description: >-
-  A multicolor PCB cover with a removable RS-485 corner cap, marked controls,
-  and a separate clear light-pipe insert. Hidden tab seats support the cap
-  against inward movement.
-mod_version: 4
+  A PCB cover with a raised RS-485 cap or a removable flat accessories panel
+  with a stepper cable opening. Face colors occupy the first 0.6 mm; the
+  remaining structure is black. Includes a separate clear light-pipe insert.
+mod_version: 5
 compatibility:
   - OSSM PCB-mount-base enclosure and the measured 24.6 × 23 mm RS-485 breakout adapter
   - Adapter PCB top 3.5 mm and terminal top 11 mm above the cover seating rim
+  - Flat-panel version for the original stepper motor control cable connector
 license: CERN-OHL-S-2.0
 images:
   - img/cover-assembled.png
+  - img/accessories-assembled.png
   - img/assembly-motion.gif
 tags:
   - rs485
