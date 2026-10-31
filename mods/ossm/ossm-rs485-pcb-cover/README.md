@@ -13,7 +13,7 @@ One main cover accepts a raised RS-485 cap or flat accessories panel. Both retai
 Colors occupy only the first 0.6 mm; the remaining cover structure is black. The separate light-pipe insert stays clear.
 
 - Print the main cover and flat panel front-down, or the raised cap roof-down, with supports off.
-- Slide both tabs diagonally into their seats, then fasten the corner screw. [Tab-seat cutaway](img/inward-stop-section.png).
+- Slide both tabs diagonally into their seats before mounting the cover, then fasten the screws. [Tab-seat cutaway](img/inward-stop-section.png).
 
 <img src="img/accessories-assembled.png" width="600" alt="The same main cover fitted with the removable flat accessories panel and stepper motor cable opening.">
 
