@@ -1,0 +1,19 @@
+title: Phone Vault
+author: Research and Desire
+product: lockbox
+description: A tall barred bottom housing that locks a phone or a cigarette pack under the Lockbox, in view behind support-free jail-cell bars.
+mod_version: 1
+license: CERN-OHL-S-2.0
+compatibility:
+  - 'Lockbox (LKBX) stock top housing; CAD fit checked against the LKBX assembly, not yet test printed.'
+images:
+  - img/phone-vault.png
+tags:
+  - phone-lock
+  - support-free
+  - freecad
+safety:
+  affects_restraint_release: false
+  affects_applied_force: false
+  affects_electrical: false
+  notes: Uses the stock rails and latch slot unchanged. The back magnet that tells the Lockbox the base is attached moves to a top-loaded pocket; confirm the Lockbox detects the base and locks before relying on it. The tall tower can tip; keep it on a flat surface.
