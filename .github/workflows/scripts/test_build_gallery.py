@@ -43,6 +43,7 @@ class ProjectHubBuildTests(unittest.TestCase):
                 "OSSM Remote Clip",
                 "OSSM RS-485 PCB Cover",
                 "OSSM Web Control",
+                "Phone Vault",
             ],
             [project["title"] for project in self.projects],
         )
@@ -88,7 +89,10 @@ class ProjectHubBuildTests(unittest.TestCase):
             '<select id="ecosystem" aria-label="Filter by ecosystem">', self.html
         )
         self.assertEqual(1, self.html.count('<option value="ossm">OSSM</option>'))
-        for inactive in ("lockbox", "dtt", "radr"):
+        self.assertEqual(
+            1, self.html.count('<option value="lockbox">Chastity Lockbox</option>')
+        )
+        for inactive in ("dtt", "radr"):
             self.assertNotIn(f'<option value="{inactive}">', self.html)
 
     def test_collection_uses_flat_project_paths_and_metadata_authors(self) -> None:
