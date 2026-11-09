@@ -1,8 +1,8 @@
 title: Phone Vault
 author: Research and Desire
 product: lockbox
-description: A tall barred bottom housing that locks a phone or a cigarette pack under the Lockbox, in view behind support-free jail-cell bars.
-mod_version: 1
+description: A tall bottom housing that locks a phone or a cigarette pack under the Lockbox, in view behind a support-free honeycomb wall.
+mod_version: 2
 license: CERN-OHL-S-2.0
 compatibility:
   - 'Lockbox (LKBX) stock top housing; CAD fit checked against the LKBX assembly, not yet test printed.'
@@ -10,6 +10,7 @@ images:
   - img/phone-vault.png
 tags:
   - phone-lock
+  - honeycomb
   - support-free
   - freecad
 safety:
