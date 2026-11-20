@@ -1,7 +1,7 @@
 # Deep Throat Trainer ecosystem projects
 
 Projects related to the
-[Deep Throat Trainer ecosystem](https://github.com/researchanddesire/DT_Trainer),
+[Deep Throat Trainer ecosystem](https://github.com/researchanddesire/dtt),
 including variants, accessories, hardware, software, and tools.
 
 Index an upstream project or host one here at the catalog path

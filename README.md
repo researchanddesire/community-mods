@@ -46,8 +46,7 @@ hardware, accessories, and mods.
 ## Submit a project
 
 There are two equally welcome contribution paths. See the Project Hub's
-**[Contributing guide](https://mods.researchanddesire.com/contributing/)** for
-the complete contract; its source lives in [CONTRIBUTING.md](CONTRIBUTING.md).
+**[Contributing guide](CONTRIBUTING.md)** for the complete contract.
 
 - **Index a project** — keep the project in its maintainer's repository and add
   metadata plus a short README here. Set `source_url` and the upstream project's
@@ -90,6 +89,6 @@ branding clearly owned by Research and Desire remain reserved. See
 |---|---|
 | R+D user docs | [docs.researchanddesire.com](https://docs.researchanddesire.com) |
 | R+D developer docs | [dev.researchanddesire.com](https://dev.researchanddesire.com) |
-| Current ecosystems | [Lockbox](https://github.com/researchanddesire/Lockbox) · [Deep Throat Trainer](https://github.com/researchanddesire/DT_Trainer) · [OSSM](mods/ossm/) · [RADR](https://github.com/researchanddesire/radr-wireless-remote) |
+| Current ecosystems | [Lockbox](https://github.com/researchanddesire/lkbx) · [Deep Throat Trainer](https://github.com/researchanddesire/dtt) · [OSSM](mods/ossm/) · [RADR](https://github.com/researchanddesire/radr) |
 
 The gallery is hosted by [Research and Desire](https://researchanddesire.com).

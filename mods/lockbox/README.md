@@ -1,7 +1,7 @@
 # Lockbox ecosystem projects
 
 Projects related to the
-[Lockbox ecosystem](https://github.com/researchanddesire/Lockbox), including
+[Lockbox ecosystem](https://github.com/researchanddesire/lkbx), including
 variants, accessories, hardware, software, and tools.
 
 Index an upstream project or host one here at the catalog path
