@@ -15,7 +15,7 @@ software-defined stroke, depth, and speed control.
 ## License
 
 This project is licensed
-[CERN-OHL-S-2.0](https://github.com/KinkyMakers/OSSM-hardware/blob/main/LICENSE),
+[CERN-OHL-S-2.0](https://github.com/KinkyMakers/OSSM-hardware/blob/main/LICENCE),
 the CERN Open Hardware Licence Version 2 – Strongly Reciprocal. The upstream
 project remains the source of truth for its files and license.
 
