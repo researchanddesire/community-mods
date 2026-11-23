@@ -1,7 +1,8 @@
 // Direct Bluetooth link to a stock OSSM, the way the RADR remote does it.
 //
-// The Flipper connects as a BLE central (needs firmware with the Full radio
-// stack and furi_ble/central.h), finds the OSSM by its service UUID, then:
+// The Flipper connects as a BLE central (needs the flipper-ble-scanner
+// firmware: Momentum + ST Full radio stack; see ossm_central.c), finds the
+// OSSM by its service UUID, then:
 //   - writes text commands ("set:speed:40", "go:strokeEngine", ...) to the
 //     command characteristic,
 //   - subscribes to the state characteristic (JSON) and long-reads it when a
@@ -11,7 +12,7 @@
 
 #include "ossm_remote.h"
 
-#include <furi_ble/central.h>
+#include "ossm_central.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,7 +61,7 @@ typedef enum {
 } ReadKind;
 
 typedef struct {
-    BleCentralEventType type;
+    OssmCentralEventType type;
     uint8_t addr[6];
     uint8_t addr_type;
     int8_t rssi;
@@ -126,11 +127,11 @@ static bool ad_parse(const uint8_t* d, uint8_t len, bool* has_ossm, char* name, 
 }
 
 // Runs on the BLE event thread: filter hard, copy, hand to the app thread.
-static void central_cb(const BleCentralEvent* event, void* context) {
+static void central_cb(const OssmCentralEvent* event, void* context) {
     OssmBle* ble = context;
     BleMsg msg = {.type = event->type};
 
-    if(event->type == BleCentralEventTypeAdvReport) {
+    if(event->type == OssmCentralEventTypeAdvReport) {
         if(ble->step != StepScanning) return;
         bool has_ossm = false;
         char name[20] = {0};
@@ -146,7 +147,7 @@ static void central_cb(const BleCentralEvent* event, void* context) {
     } else {
         msg.status = event->status;
         msg.handle = event->handle;
-        if(event->type == BleCentralEventTypeConnected) {
+        if(event->type == OssmCentralEventTypeConnected) {
             memcpy(msg.addr, event->addr, 6);
         }
         if(event->data && event->data_len) {
@@ -242,7 +243,7 @@ static void link_down(OssmApp* app, bool lost) {
 static void start_scan(OssmApp* app) {
     OssmBle* ble = app->ble;
     ble->have_peer = false;
-    if(ble_central_scan_start(true)) {
+    if(ossm_central_scan_start(true)) {
         set_step(ble, StepScanning);
         app->m.link = LinkScanning;
     }
@@ -250,7 +251,7 @@ static void start_scan(OssmApp* app) {
 
 static bool discover(OssmBle* ble, const uint8_t uuid[16], Step step) {
     ble->found_handle = 0;
-    if(!ble_central_discover_char(uuid)) return false;
+    if(!ossm_central_discover_char(uuid)) return false;
     ble->busy = true;
     set_step(ble, step);
     return true;
@@ -259,7 +260,7 @@ static bool discover(OssmBle* ble, const uint8_t uuid[16], Step step) {
 static bool start_read(OssmBle* ble, uint16_t handle, ReadKind kind) {
     if(!handle || ble->busy) return false;
     ble->read_len = 0;
-    if(!ble_central_read(handle)) return false;
+    if(!ossm_central_read(handle)) return false;
     ble->busy = true;
     ble->reading = kind;
     return true;
@@ -277,7 +278,7 @@ static void setup_next(OssmApp* app, uint8_t status) {
         ble->h_command = ble->found_handle;
         if(!ble->h_command) {
             FURI_LOG_E(TAG, "No command characteristic");
-            ble_central_disconnect();
+            ossm_central_disconnect();
             break;
         }
         discover(ble, uuid_state, StepDiscState);
@@ -293,7 +294,7 @@ static void setup_next(OssmApp* app, uint8_t status) {
     case StepDiscKnob:
         ble->h_knob = ble->found_handle;
         // NimBLE puts the CCCD right after a notify characteristic's value.
-        if(ble->h_state && ble_central_subscribe(ble->h_state + 1, true)) {
+        if(ble->h_state && ossm_central_subscribe(ble->h_state + 1, true)) {
             ble->busy = true;
             set_step(ble, StepSubscribe);
             break;
@@ -303,7 +304,7 @@ static void setup_next(OssmApp* app, uint8_t status) {
     case StepSubscribe:
         // Same as RADR: BLE speed independent of the OSSM's own knob.
         if(ble->h_knob &&
-           ble_central_write(ble->h_knob, (const uint8_t*)"false", 5, true)) {
+           ossm_central_write(ble->h_knob, (const uint8_t*)"false", 5, true)) {
             ble->busy = true;
             set_step(ble, StepKnobOff);
             break;
@@ -345,7 +346,7 @@ static void handle_msg(OssmApp* app, BleMsg* msg) {
     OssmModel* m = &app->m;
 
     switch(msg->type) {
-    case BleCentralEventTypeAdvReport:
+    case OssmCentralEventTypeAdvReport:
         if(ble->step != StepScanning) break;
         if(msg->status) { // advertises the OSSM service
             memcpy(ble->peer, msg->addr, 6);
@@ -360,8 +361,8 @@ static void handle_msg(OssmApp* app, BleMsg* msg) {
             strlcpy(m->ossm_name, ble->peer_name, sizeof(m->ossm_name));
         }
         if(ble->have_peer) {
-            ble_central_scan_stop();
-            if(ble_central_connect(ble->peer, ble->peer_type)) {
+            ossm_central_scan_stop();
+            if(ossm_central_connect(ble->peer, ble->peer_type)) {
                 set_step(ble, StepConnecting);
                 m->link = LinkConnecting;
             } else {
@@ -370,30 +371,30 @@ static void handle_msg(OssmApp* app, BleMsg* msg) {
         }
         break;
 
-    case BleCentralEventTypeConnected:
+    case OssmCentralEventTypeConnected:
         set_step(ble, StepMtu);
-        if(ble_central_exchange_mtu()) {
+        if(ossm_central_exchange_mtu()) {
             ble->busy = true;
         } else {
             setup_next(app, 0);
         }
         break;
 
-    case BleCentralEventTypeConnectFailed:
+    case OssmCentralEventTypeConnectFailed:
         FURI_LOG_W(TAG, "Connect failed: %02X", msg->status);
         link_down(app, false);
         break;
 
-    case BleCentralEventTypeDisconnected:
+    case OssmCentralEventTypeDisconnected:
         FURI_LOG_I(TAG, "Disconnected: %02X", msg->status);
         link_down(app, true);
         break;
 
-    case BleCentralEventTypeCharFound:
+    case OssmCentralEventTypeCharFound:
         if(!ble->found_handle) ble->found_handle = msg->handle;
         break;
 
-    case BleCentralEventTypeNotification:
+    case OssmCentralEventTypeNotification:
         if(msg->handle == ble->h_state) {
             msg->data[msg->len < EVENT_DATA_MAX ? msg->len : EVENT_DATA_MAX - 1] = 0;
             const char* s = (const char*)msg->data;
@@ -405,7 +406,7 @@ static void handle_msg(OssmApp* app, BleMsg* msg) {
         }
         break;
 
-    case BleCentralEventTypeReadData:
+    case OssmCentralEventTypeReadData:
         if(ble->reading != ReadNone) {
             size_t room = READ_BUF_MAX - ble->read_len;
             size_t n = msg->len < room ? msg->len : room;
@@ -414,11 +415,11 @@ static void handle_msg(OssmApp* app, BleMsg* msg) {
         }
         break;
 
-    case BleCentralEventTypeGattError:
+    case OssmCentralEventTypeGattError:
         FURI_LOG_W(TAG, "GATT error %02X on %04X", msg->status, msg->handle);
         break;
 
-    case BleCentralEventTypeProcComplete:
+    case OssmCentralEventTypeProcComplete:
         if(ble->reading != ReadNone) finish_read(app);
         if(ble->step != StepUp) {
             setup_next(app, msg->status);
@@ -427,7 +428,7 @@ static void handle_msg(OssmApp* app, BleMsg* msg) {
         }
         break;
 
-    case BleCentralEventTypeMtu:
+    case OssmCentralEventTypeMtu:
         break;
     }
 }
@@ -454,7 +455,7 @@ static void cmd_push(OssmBle* ble, const char* cmd, bool front) {
 static void cmd_flush(OssmBle* ble) {
     while(ble->cmd_count && ble->step == StepUp && ble->h_command) {
         const char* cmd = ble->cmds[ble->cmd_head];
-        if(!ble_central_write(ble->h_command, (const uint8_t*)cmd, strlen(cmd), false)) {
+        if(!ossm_central_write(ble->h_command, (const uint8_t*)cmd, strlen(cmd), false)) {
             break; // TX pool full, try next tick
         }
         ble->cmd_head = (ble->cmd_head + 1) % CMD_QUEUE_LEN;
@@ -471,7 +472,7 @@ void ossm_link_start(OssmApp* app) {
     ble->events = furi_message_queue_alloc(16, sizeof(BleMsg));
     ble->want_scan = true;
     set_step(ble, StepIdle);
-    ble->acquired = ble_central_acquire(central_cb, ble);
+    ble->acquired = ossm_central_acquire(central_cb, ble);
     app->m.link = ble->acquired ? LinkIdle : LinkNoBridge;
     app->m.bridge_seen = ble->acquired;
     if(!ble->acquired) FURI_LOG_E(TAG, "BLE central not available on this firmware");
@@ -482,12 +483,12 @@ void ossm_link_stop(OssmApp* app) {
     if(ble->acquired) {
         // last chance to park the machine
         if(ble->step == StepUp && ble->h_command) {
-            ble_central_write(ble->h_command, (const uint8_t*)"set:speed:0", 11, false);
+            ossm_central_write(ble->h_command, (const uint8_t*)"set:speed:0", 11, false);
             furi_delay_ms(30);
-            ble_central_write(ble->h_command, (const uint8_t*)"go:menu", 7, false);
+            ossm_central_write(ble->h_command, (const uint8_t*)"go:menu", 7, false);
             furi_delay_ms(30);
         }
-        ble_central_release();
+        ossm_central_release();
     }
     furi_message_queue_free(ble->events);
     free(ble);
@@ -512,9 +513,9 @@ void ossm_link_send(OssmApp* app, const char* line) {
         if(ble->step == StepIdle) start_scan(app);
     } else if(strcmp(line, "DISC") == 0) {
         ble->want_scan = false;
-        ble_central_scan_stop();
-        ble_central_connect_cancel();
-        ble_central_disconnect();
+        ossm_central_scan_stop();
+        ossm_central_connect_cancel();
+        ossm_central_disconnect();
     } else if(strcmp(line, "PAT?") == 0) {
         ble->want_patterns = true;
     } else if(strcmp(line, "ST?") == 0) {
@@ -550,7 +551,7 @@ void ossm_link_poll(OssmApp* app) {
         break;
     case StepConnecting:
         if(now - ble->step_since > CONNECT_TIMEOUT_MS) {
-            ble_central_connect_cancel();
+            ossm_central_connect_cancel();
             link_down(app, false);
         }
         break;
@@ -568,7 +569,7 @@ void ossm_link_poll(OssmApp* app) {
         if(now - ble->last_rssi > RSSI_POLL_MS) {
             ble->last_rssi = now;
             int8_t rssi;
-            if(ble_central_get_rssi(&rssi)) app->m.rssi = rssi;
+            if(ossm_central_get_rssi(&rssi)) app->m.rssi = rssi;
         }
         app->m.bridge_last_rx = now;
         break;
@@ -576,7 +577,7 @@ void ossm_link_poll(OssmApp* app) {
         // Setting up: give up if the OSSM stops answering.
         if(now - ble->step_since > SETUP_TIMEOUT_MS) {
             FURI_LOG_W(TAG, "Setup stalled at step %d", ble->step);
-            ble_central_disconnect();
+            ossm_central_disconnect();
             link_down(app, false);
         }
         break;

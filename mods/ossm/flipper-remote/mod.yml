@@ -4,12 +4,13 @@ product: ossm
 description: >-
   A Flipper Zero app that drives a stock OSSM over Bluetooth like the RADR
   remote: play and pause, speed, depth, stroke, sensation, Stroke Engine
-  patterns, and a one-press emergency stop on Back. Needs a small patch to the
-  Flipper firmware (BLE central role); the OSSM firmware stays stock.
+  patterns, and a one-press emergency stop on Back. Runs on the
+  flipper-ble-scanner firmware (Momentum + ST Full radio stack); the OSSM
+  firmware stays stock.
 mod_version: 1
 compatibility:
   - OSSM with stock firmware (Bluetooth remote protocol, as used by RADR)
-  - Flipper Zero on official firmware 1.5.1 plus the included BLE central patch
+  - Flipper Zero on elhenro/flipper-ble-scanner firmware (Momentum dev d3f89dfe, Full BLE stack)
 images:
   - img/screens.png
   - img/control.png

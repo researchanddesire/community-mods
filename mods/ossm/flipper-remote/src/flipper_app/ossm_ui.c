@@ -128,7 +128,7 @@ static void draw_connect(Canvas* c, const OssmModel* m) {
         canvas_set_font(c, FontPrimary);
         canvas_draw_str_aligned(c, 64, 37, AlignCenter, AlignCenter, "Update your Flipper");
         canvas_set_font(c, FontSecondary);
-        canvas_draw_str_aligned(c, 64, 50, AlignCenter, AlignCenter, "Install the OSSM firmware");
+        canvas_draw_str_aligned(c, 64, 50, AlignCenter, AlignCenter, "Install the Full BLE stack");
         canvas_draw_str_aligned(c, 64, 59, AlignCenter, AlignCenter, "to talk to your OSSM");
     } else {
         // Ripples spreading out from the open source gear.

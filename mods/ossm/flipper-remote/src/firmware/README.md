@@ -1,53 +1,55 @@
-# Flipper firmware with the BLE central role
+# Flipper firmware: flipper-ble-scanner (Momentum + ST Full radio stack)
 
 The OSSM is a Bluetooth peripheral, like the Flipper. To connect to it, the
-Flipper has to act as a *central*. Stock Flipper firmware can't: it loads ST's
-"Light" radio stack, which ST documents as "GAP peripheral only".
+Flipper has to act as a *central*. Stock firmware can't: it loads ST's "Light"
+radio stack, which ST documents as "GAP peripheral only".
 
-The official firmware already supports ST's "Full" stack as a build option
-(`COPRO_STACK_TYPE=ble_full`). This patch switches to it and adds a small
-central / GATT client API for apps.
+This app runs on the firmware from
+[elhenro/flipper-ble-scanner](https://github.com/elhenro/flipper-ble-scanner)
+(GPL-3.0). That project:
 
-## What the patch changes (against official 1.5.1)
+- builds Momentum (pinned to dev `d3f89dfe`) with ST's **Full** BLE stack and
+  matching option bytes (`ob_full.data`);
+- turns on the observer and central roles in `gap.c` when the Full stack runs;
+- exports `furi_hal_bt_start_scan`, `furi_hal_bt_stop_scan` and
+  `furi_hal_bt_hci_command` (raw HCI/ACI) to apps. API 87.1 to 87.2.
 
-| File | Change |
-|---|---|
-| `fbt_options.py` | Build with `stm32wb5x_BLE_Stack_full_fw.bin`, `COPRO_STACK_TYPE = "ble_full"` |
-| `targets/f7/ble_glue/gap.c` | Init GAP as peripheral **and** central + observer when the Full stack is running |
-| `targets/f7/ble_glue/furi_ble/central.{h,c}` | New: scan, connect, discover, read, write, subscribe. Events go to the app through a callback |
-| `targets/f7/api_symbols.csv` | Exports `ble_central_*` to apps. API 88.2 to 88.3 |
+The OSSM app needs nothing else from the firmware. Its GATT client
+(`flipper_app/ossm_central.c`) is built on those three calls plus the existing
+`ble_event_dispatcher` hooks. There is no firmware patch of our own.
 
-Everything else (phone app pairing, BadUSB over BLE, the HID app) keeps
-working: the peripheral role is untouched and the central code only claims
-events for its own connection.
-
-## Build
-
-Use the official toolchain (fbt downloads it):
+## Build and flash (macOS or Linux, Flipper on USB, qFlipper closed)
 
 ```
-git clone --recursive --branch 1.5.1 https://github.com/flipperdevices/flipperzero-firmware
-cd flipperzero-firmware
-git apply /path/to/0001-ble-central-role.patch
-cp -r /path/to/flipper_app applications_user/ossm_remote
-./fbt COMPACT=1 DEBUG=0 updater_package
+git clone https://github.com/elhenro/flipper-ble-scanner
+cd flipper-ble-scanner
+git checkout 1d2564a                 # the version this app was written against
+./build.sh fw                        # fetch Momentum, apply the patch, build
+ln -s /path/to/src/flipper_app vendor/momentum/applications_user/ossm_remote
+cd vendor/momentum
+./fbt COPRO_STACK_TYPE=ble_full COPRO_STACK_BIN=stm32wb5x_BLE_Stack_full_fw.bin \
+      COPRO_OB_DATA=../../ob_full.data updater_package fap_ossm_remote
+cd ../..
+./build.sh flash-fw                  # first time: installs the Full radio stack + firmware
 ```
 
-The update package ends up in `dist/f7-C/`. Install it with qFlipper
-("Install from file", pick the `.tgz`) or copy the folder to the SD card's
-`update/` directory and run it from the Flipper's file browser. The update
-also flashes the Full radio stack, which takes a minute longer than usual.
+Then install the app: from `vendor/momentum`, run
+`./fbt COPRO_STACK_TYPE=ble_full COPRO_STACK_BIN=stm32wb5x_BLE_Stack_full_fw.bin COPRO_OB_DATA=../../ob_full.data launch APPSRC=applications_user/ossm_remote`.
+It lands in **Apps > Bluetooth > OSSM Remote**.
 
-The OSSM app gets built with it as `dist/f7-C/apps/Bluetooth/ossm_remote.fap`.
+If the updater stops at "Waiting for SD card" or "Manifest pointer error",
+use `./build.sh flash-dfu` once the radio stack is already Full (see that
+project's README). Check the stack with the CLI: `info device` should show
+`radio.stack.type: 1`.
 
 ## Going back
 
-Install any official release with qFlipper. It puts the Light stack back.
+Install official Momentum (or official firmware) with qFlipper or the web
+updater. That restores the Light stack. A normal Momentum update also removes
+the patch, so the OSSM app stops working until you reinstall this build.
 
 ## Trade-offs
 
-- The Full stack is about 36 KB bigger, so there is that much less flash for
-  the firmware itself. 1.5.1 with `COMPACT=1` is expected to fit; a build that
-  doesn't fit fails at link time rather than producing a broken image.
-- Apps built for this firmware (API 88.3) won't load on stock firmware, and
-  stock apps keep working here.
+- The Full stack is bigger, so there is less flash for the firmware itself.
+- Apps built for this firmware (API 87.2) need its exports. On stock firmware
+  the loader refuses the OSSM app.

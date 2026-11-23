@@ -6,35 +6,36 @@ patterns, and a one-press emergency stop. Nothing to plug in.
 
 ![screens](img/screens.png)
 
-## The one catch: it needs a patched Flipper firmware
+## The one catch: it needs the BLE-scanner firmware on the Flipper
 
 The OSSM is a Bluetooth *peripheral*: it advertises and waits for a remote to
 connect. To connect to it, the Flipper must be a *central*. Stock Flipper
 firmware ships ST's "Light" radio stack, which is peripheral-only, so it can't.
 
-`src/firmware/` has a small patch for official Flipper firmware 1.5.1 that
-switches to ST's "Full" stack (already a supported build option) and adds a
-central / GATT-client API for apps. The OSSM firmware stays stock. Details and
-build steps: [src/firmware/README.md](src/firmware/README.md).
-
-On stock Flipper firmware the app opens but shows "Update your Flipper".
+The app runs on the firmware from
+[elhenro/flipper-ble-scanner](https://github.com/elhenro/flipper-ble-scanner):
+Momentum built with ST's "Full" radio stack, which exports raw HCI access to
+apps. The app's own GATT client (`src/flipper_app/ossm_central.c`) sits on top
+of that, so there is no firmware patch here, and the OSSM firmware stays stock.
 
 ## Install
 
-1. Build the update package (below) or download it from the
-   `flipper-remote` workflow run's artifacts.
-2. Install it with qFlipper ("Install from file", pick the `.tgz`).
-3. The app is included: **Apps > Bluetooth > OSSM Remote**.
-
-Build from this folder:
+Flipper on USB, qFlipper closed, macOS or Linux. Full steps and how to go back:
+[src/firmware/README.md](src/firmware/README.md). In short:
 
 ```
-git clone --recursive --branch 1.5.1 https://github.com/flipperdevices/flipperzero-firmware fw
-cd fw
-git apply ../src/firmware/0001-ble-central-role.patch
-cp -r ../src/flipper_app applications_user/ossm_remote
-./fbt COMPACT=1 DEBUG=0 updater_package     # dist/f7-C/*.tgz
+git clone https://github.com/elhenro/flipper-ble-scanner && cd flipper-ble-scanner
+git checkout 1d2564a
+./build.sh fw                         # Momentum + scanner patch + Full stack
+cp -r <this folder>/src/flipper_app vendor/momentum/applications_user/ossm_remote
+(cd vendor/momentum && ./fbt COPRO_STACK_TYPE=ble_full \
+   COPRO_STACK_BIN=stm32wb5x_BLE_Stack_full_fw.bin COPRO_OB_DATA=../../ob_full.data \
+   updater_package fap_ossm_remote)
+./build.sh flash-fw                   # installs the Full radio stack + firmware
 ```
+
+The app shows up under **Apps > Bluetooth > OSSM Remote**. The `flipper-remote`
+workflow builds the same update package and uploads it as an artifact.
 
 ## Using it
 
@@ -63,14 +64,14 @@ cp -r ../src/flipper_app applications_user/ossm_remote
 
 ```
 src/flipper_app/    the FAP (C): ossm_remote.c (logic, input, ramped sending),
-                    ossm_ble.c (scan, connect, discover, commands), ossm_ui.c
-src/firmware/       patch for official Flipper firmware 1.5.1 (BLE central role)
+                    ossm_ble.c (OSSM link), ossm_central.c (BLE central over
+                    the firmware's raw HCI calls), ossm_ui.c
+src/firmware/       how to build and flash the BLE-scanner firmware with the app
 src/tools/          icon generator and a PC renderer for every screen
 docs/PROTOCOL.md    the OSSM Bluetooth protocol as the app uses it
 ```
 
 ## License
 
-The app and tools are MPL 2.0 like other software in this repo. The firmware
-patch modifies the Flipper Zero firmware, which is GPL-3.0, so the patch and
-any firmware built with it are GPL-3.0.
+The app and tools here follow this repo's license map. The firmware it runs on
+(flipper-ble-scanner, Momentum) is GPL-3.0 and is not included here.
