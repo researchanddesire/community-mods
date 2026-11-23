@@ -1,0 +1,3 @@
+# App icons are tiny and the firmware build reads them directly, so keep them
+# in plain git (a checkout without Git LFS would hand fbt pointer files).
+*.png -filter -diff -merge binary

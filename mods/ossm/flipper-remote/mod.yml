@@ -1,0 +1,35 @@
+title: OSSM Remote for Flipper Zero
+author: lucy-chapar
+product: ossm
+description: >-
+  A Flipper Zero app that drives a stock OSSM over Bluetooth like the RADR
+  remote: play and pause, speed, depth, stroke, sensation, Stroke Engine
+  patterns, and a one-press emergency stop on Back. Runs on the
+  flipper-ble-scanner firmware (Momentum + ST Full radio stack); the OSSM
+  firmware stays stock.
+mod_version: 1
+compatibility:
+  - OSSM with stock firmware (Bluetooth remote protocol, as used by RADR)
+  - Flipper Zero on elhenro/flipper-ble-scanner firmware (Momentum dev d3f89dfe, Full BLE stack)
+images:
+  - img/screens.png
+  - img/control.png
+  - img/connect.png
+  - img/stop.png
+license: CERN-OHL-S-2.0
+tags:
+  - remote
+  - flipper-zero
+  - bluetooth
+  - software
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: >-
+    Commands OSSM motion (speed, depth, stroke, patterns) over Bluetooth. Back
+    is an emergency stop on the control screen: it drops queued commands and
+    sends speed 0 then returns the OSSM to its menu. If the link drops, the
+    stock OSSM firmware ramps speed to 0 on its own. Leaving the app sends speed
+    0 and disconnects. Resume ramps speed up over about a second rather than
+    jumping. Test unloaded first and keep the OSSM's own controls in reach.

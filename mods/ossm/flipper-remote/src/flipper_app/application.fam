@@ -1,0 +1,14 @@
+App(
+    appid="ossm_remote",
+    name="OSSM Remote",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="ossm_remote_app",
+    requires=["gui", "notification", "bt"],
+    stack_size=4 * 1024,
+    fap_category="Bluetooth",
+    fap_icon="ossm_10px.png",
+    fap_icon_assets="images",
+    fap_version="2.0",
+    fap_author="Research and Desire",
+    fap_description="Bluetooth remote for the OSSM. Needs firmware with the BLE central role.",
+)

@@ -1,0 +1,49 @@
+name: Flipper OSSM remote
+
+on:
+  push:
+    paths:
+      - "mods/ossm/flipper-remote/src/**"
+      - ".github/workflows/flipper-remote.yml"
+  pull_request:
+    paths:
+      - "mods/ossm/flipper-remote/src/**"
+      - ".github/workflows/flipper-remote.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SCANNER_REF: 1d2564a
+      STACK: >-
+        COPRO_STACK_TYPE=ble_full
+        COPRO_STACK_BIN=stm32wb5x_BLE_Stack_full_fw.bin
+        COPRO_OB_DATA=../../ob_full.data
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: repo
+          lfs: true
+
+      - name: Fetch flipper-ble-scanner (Momentum + Full radio stack)
+        run: |
+          git clone https://github.com/elhenro/flipper-ble-scanner scanner
+          git -C scanner checkout "$SCANNER_REF"
+
+      - name: Build firmware (fetches Momentum, applies the scanner patch)
+        working-directory: scanner
+        run: ./build.sh fw
+
+      - name: Build the OSSM app and an update package that includes it
+        working-directory: scanner/vendor/momentum
+        run: |
+          cp -r "$GITHUB_WORKSPACE/repo/mods/ossm/flipper-remote/src/flipper_app" applications_user/ossm_remote
+          ./fbt $STACK updater_package fap_ossm_remote
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ossm-flipper-firmware
+          path: |
+            scanner/vendor/momentum/dist/f7-C/*.tgz
+            scanner/vendor/momentum/build/f7-firmware-C/.extapps/ossm_remote.fap
