@@ -10,7 +10,8 @@ Checks (structure, not taste):
   - folder depth is exactly mods/<product>/<author>/<mod_name>/
   - no whitespace in any path component under mods/
   - mod.yml + README.md present
-  - hosted mods: at least one CAD file in cad/ (a .step is required)
+  - hosted mods: at least one CAD file in cad/ (a .step is required), unless
+    it is a software-only mod (has src/ and no cad/), e.g. a remote app
   - external/linked mods (mod.yml has source_url): CAD not required here (files
     live upstream); license must be declared (enforced by schema)
   - at least one image in img/ (local file or a URL for external mods)
@@ -123,8 +124,12 @@ def lint_mod(mod_dir: str, validator: Draft7Validator) -> list[str]:
 
     is_external = bool(data.get("source_url"))
 
-    # CAD presence — only required for hosted mods (external files live upstream).
-    if not is_external:
+    # CAD presence — only required for hosted hardware mods. External files live
+    # upstream; software-only mods ship code in src/ and have no CAD.
+    is_software = os.path.isdir(os.path.join(mod_dir, "src")) and not os.path.isdir(
+        os.path.join(mod_dir, "cad")
+    )
+    if not is_external and not is_software:
         if not has_file_with_ext(os.path.join(mod_dir, "cad"), CAD_EXTS):
             errors.append(f"{rel}: cad/ must contain at least one CAD file (.step required)")
         elif not has_file_with_ext(os.path.join(mod_dir, "cad"), {".step", ".stp"}):

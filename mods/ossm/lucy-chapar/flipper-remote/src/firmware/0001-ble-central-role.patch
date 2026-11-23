@@ -1,0 +1,495 @@
+diff --git a/fbt_options.py b/fbt_options.py
+index a801c1c..8efd0a8 100644
+--- a/fbt_options.py
++++ b/fbt_options.py
+@@ -27,9 +27,9 @@ COPRO_CUBE_VERSION = "1.20.0"
+ COPRO_CUBE_DIR = "lib/stm32wb_copro"
+ 
+ # Default radio stack
+-COPRO_STACK_BIN = "stm32wb5x_BLE_Stack_light_fw.bin"
++COPRO_STACK_BIN = "stm32wb5x_BLE_Stack_full_fw.bin"
+ # Firmware also supports "ble_full", but it might not fit into debug builds
+-COPRO_STACK_TYPE = "ble_light"
++COPRO_STACK_TYPE = "ble_full"
+ 
+ # Leave 0 to let scripts automatically calculate it
+ COPRO_STACK_ADDR = "0x0"
+diff --git a/targets/f7/api_symbols.csv b/targets/f7/api_symbols.csv
+index f1ad28a..bd7f02f 100644
+--- a/targets/f7/api_symbols.csv
++++ b/targets/f7/api_symbols.csv
+@@ -1,5 +1,5 @@
+ entry,status,name,type,params
+-Version,+,88.2,,
++Version,+,88.3,,
+ Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
+ Header,+,applications/services/bt/bt_service/bt.h,,
+ Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
+@@ -262,6 +262,7 @@ Header,+,lib/toolbox/tar/tar_archive.h,,
+ Header,+,lib/toolbox/value_index.h,,
+ Header,+,lib/toolbox/varint.h,,
+ Header,+,lib/toolbox/version.h,,
++Header,+,targets/f7/ble_glue/furi_ble/central.h,,
+ Header,+,targets/f7/ble_glue/furi_ble/event_dispatcher.h,,
+ Header,+,targets/f7/ble_glue/furi_ble/gatt.h,,
+ Header,+,targets/f7/ble_glue/furi_ble/profile_interface.h,,
+@@ -724,6 +725,21 @@ Function,+,bit_lib_test_parity_32,_Bool,"uint32_t, BitLibParity"
+ Function,-,ble_app_deinit,void,
+ Function,-,ble_app_get_key_storage_buff,void,"uint8_t**, uint16_t*"
+ Function,-,ble_app_init,_Bool,
++Function,+,ble_central_acquire,_Bool,"BleCentralCallback, void*"
++Function,+,ble_central_connect,_Bool,"const uint8_t[6], uint8_t"
++Function,+,ble_central_connect_cancel,void,
++Function,+,ble_central_disconnect,_Bool,
++Function,+,ble_central_discover_char,_Bool,const uint8_t[16]
++Function,+,ble_central_exchange_mtu,_Bool,
++Function,+,ble_central_get_rssi,_Bool,int8_t*
++Function,+,ble_central_is_connected,_Bool,
++Function,+,ble_central_is_supported,_Bool,
++Function,+,ble_central_read,_Bool,uint16_t
++Function,+,ble_central_release,void,
++Function,+,ble_central_scan_start,_Bool,_Bool
++Function,+,ble_central_scan_stop,void,
++Function,+,ble_central_subscribe,_Bool,"uint16_t, _Bool"
++Function,+,ble_central_write,_Bool,"uint16_t, const uint8_t*, uint8_t, _Bool"
+ Function,-,ble_event_app_notification,BleEventFlowStatus,void*
+ Function,-,ble_event_dispatcher_init,void,
+ Function,-,ble_event_dispatcher_process_event,BleEventFlowStatus,void*
+diff --git a/targets/f7/ble_glue/furi_ble/central.c b/targets/f7/ble_glue/furi_ble/central.c
+new file mode 100644
+index 0000000..d873715
+--- /dev/null
++++ b/targets/f7/ble_glue/furi_ble/central.c
+@@ -0,0 +1,305 @@
++#include "central.h"
++#include "event_dispatcher.h"
++
++#include "app_common.h"
++#include <ble/ble.h>
++#include <furi.h>
++#include <furi_hal_bt.h>
++
++#define TAG "BleCentral"
++
++// 0.625 ms units
++#define SCAN_INTERVAL 0x0050 // 50 ms
++#define SCAN_WINDOW   0x0030 // 30 ms
++// 1.25 ms units
++#define CONN_INTERVAL_MIN 24 // 30 ms
++#define CONN_INTERVAL_MAX 40 // 50 ms
++// 10 ms units
++#define SUPERVISION_TIMEOUT 400 // 4 s
++
++typedef struct {
++    GapSvcEventHandler* handler;
++    BleCentralCallback callback;
++    void* context;
++    volatile bool scanning;
++    volatile bool connecting;
++    volatile bool connected;
++    volatile uint16_t conn_handle;
++} BleCentral;
++
++static BleCentral central;
++
++static void emit(BleCentralEvent* event) {
++    if(central.callback) central.callback(event, central.context);
++}
++
++// Raw HCI LE Advertising Report: Num_Reports, then for each report
++// Event_Type, Address_Type, Address[6], Length, Data[Length], RSSI.
++static void handle_adv_report(const uint8_t* p, uint8_t total_len) {
++    uint8_t num = p[0];
++    size_t off = 1;
++    for(uint8_t i = 0; i < num; i++) {
++        if(off + 9 > total_len) return;
++        BleCentralEvent event = {.type = BleCentralEventTypeAdvReport};
++        event.adv_type = p[off];
++        event.addr_type = p[off + 1];
++        memcpy(event.addr, &p[off + 2], 6);
++        event.data_len = p[off + 8];
++        if(off + 9 + event.data_len + 1 > total_len) return;
++        event.data = &p[off + 9];
++        event.rssi = (int8_t)p[off + 9 + event.data_len];
++        off += 10 + event.data_len;
++        emit(&event);
++    }
++}
++
++static BleEventAckStatus central_event_handler(void* packet, void* context) {
++    UNUSED(context);
++    hci_event_pckt* event_pckt = (hci_event_pckt*)(((hci_uart_pckt*)packet)->data);
++
++    switch(event_pckt->evt) {
++    case HCI_DISCONNECTION_COMPLETE_EVT_CODE: {
++        hci_disconnection_complete_event_rp0* ev =
++            (hci_disconnection_complete_event_rp0*)event_pckt->data;
++        if(central.connected && ev->Connection_Handle == central.conn_handle) {
++            central.connected = false;
++            BleCentralEvent event = {
++                .type = BleCentralEventTypeDisconnected, .status = ev->Reason};
++            emit(&event);
++            return BleEventAckFlowEnable; // not the peripheral link: keep it from gap
++        }
++    } break;
++
++    case HCI_LE_META_EVT_CODE: {
++        evt_le_meta_event* meta = (evt_le_meta_event*)event_pckt->data;
++        if(meta->subevent == HCI_LE_ADVERTISING_REPORT_SUBEVT_CODE) {
++            if(central.scanning) {
++                handle_adv_report(meta->data, event_pckt->plen - 1);
++                return BleEventAckFlowEnable;
++            }
++        } else if(
++            meta->subevent == HCI_LE_CONNECTION_COMPLETE_SUBEVT_CODE ||
++            meta->subevent == HCI_LE_ENHANCED_CONNECTION_COMPLETE_SUBEVT_CODE) {
++            // Both layouts start with Status, Connection_Handle, Role
++            hci_le_connection_complete_event_rp0* ev =
++                (hci_le_connection_complete_event_rp0*)meta->data;
++            if(ev->Role != HCI_ROLE_CENTRAL) break; // someone connected to us
++            central.connecting = false;
++            BleCentralEvent event = {0};
++            if(ev->Status == 0) {
++                central.conn_handle = ev->Connection_Handle;
++                central.connected = true;
++                event.type = BleCentralEventTypeConnected;
++                event.handle = ev->Connection_Handle;
++                memcpy(event.addr, ev->Peer_Address, 6);
++                event.addr_type = ev->Peer_Address_Type;
++            } else {
++                event.type = BleCentralEventTypeConnectFailed;
++                event.status = ev->Status;
++            }
++            emit(&event);
++            return BleEventAckFlowEnable;
++        }
++    } break;
++
++    case HCI_VENDOR_SPECIFIC_DEBUG_EVT_CODE: {
++        evt_blecore_aci* blue = (evt_blecore_aci*)event_pckt->data;
++        // Every GATT client event starts with Connection_Handle.
++        uint16_t conn_handle = blue->data[0] | (blue->data[1] << 8);
++        if(!central.connected || conn_handle != central.conn_handle) break;
++
++        BleCentralEvent event = {.handle = 0};
++        switch(blue->ecode) {
++        case ACI_ATT_EXCHANGE_MTU_RESP_VSEVT_CODE: {
++            aci_att_exchange_mtu_resp_event_rp0* ev =
++                (aci_att_exchange_mtu_resp_event_rp0*)blue->data;
++            event.type = BleCentralEventTypeMtu;
++            event.handle = ev->Server_RX_MTU;
++        } break;
++        case ACI_GATT_DISC_READ_CHAR_BY_UUID_RESP_VSEVT_CODE: {
++            // Value of a characteristic declaration:
++            // Properties(1) Value_Handle(2) UUID(16)
++            aci_gatt_disc_read_char_by_uuid_resp_event_rp0* ev =
++                (aci_gatt_disc_read_char_by_uuid_resp_event_rp0*)blue->data;
++            if(ev->Attribute_Value_Length < 3) return BleEventAckFlowEnable;
++            event.type = BleCentralEventTypeCharFound;
++            event.properties = ev->Attribute_Value[0];
++            event.handle = ev->Attribute_Value[1] | (ev->Attribute_Value[2] << 8);
++        } break;
++        case ACI_GATT_NOTIFICATION_VSEVT_CODE: {
++            aci_gatt_notification_event_rp0* ev = (aci_gatt_notification_event_rp0*)blue->data;
++            event.type = BleCentralEventTypeNotification;
++            event.handle = ev->Attribute_Handle;
++            event.data = ev->Attribute_Value;
++            event.data_len = ev->Attribute_Value_Length;
++        } break;
++        case ACI_ATT_READ_RESP_VSEVT_CODE:
++        case ACI_ATT_READ_BLOB_RESP_VSEVT_CODE: {
++            aci_att_read_resp_event_rp0* ev = (aci_att_read_resp_event_rp0*)blue->data;
++            event.type = BleCentralEventTypeReadData;
++            event.data = ev->Attribute_Value;
++            event.data_len = ev->Event_Data_Length;
++        } break;
++        case ACI_GATT_ERROR_RESP_VSEVT_CODE: {
++            aci_gatt_error_resp_event_rp0* ev = (aci_gatt_error_resp_event_rp0*)blue->data;
++            event.type = BleCentralEventTypeGattError;
++            event.handle = ev->Attribute_Handle;
++            event.status = ev->Error_Code;
++        } break;
++        case ACI_GATT_PROC_COMPLETE_VSEVT_CODE: {
++            aci_gatt_proc_complete_event_rp0* ev = (aci_gatt_proc_complete_event_rp0*)blue->data;
++            event.type = BleCentralEventTypeProcComplete;
++            event.status = ev->Error_Code;
++        } break;
++        case ACI_GATT_PROC_TIMEOUT_VSEVT_CODE:
++            event.type = BleCentralEventTypeProcComplete;
++            event.status = 0xFF;
++            break;
++        default:
++            return BleEventNotAck;
++        }
++        emit(&event);
++        return BleEventAckFlowEnable;
++    } break;
++
++    default:
++        break;
++    }
++    return BleEventNotAck;
++}
++
++bool ble_central_is_supported(void) {
++    return furi_hal_bt_is_alive() && furi_hal_bt_get_radio_stack() == FuriHalBtStackFull;
++}
++
++bool ble_central_acquire(BleCentralCallback callback, void* context) {
++    furi_check(callback);
++    if(!ble_central_is_supported()) return false;
++    if(central.handler) return false; // single user
++    central.callback = callback;
++    central.context = context;
++    central.scanning = false;
++    central.connecting = false;
++    central.connected = false;
++    central.handler = ble_event_dispatcher_register_svc_handler(central_event_handler, &central);
++    return true;
++}
++
++void ble_central_release(void) {
++    if(!central.handler) return;
++    ble_central_scan_stop();
++    ble_central_connect_cancel();
++    if(central.connected) {
++        aci_gap_terminate(central.conn_handle, 0x13); // remote user terminated
++        // wait briefly for the disconnection event so the link is really gone
++        for(int i = 0; i < 50 && central.connected; i++)
++            furi_delay_ms(10);
++        central.connected = false;
++    }
++    ble_event_dispatcher_unregister_svc_handler(central.handler);
++    central.handler = NULL;
++    central.callback = NULL;
++    central.context = NULL;
++}
++
++bool ble_central_scan_start(bool active) {
++    if(!central.handler || central.scanning) return false;
++    tBleStatus status = aci_gap_start_observation_proc(
++        SCAN_INTERVAL,
++        SCAN_WINDOW,
++        active ? 0x01 : 0x00,
++        CFG_IDENTITY_ADDRESS,
++        0x00, // report duplicates: we want RSSI updates
++        0x00); // accept all advertisers
++    if(status != BLE_STATUS_SUCCESS) {
++        FURI_LOG_E(TAG, "Scan start failed: %02X", status);
++        return false;
++    }
++    central.scanning = true;
++    return true;
++}
++
++void ble_central_scan_stop(void) {
++    if(!central.scanning) return;
++    central.scanning = false;
++    aci_gap_terminate_gap_proc(GAP_OBSERVATION_PROC);
++}
++
++bool ble_central_connect(const uint8_t addr[6], uint8_t addr_type) {
++    if(!central.handler || central.connected || central.connecting) return false;
++    tBleStatus status = aci_gap_create_connection(
++        SCAN_INTERVAL,
++        SCAN_WINDOW,
++        addr_type,
++        addr,
++        CFG_IDENTITY_ADDRESS,
++        CONN_INTERVAL_MIN,
++        CONN_INTERVAL_MAX,
++        0,
++        SUPERVISION_TIMEOUT,
++        0x0000,
++        0x0000);
++    if(status != BLE_STATUS_SUCCESS) {
++        FURI_LOG_E(TAG, "Connect failed: %02X", status);
++        return false;
++    }
++    central.connecting = true;
++    return true;
++}
++
++void ble_central_connect_cancel(void) {
++    if(!central.connecting) return;
++    central.connecting = false;
++    aci_gap_terminate_gap_proc(GAP_DIRECT_CONNECTION_ESTABLISHMENT_PROC);
++}
++
++bool ble_central_disconnect(void) {
++    if(!central.connected) return false;
++    return aci_gap_terminate(central.conn_handle, 0x13) == BLE_STATUS_SUCCESS;
++}
++
++bool ble_central_is_connected(void) {
++    return central.connected;
++}
++
++bool ble_central_get_rssi(int8_t* rssi) {
++    if(!central.connected) return false;
++    uint8_t value = 0;
++    if(hci_read_rssi(central.conn_handle, &value) != BLE_STATUS_SUCCESS) return false;
++    *rssi = (int8_t)value;
++    return true;
++}
++
++bool ble_central_exchange_mtu(void) {
++    if(!central.connected) return false;
++    return aci_gatt_exchange_config(central.conn_handle) == BLE_STATUS_SUCCESS;
++}
++
++bool ble_central_discover_char(const uint8_t uuid128[16]) {
++    if(!central.connected) return false;
++    UUID_t uuid;
++    memcpy(uuid.UUID_128, uuid128, 16);
++    return aci_gatt_disc_char_by_uuid(central.conn_handle, 0x0001, 0xFFFF, UUID_TYPE_128, &uuid) ==
++           BLE_STATUS_SUCCESS;
++}
++
++bool ble_central_read(uint16_t value_handle) {
++    if(!central.connected) return false;
++    return aci_gatt_read_long_char_value(central.conn_handle, value_handle, 0) ==
++           BLE_STATUS_SUCCESS;
++}
++
++bool ble_central_write(uint16_t value_handle, const uint8_t* data, uint8_t len, bool response) {
++    if(!central.connected) return false;
++    tBleStatus status = response ?
++                            aci_gatt_write_char_value(central.conn_handle, value_handle, len, data) :
++                            aci_gatt_write_without_resp(central.conn_handle, value_handle, len, data);
++    return status == BLE_STATUS_SUCCESS;
++}
++
++bool ble_central_subscribe(uint16_t cccd_handle, bool enable) {
++    if(!central.connected) return false;
++    uint8_t value[2] = {enable ? 0x01 : 0x00, 0x00};
++    return aci_gatt_write_char_desc(central.conn_handle, cccd_handle, 2, value) ==
++           BLE_STATUS_SUCCESS;
++}
+diff --git a/targets/f7/ble_glue/furi_ble/central.h b/targets/f7/ble_glue/furi_ble/central.h
+new file mode 100644
+index 0000000..d1b5dbd
+--- /dev/null
++++ b/targets/f7/ble_glue/furi_ble/central.h
+@@ -0,0 +1,102 @@
++/**
++ * @file central.h
++ * BLE central (GATT client) role for apps.
++ *
++ * Needs the "Full" BLE co-processor stack (COPRO_STACK_TYPE=ble_full).
++ * The stock "Light" stack is peripheral-only, and ble_central_is_supported()
++ * returns false there.
++ *
++ * Model: one outgoing connection at a time, alongside the Flipper's normal
++ * peripheral role. Every call is asynchronous and must be made from an app
++ * thread. Results arrive through the callback, which runs on the BLE event
++ * thread: copy what you need and return quickly. Event data pointers are only
++ * valid during the callback.
++ *
++ * Only one GATT procedure (discover, read, write with response, subscribe,
++ * MTU exchange) can run at a time; each ends with
++ * BleCentralEventTypeProcComplete. Writes without response are not
++ * procedures and can be sent at any time while connected.
++ */
++#pragma once
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++typedef enum {
++    BleCentralEventTypeAdvReport, /**< addr, addr_type, rssi, adv_type, data */
++    BleCentralEventTypeConnected, /**< conn_handle */
++    BleCentralEventTypeConnectFailed, /**< status */
++    BleCentralEventTypeDisconnected, /**< status = reason */
++    BleCentralEventTypeMtu, /**< handle = negotiated server RX MTU */
++    BleCentralEventTypeCharFound, /**< handle = value handle, properties */
++    BleCentralEventTypeNotification, /**< handle = attribute, data */
++    BleCentralEventTypeReadData, /**< data = next chunk of a (long) read */
++    BleCentralEventTypeGattError, /**< handle = attribute, status = ATT error */
++    BleCentralEventTypeProcComplete, /**< status = 0 on success */
++} BleCentralEventType;
++
++typedef struct {
++    BleCentralEventType type;
++    uint8_t addr[6];
++    uint8_t addr_type;
++    uint8_t adv_type;
++    int8_t rssi;
++    uint8_t status;
++    uint8_t properties;
++    uint16_t handle;
++    uint8_t data_len;
++    const uint8_t* data;
++} BleCentralEvent;
++
++typedef void (*BleCentralCallback)(const BleCentralEvent* event, void* context);
++
++/** True when the co-processor runs a stack with the central role. */
++bool ble_central_is_supported(void);
++
++/** Start receiving events. Must be balanced with ble_central_release(). */
++bool ble_central_acquire(BleCentralCallback callback, void* context);
++
++/** Stop scanning, drop the connection and stop receiving events. */
++void ble_central_release(void);
++
++/** Start scanning. Active scanning also returns scan responses. */
++bool ble_central_scan_start(bool active);
++
++void ble_central_scan_stop(void);
++
++/** Connect to a peer found while scanning. Stop the scan first. */
++bool ble_central_connect(const uint8_t addr[6], uint8_t addr_type);
++
++void ble_central_connect_cancel(void);
++
++bool ble_central_disconnect(void);
++
++bool ble_central_is_connected(void);
++
++/** Signal strength of the current connection, in dBm. */
++bool ble_central_get_rssi(int8_t* rssi);
++
++/** Ask for a bigger ATT MTU. Ends with Mtu then ProcComplete. */
++bool ble_central_exchange_mtu(void);
++
++/** Find characteristics with a 128-bit UUID (little-endian, as on air).
++ * Sends CharFound for each match, then ProcComplete. */
++bool ble_central_discover_char(const uint8_t uuid128[16]);
++
++/** Read a value of any length. Sends ReadData chunks, then ProcComplete. */
++bool ble_central_read(uint16_t value_handle);
++
++/** Write a value. With response it is a procedure (ProcComplete). Without
++ * response it returns false when the TX pool is full: try again later. */
++bool ble_central_write(uint16_t value_handle, const uint8_t* data, uint8_t len, bool response);
++
++/** Write the CCCD to turn notifications on or off. Ends with ProcComplete. */
++bool ble_central_subscribe(uint16_t cccd_handle, bool enable);
++
++#ifdef __cplusplus
++}
++#endif
+diff --git a/targets/f7/ble_glue/gap.c b/targets/f7/ble_glue/gap.c
+index 38fc5e4..78f64de 100644
+--- a/targets/f7/ble_glue/gap.c
++++ b/targets/f7/ble_glue/gap.c
+@@ -356,8 +356,13 @@ static void gap_init_svc(Gap* gap, const GapRootSecurityKeys* root_keys) {
+     // Initialize GAP interface
+     // Skip fist symbol AD_TYPE_COMPLETE_LOCAL_NAME
+     char* name = gap->service.adv_name + 1;
++    // The Full stack can also scan and connect out (see furi_ble/central.h).
++    uint8_t role = GAP_PERIPHERAL_ROLE;
++    if(furi_hal_bt_get_radio_stack() == FuriHalBtStackFull) {
++        role |= GAP_CENTRAL_ROLE | GAP_OBSERVER_ROLE;
++    }
+     aci_gap_init(
+-        GAP_PERIPHERAL_ROLE,
++        role,
+         0,
+         strlen(name),
+         &gap->service.gap_svc_handle,

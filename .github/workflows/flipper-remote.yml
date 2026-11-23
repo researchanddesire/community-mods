@@ -1,0 +1,50 @@
+name: Flipper OSSM remote
+
+on:
+  push:
+    paths:
+      - "mods/ossm/lucy-chapar/flipper-remote/src/**"
+      - ".github/workflows/flipper-remote.yml"
+  pull_request:
+    paths:
+      - "mods/ossm/lucy-chapar/flipper-remote/src/**"
+      - ".github/workflows/flipper-remote.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FW_TAG: "1.5.1"
+      MOD: repo/mods/ossm/lucy-chapar/flipper-remote/src
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: repo
+          lfs: true
+
+      - name: Check out Flipper firmware ${{ env.FW_TAG }}
+        run: |
+          git clone --depth 1 --recursive --shallow-submodules --branch "$FW_TAG" \
+            https://github.com/flipperdevices/flipperzero-firmware fw
+
+      - name: Apply BLE central patch and add the app
+        working-directory: fw
+        run: |
+          git apply "../$MOD/firmware/0001-ble-central-role.patch"
+          cp -r "../$MOD/flipper_app" applications_user/ossm_remote
+
+      - name: Build update package (Full radio stack)
+        working-directory: fw
+        run: ./fbt COMPACT=1 DEBUG=0 updater_package
+
+      - name: Build the app on its own
+        working-directory: fw
+        run: ./fbt COMPACT=1 DEBUG=0 fap_ossm_remote
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ossm-flipper-firmware
+          path: |
+            fw/dist/f7-C/*.tgz
+            fw/build/f7-firmware-C/.extapps/ossm_remote.fap

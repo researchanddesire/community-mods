@@ -44,6 +44,10 @@ Inside `<mod_name>/`:
 
 A starter is provided at [`mods/ossm/SAMPLE_AUTHOR/sample_mount/`](mods/ossm/SAMPLE_AUTHOR/sample_mount/) — copy it and edit.
 
+> **Software-only mods** (an app, a remote, a firmware patch) put their code in
+> `src/` and skip `cad/` and `print/`. They still need `img/`, `mod.yml` and
+> `README.md`. Code in `src/` is MPL 2.0.
+
 > The table above is for **hosted** mods. **External / linked** mods are lighter
 > — just `mod.yml` + `README.md` (no `cad/`/`print/` needed, files stay
 > upstream). See [§3b](#3b-linking-an-external-mod-how-to).
