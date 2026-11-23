@@ -1,45 +1,133 @@
-# AGENTS.md — community-mods
+# AGENTS.md — R+D Project Hub
 
-Guidance for agents working in the RAD community mods repository.
+Guidance for agents working in the Project Hub repository.
 
-## What this repo is
+## What this repository is
 
-Community-contributed mods for RAD products, one per folder at
-`mods/<product>/<author>/<mod_name>/` where `<product>` is one of
-`lockbox`, `dtt`, `ossm`, `radr`. The gallery at mods.researchanddesire.com is
-**generated** from this tree — never hand-edit a top-level index.
+This is a directory of independently maintained OSSM variants, controllers,
+software, hardware, accessories, tools, and projects in related ecosystems.
+Research and Desire hosts the directory; inclusion is not endorsement, safety
+certification, or warranty.
+
+Each project entry uses the catalog path
+`mods/<ecosystem>/<project_slug>/`, where `<ecosystem>` is `lockbox`, `dtt`,
+`ossm`, or `radr`. The gallery at mods.researchanddesire.com is generated from
+this tree. Never hand-edit a generated top-level gallery.
 
 ## Hard rules
 
-- Keep exactly the `mods/<product>/<author>/<mod_name>/` depth. No spaces in
-  names. No nesting deeper than `<mod_name>/`.
-- **Hosted mod:** must have a `cad/` file (STEP), at least one `img/` image, a
-  `README.md`, and a `mod.yml`. Print files go in `print/` (LFS). License is
-  **fixed**: hardware/printable → CERN-OHL-S v2; software → MPL 2.0;
-  docs/images → CERN-OHL-S v2. The root `LICENSE` path-map governs; `mod.yml`
-  must NOT set a `license`.
-- **External / linked mod:** files live in the author's own repo. `mod.yml` sets
-  `source_url:` (upstream) and `license:` (upstream SPDX id — may differ from the
-  default). No `cad/` required; an image URL is fine. Still no per-mod `LICENSE`
-  file. `mod-lint` requires `license` iff `source_url` is set.
-- Never add a per-mod `LICENSE` file in either case.
-- Fill the `mod.yml` `safety` block — never leave it blank. Set the
-  restraint-release / applied-force / electrical flags honestly.
-- `.github/workflows/scripts/mod.schema.json` is the **canonical** mod schema
-  (this repo is its only consumer — not vendored from dev-docs). Edit it
-  deliberately when the standard changes; `mod-lint` enforces it.
+- Keep exactly the `mods/<ecosystem>/<project_slug>/` catalog depth. Use no
+  spaces in those two catalog directory names and do not add another catalog
+  level below `<project_slug>`.
+- Keep each project slug unique within its ecosystem and stable when its
+  contributors or maintainers change. Record public responsibility and credit
+  in the `author` metadata field, not in the path.
+- Every project requires `mod.yml`, `README.md`, a non-empty `images` list, a
+  complete `safety` object, and a declared `license`.
+- In `license`, copy the license name used by the project, such as `MIT`,
+  `GPL-3.0-only`, or `CERN-OHL-S-2.0`. If the project has its own terms, use a
+  plain descriptive name such as `Community Use Terms`.
+- **Indexed project:** set `source_url` to the upstream project and `license` to
+  the same short license name used there. An upstream image URL is allowed. The
+  upstream repository keeps the license terms.
+- **Hosted OSSM project:** omit `source_url`, set `license` to exactly
+  `CERN-OHL-S-2.0`, and include at least one local image. These project files
+  use the repository license, so a separate project-local `LICENSE` is not
+  needed.
+- **Other hosted project:** omit `source_url`, enter its license name,
+  include at least one local image, and add the matching license text at the
+  project root as `LICENSE`.
+- CAD and source code are optional. A hosted project does not need a `cad/`,
+  STEP file, or source directory to qualify. Put print files in `print/` and
+  track applicable binaries through Git LFS.
+- Indexed projects may use any clearly stated upstream license; hosted projects
+  follow the ecosystem rules above.
+- Fill every `safety` flag honestly and keep `safety.notes` non-blank. Applied
+  force, restraint-release, and electrical or charging behavior require human
+  safety review.
+- `.github/workflows/scripts/mod.schema.json` is the canonical metadata schema.
+  Edit it deliberately when the standard changes; `mod-lint` enforces it.
 
-## mod.yml contract
+## Catalog interface
 
-Required keys: `title`, `author`, `product` (enum), `description`,
-`mod_version` (int ≥ 1), `compatibility` (non-empty list), `images` (non-empty
-list of paths or URLs), `safety` (object with the three boolean flags + `notes`).
-Optional: `tags`. External/linked mods add `source_url` (upstream repo) and
-`license` (upstream SPDX id) — `license` is required iff `source_url` is set, and
-forbidden otherwise. Full schema: `.github/workflows/scripts/mod.schema.json`.
+Use project-first and ecosystem-first wording in UI, documentation, reviews,
+and validation output. Preserve these stable technical interfaces:
+
+- catalog path: `mods/<ecosystem>/<project_slug>/mod.yml`
+- metadata filename: `mod.yml`
+- ecosystem key: `product`
+- catalog-entry version key: `mod_version`
+- validation command and script name: `mod-lint` / `mod_lint.py`
+
+These names apply equally to complete variants, controllers, software,
+hardware, accessories, tools, and mods.
+
+## `mod.yml` contract
+
+Required keys are `title`, `author`, `product` (ecosystem enum),
+`description`, `mod_version` (integer at least 1), `compatibility` (non-empty
+list), `license`, `images` (non-empty list of paths or URLs), and `safety` (the
+three boolean flags plus non-blank `notes`). `tags` is optional and free-form;
+keep the selection brief and specific, following the listing style guide below.
+`author` is the public name of the person, team, or community responsible for
+the project; it is not tied to a directory name. An indexed project also sets
+`source_url`; a hosted project omits it.
+
+Indexed and hosted submissions are first-class, equal contribution paths. Do
+not imply that indexed projects are warnings or lesser entries.
+
+## Listing style guide
+
+Write concise, practical listings. Lead with what the project does and why
+someone would want it. Use plain language, short sentences, and concrete
+benefits. Preserve the contributor's title and factual claims; use the upstream
+README as the starting point for indexed projects.
+
+Aim for 100–150 words, excluding download links. Use this structure when it fits
+the project:
+
+- One compact preview image, about 360 px wide, preserving its proportions and
+  fitting smaller screens. An HTML `img` with `width="360"` works in the gallery.
+- One short description.
+- Download or upstream source links on one line.
+- A few essential printing, installation, or usage bullets.
+- Brief credit and license information where needed.
+
+Include information needed to download, customize, print, install, or use the
+project. Omit CAD reconstruction history, design-process explanations, and
+detailed measurements unless they affect use. Avoid standalone validation or
+status sections, generic disclaimers, repeated caveats, and promotional language.
+
+Link directly to useful files, such as 3MF, FreeCAD, STEP, or software releases.
+Link supporting diagrams rather than displaying multiple large images. Do not
+add validation reports, color guides, or other documentation files unless the
+contributor requests them or they are needed to use the project.
+
+### Tags
+
+Choose a small set of short, specific tags, usually two to four. Use terms that
+identify a distinct feature, use case, fabrication method, or tool, such as
+`multicolor`, `freecad`, or `rs485`. Avoid generic labels such as `project` or
+`mod`, redundant synonyms, and repeating the ecosystem already stored in
+`product`. Do not pad the list to reach a count. Respect a contributor's explicit
+tag selection.
+
+Keep required metadata complete and factual. Safety notes should briefly
+describe the actual mechanical or electrical effects. Never invent
+compatibility, testing, or performance claims. The safety disclosure and human
+review requirements above still apply.
+
+Return ready-to-use listing copy and metadata without an explanation of writing
+choices unless requested.
 
 ## Validation
 
-`mod-lint` validates every mod's `mod.yml`, folder shape, and required files on
-PR. Run it locally with `python .github/workflows/scripts/mod_lint.py`. If it
-passes, the structure is good.
+Run the catalog validator with:
+
+```bash
+python .github/workflows/scripts/mod_lint.py
+```
+
+Also run its regression tests and build the generated gallery when changing the
+catalog contract or public project metadata. A passing `mod-lint` confirms the
+structure and metadata contract; it is not a safety certification.

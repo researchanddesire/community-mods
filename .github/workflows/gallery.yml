@@ -1,10 +1,12 @@
-name: Build Mod Hub gallery
+name: Build Project Hub gallery
 
 on:
   push:
     branches: [main]
     paths:
       - 'mods/**'
+      - 'examples/**'
+      - 'CONTRIBUTING.md'
       - '.github/workflows/scripts/build_gallery.py'
       - '.github/workflows/scripts/assets/**'
       - '.github/workflows/gallery.yml'
@@ -23,18 +25,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Gallery images are in Git; CAD/print LFS objects are not needed to build.
       - uses: actions/checkout@v4
-        with:
-          lfs: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - name: Install deps
-        run: pip install pyyaml markdown nh3
-      - name: Build gallery
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema markdown nh3
+      - name: Validate project catalog
+        run: python .github/workflows/scripts/mod_lint.py
+      - name: Run catalog regression tests
+        run: python -m unittest discover -s .github/workflows/scripts -p 'test_*.py'
+      - name: Read Pages URL
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Build project gallery
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
         run: python .github/workflows/scripts/build_gallery.py
-      - name: Add CNAME
-        run: echo 'mods.researchanddesire.com' > site/CNAME
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

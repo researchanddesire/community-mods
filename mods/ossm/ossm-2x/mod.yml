@@ -1,0 +1,33 @@
+title: OSSM 2X
+author: Research and Desire
+product: ossm
+description: >-
+  A continuous-belt OSSM actuator that trades about half the top speed for
+  approximately twice the output force, making it well suited to larger toys.
+mod_version: 2
+compatibility:
+  - OSSM 2X prototype with the default 57AIM30 motor and dual MGN12C blocks
+images:
+  - img/ossm-2x-built.png
+  - img/ossm-2x-render.png
+tags:
+  - variant
+  - actuator
+  - continuous-belt
+  - high-force
+  - nema23
+  - large-toys
+license: CERN-OHL-S-2.0
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: >-
+    This drivetrain is intended to approximately double applied force while
+    reducing top speed by about half; reduced speed is not a force limit. Test
+    unloaded first, use conservative motion limits, keep clear of belt and
+    pulley pinch points, and verify belt tracking, fasteners, secure mounting,
+    and emergency-stop operation before use. There is no dedicated belt
+    tensioner, and the side-loaded nut pockets in the supplied 3MF can allow
+    nuts to spin if printed with too few wall loops. Confirm motor and
+    controller compatibility before substituting the default motor.

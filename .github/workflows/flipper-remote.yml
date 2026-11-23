@@ -3,11 +3,11 @@ name: Flipper OSSM remote
 on:
   push:
     paths:
-      - "mods/ossm/lucy-chapar/flipper-remote/src/**"
+      - "mods/ossm/flipper-remote/src/**"
       - ".github/workflows/flipper-remote.yml"
   pull_request:
     paths:
-      - "mods/ossm/lucy-chapar/flipper-remote/src/**"
+      - "mods/ossm/flipper-remote/src/**"
       - ".github/workflows/flipper-remote.yml"
   workflow_dispatch:
 
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FW_TAG: "1.5.1"
-      MOD: repo/mods/ossm/lucy-chapar/flipper-remote/src
+      MOD: repo/mods/ossm/flipper-remote/src
     steps:
       - uses: actions/checkout@v4
         with:

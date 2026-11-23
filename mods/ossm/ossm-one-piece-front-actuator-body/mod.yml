@@ -1,0 +1,20 @@
+title: OSSM One-Piece Front Actuator Body
+author: Lucy Chapar
+product: ossm
+description: >-
+  A curved, one-piece OSSM front housing that removes one printed part,
+  two M3 bolts, and their nuts, with flush branding and separately
+  colorable R+D lettering and border.
+mod_version: 1
+compatibility:
+  - OSSM Body - Middle and RD branded Body - Cover reference geometry
+license: CERN-OHL-S-2.0
+images:
+  - img/front-body-preview.png
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: >-
+    Replaces the actuator housing and changes printed load-bearing geometry
+    and fastening features. Motor control and drive ratio are unchanged.

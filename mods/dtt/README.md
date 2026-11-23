@@ -1,7 +1,12 @@
-# Deep Throat Trainer mods
+# Deep Throat Trainer ecosystem projects
 
-Community mods for the [Deep Throat Trainer](https://github.com/researchanddesire/DT_Trainer).
+Projects related to the
+[Deep Throat Trainer ecosystem](https://github.com/researchanddesire/dtt),
+including variants, accessories, hardware, software, and tools.
 
-Add yours at `mods/dtt/<your-github-username>/<mod_name>/`. See the
-[contributing guide](../../CONTRIBUTING.md) and the
-[sample template](../ossm/SAMPLE_AUTHOR/sample_mount/).
+Index an upstream project or host one here at the catalog path
+`mods/dtt/<project_slug>/`. Project credit lives in the `author` metadata field,
+and both contribution paths are equal in the hub.
+
+See the [contributing guide](../../CONTRIBUTING.md) and the
+[sample entry](../../examples/hosted-ossm-project/).

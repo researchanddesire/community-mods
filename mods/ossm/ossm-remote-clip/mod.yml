@@ -1,0 +1,19 @@
+title: OSSM Remote Clip
+author: researchanddesire
+product: ossm
+description: Mount the RADR wireless remote on an OSSM extrusion frame with a bottom-release clip.
+mod_version: 1
+license: CERN-OHL-S-2.0
+compatibility:
+  - 'CAD reference: RADR V1.01 housing; physical fit unverified.'
+images:
+  - img/remote-clip-linework.png
+tags:
+  - wireless-remote
+  - extrusion-mount
+  - 3d-printing
+safety:
+  affects_restraint_release: false
+  affects_applied_force: false
+  affects_electrical: false
+  notes: Keep the remote controls and release tab accessible. Check mount retention before use; overtightening can crack the printed clip.

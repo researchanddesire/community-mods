@@ -1,31 +1,86 @@
-# Research and Desire — Community Mods License and Copyright Notices
+# Research and Desire Project Hub — License and Copyright Notice
 
-This repository hosts **community-contributed** modifications for Research and
-Desire products (Lockbox, Deep Throat Trainer, OSSM, RADR). Each mod is
-copyright its respective author.
+The R+D Project Hub catalogs independently maintained OSSM variants,
+controllers, software, hardware, accessories, and related projects. Copyright
+in contributed material remains with its respective rights holders unless
+stated otherwise. Inclusion in this catalog is not an endorsement, safety
+certification, or warranty by Research and Desire (R+D).
 
-Contributions are accepted **only** under the unified RAD license model — the
-same licenses as the products they modify. There is no contributor license
-choice; by submitting, you agree your contribution is licensed as below
-(see `CONTRIBUTING.md` and the required DCO sign-off).
+The technical paths and keys `mods/`, `mod.yml`, and `mod_version` do not
+determine the license. The following path and project-type rules do.
 
-## Path map
+## License map
 
-1. Hardware / printable design files — `mods/**/cad/`, `mods/**/print/`
-   (STEP, STL, 3MF, F3D, etc.) → **CERN-OHL-S v2**.
-   Full text: [`LICENSES/CERN-OHL-S-2.0.txt`](LICENSES/CERN-OHL-S-2.0.txt).
-2. Software / firmware — any code shipped inside a mod
-   (`mods/**/src/`, scripts, sketches) → **MPL 2.0**.
-   Full text: [`LICENSES/MPL-2.0.txt`](LICENSES/MPL-2.0.txt).
-3. Documentation and images within a mod (`README.md`, `mods/**/img/`,
-   `mods/**/docs/`) → **CERN-OHL-S v2** (travels with the hardware it documents).
-4. Repository tooling — `.github/`, `schemas`, lint/gallery scripts → **MPL 2.0**.
-5. Research and Desire / product branding and trademarks
-   (`Research and Desire`, `Lockbox`, `Chastity Lockbox`, `Deep Throat Trainer`,
-   `DT Trainer`, `OSSM`, `RADR`) → all rights reserved; remove from derivatives.
+1. **Hub-authored catalog material and general documentation** — original
+   project summaries, metadata, category guides, contribution guidance,
+   templates, and other general documentation authored for this repository are
+   licensed under **Creative Commons Attribution 4.0 International
+   (CC-BY-4.0)**. Full text:
+   [`LICENSES/CC-BY-4.0.txt`](LICENSES/CC-BY-4.0.txt).
+   This catalog-layer rule follows that material wherever it appears, including
+   catalog-only `mod.yml` metadata and hub-authored editorial summaries inside a
+   project directory. It does not relicense contributor-supplied project files,
+   project documentation, or quoted or linked upstream material.
 
-## Not warranted by RAD
+2. **Repository tooling** — workflows, schemas, lint and gallery scripts, tests,
+   and other software under `.github/` are licensed under **Mozilla Public
+   License 2.0 (MPL-2.0)**. Full text:
+   [`LICENSES/MPL-2.0.txt`](LICENSES/MPL-2.0.txt).
+   This grant expressly excludes the branding assets
+   `.github/workflows/scripts/assets/rad-logo.png` and
+   `.github/workflows/scripts/assets/project-hub-og.png`, which are owned by R+D.
+   Copyright and branding rights in those files remain with R+D.
 
-Mods in this repository are **community-maintained**. They are **not** official
-Research and Desire products and have **not** been safety-tested or certified by
-RAD. Use at your own risk. See `CONTRIBUTING.md` for the safety-review policy.
+3. **Hosted OSSM projects** — project content stored under
+   `mods/ossm/<project_slug>/` without a `source_url` is licensed under
+   **CERN Open Hardware Licence Version 2 — Strongly Reciprocal
+   (CERN-OHL-S-2.0)**. Subject to the catalog-layer exception in item 1, this
+   includes that hosted project's hardware, software, printable files,
+   project-authored documentation, and images. Full text:
+   [`LICENSES/CERN-OHL-S-2.0.txt`](LICENSES/CERN-OHL-S-2.0.txt). A hosted OSSM
+   project's `mod.yml` declares `license: CERN-OHL-S-2.0`. Its files are already
+   covered here, so a separate project-local license file is not needed.
+
+4. **Other hosted projects** — project content stored under another ecosystem
+   without a `source_url` is governed by the license name entered in its
+   `mod.yml` and the matching license text included at that project's root.
+   Subject to the catalog-layer exception in item 1, that project-specific
+   license governs the contributor-supplied files and documentation inside the
+   hosted project directory.
+
+5. **Indexed projects** — when `mod.yml` contains `source_url`, this repository
+   stores a catalog record and links to files maintained upstream; it does not
+   relicense those upstream files. Upstream content remains governed by the
+   license disclosed by its maintainer and identified in `mod.yml`. The
+   hub-authored catalog record itself is covered by CC-BY-4.0 as described
+   above. License files stay in the upstream source repository rather than
+   being copied into the local catalog directory.
+
+Only submit material you have permission to share under the project's license.
+
+Indexed projects may use any clearly stated upstream license. Hosted OSSM
+projects use CERN-OHL-S-2.0; other hosted projects may use any clearly stated
+terms. If a project uses its own terms, enter a plain descriptive name in
+`mod.yml`, such as `Community Use Terms`. When the project is hosted here,
+include the full terms in its project-root license file.
+
+## Names and trademarks
+
+The Hub uses **OSSM** as the name of a shared ecosystem with multiple
+independently maintained variants. This repository does not claim that OSSM is
+an R+D-owned trademark, and this notice makes no determination about rights
+that may be held by third parties.
+
+Research and Desire, R+D, and clearly R+D-owned names, logos, trade dress, and
+branding remain reserved. No copyright or open-source license in
+this repository grants trademark rights or permission to imply sponsorship,
+endorsement, or official status.
+
+## No warranty or safety certification
+
+Projects listed or hosted here are independently maintained. Unless a project
+explicitly says otherwise, it is not an official R+D release and has not been
+safety-tested or certified by R+D. Material is provided under the warranty and
+liability terms of its applicable license. Use and build projects at your own
+risk, verify safety controls, and follow the safety-review policy in
+`CONTRIBUTING.md`.

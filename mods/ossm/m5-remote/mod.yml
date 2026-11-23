@@ -1,0 +1,31 @@
+title: OSSM M5 Remote
+author: ortlof
+product: ossm
+description: >-
+  An independently maintained wireless M5Stack controller project for OSSM
+  builds running OSSM-Stroke (and other ESP-controlled toys), with touchscreen
+  control of speed, depth, and stroke.
+mod_version: 2
+compatibility:
+  - OSSM (requires ortlof's OSSM-Stroke firmware, not KinkyMakers firmware)
+  - M5Stack CoreS3 / CoreS3 SE
+  - M5Stack Core2
+# Indexed project: the design files live in the author's own repository. The
+# upstream license is declared here and the Project Hub links to those files.
+source_url: https://github.com/ortlof/OSSM-M5-Remote
+license: CC-BY-SA-4.0
+images:
+  - https://raw.githubusercontent.com/ortlof/OSSM-M5-Remote/master/image/remote.png
+tags:
+  - controller
+  - hardware
+  - firmware
+  - m5stack
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: >-
+    Commands OSSM motion (speed/depth/stroke) over the network and requires the
+    ortlof OSSM-Stroke firmware instead of KinkyMakers OSSM firmware. Treat as a
+    motion controller; verify e-stop / safe limits before use.

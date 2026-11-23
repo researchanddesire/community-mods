@@ -1,0 +1,34 @@
+title: KinkyMakers OSSM
+author: KinkyMakers
+product: ossm
+description: >-
+  An open-source OSSM variant built around a servo-powered, belt-driven linear
+  rail, with printable hardware, control electronics, firmware, and
+  software-defined stroke, depth, and speed.
+mod_version: 1
+compatibility:
+  - Standard build using 20–24 V DC power
+  - High-power build using up to 36 V DC power
+  - 57AIM30 motor and MGN12H linear rail
+  - OSSM PCB or supported ESP32 development board
+# Indexed project: the source lives in the maintainer's own repository. The
+# upstream license is declared here and the Project Hub links to those files.
+source_url: https://github.com/KinkyMakers/OSSM-hardware
+license: CERN-OHL-S-2.0
+images:
+  - https://raw.githubusercontent.com/KinkyMakers/OSSM-hardware/c1c70c3acef5ff5d891eb2d86b2c2a9e13f6d36c/assets/readme/ossm-banner.webp
+tags:
+  - variant
+  - hardware
+  - firmware
+  - 3d-printing
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: true
+  notes: >-
+    Powered linear actuator with upstream-stated force output up to 32 lb (14
+    kg) at 20 V DC and 50 lb (22 kg) in the 36 V high-power configuration;
+    higher voltage increases force. Verify low-voltage power wiring, actuator
+    rail orientation, mounting, e-stop operation, and safe motion limits before
+    use, and follow the upstream build and safety documentation.

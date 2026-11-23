@@ -1,0 +1,20 @@
+title: OSSM Folded Sheet Metal Stand
+author: Lucy Chapar
+product: ossm
+description: Freestanding folded-steel stand with a pivoting tube arm and PitClamp Mini mount.
+mod_version: 1
+compatibility:
+  - "PitClamp Mini Lower V1.1 (b7f01bf STEP, 70 mm pitch; CAD fit only)"
+license: CERN-OHL-S-2.0
+images:
+  - img/stand-preview.png
+tags:
+  - stand
+  - sheet-metal
+  - pitclamp
+  - prototype
+safety:
+  affects_restraint_release: false
+  affects_applied_force: true
+  affects_electrical: false
+  notes: "Carries actuator loads. Prototype; angle lock incomplete. Strength, stability and full-machine folding clearance are unverified."
